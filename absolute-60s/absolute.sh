@@ -11,7 +11,6 @@ do
   sed -i -e 's/^The /\t/' "$outfile" # replace articles
   sort -b -u -o "$outfile" "$outfile" # sort and de-dupe output
   sed -i -e 's/^\t/The /' "$outfile" # revert articles
-  chown 1000:1000 "$outfile" # set owner to non-root
   printf "Script run on $(date)\n"
   sleep 900 # sleep for 15 miutes
 done
