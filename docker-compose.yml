@@ -167,3 +167,10 @@ services:
     environment:
       - PGID=$PGID
       - PUID=$PUID
+  flexget:
+    build: flexget
+    container_name: flexget
+    volumes:
+      - $CONFDIR/flexget:/root/.flexget
+      - $POOLDIR:/output
+      - $DOWNDIR:/input
