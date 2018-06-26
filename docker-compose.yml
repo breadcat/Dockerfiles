@@ -174,3 +174,13 @@ services:
       - $CONFDIR/flexget:/root/.flexget
       - $POOLDIR:/output
       - $DOWNDIR:/input
+  the-epube: # docker exec -it the-epube php "/var/www/html/useradm.php" --add $(whoami)
+    build: the-epube
+    container_name: the-epube
+    volumes:
+      - $POOLDIR/literature/books:/home/fox/Books
+    networks:
+      - caddy
+    labels:
+      caddy.address: lib.$DOMAIN
+      caddy.targetport: "80"
