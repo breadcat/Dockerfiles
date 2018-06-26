@@ -1,0 +1,169 @@
+version: '2'
+
+networks:
+  caddy:
+    external: true
+
+services:
+  caddy:
+    image: lucaslorentz/caddy-docker-proxy
+    container_name: caddy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $CONFDIR/caddy:/root/.caddy
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - caddy
+  syncthing:
+    image: linuxserver/syncthing
+    container_name: syncthing
+    volumes:
+      - $CONFDIR/syncthing:/config
+      - $SYNCDIR:/vault
+      - $SAVEDIR:/saves
+    ports:
+      - 22000:22000
+      - 21027:21027/udp
+    environment:
+      - PGID=$PGID
+      - PUID=$PUID
+    networks:
+      - caddy
+    labels:
+      caddy.address: sync.$DOMAIN
+      caddy.targetport: "8384"
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+    volumes:
+      - $CONFDIR/transmission:/config
+      - $DOWNDIR:/downloads
+      - $SYNCDIR/watch:/watch
+    ports:
+      - 51413:51413
+      - 51413:51413/udp
+    environment:
+      - PGID=$PGID
+      - PUID=$PUID
+      - TZ=$TZ
+    networks:
+      - caddy
+    labels:
+      caddy.address: tor.$DOMAIN
+      caddy.targetport: "9091"
+  selfoss:
+    image: arckosfr/selfoss
+    container_name: selfoss
+    volumes:
+      - $CONFDIR/selfoss:/selfoss/data
+    environment:
+      - CRON_PERIOD=60m
+    networks:
+      - caddy
+    labels:
+      caddy.address: rss.$DOMAIN
+      caddy.targetport: "8080"
+      caddy.basicauth: / $NAME $PASS
+  baikal:
+    image: ckulka/baikal
+    container_name: baikal
+    volumes:
+      - $CONFDIR/baikal:/var/www/baikal/Specific
+    networks:
+      - caddy
+    labels:
+      caddy.address: dav.$DOMAIN
+      caddy.targetport: "80"
+  keeweb:
+    image: viossat/keeweb-webdav
+    container_name: keeweb
+    volumes:
+      - $SYNCDIR/pass:/var/www/html/webdav
+    environment:
+      - WEBDAV_USERNAME=$NAME
+      - WEBDAV_PASSWORD=$PASS
+    networks:
+      - caddy
+    labels:
+      caddy.address: pass.$DOMAIN
+      caddy.targetport: "80"
+  mumble:
+    image: coppit/mumble-server
+    container_name: mumble
+    restart: always
+    ports:
+      - 64738:64738
+      - 64738:64738/udp
+    volumes:
+      - $CONFDIR/mumble:/data
+  dir-pub:
+    image: corfr/h5ai
+    container_name: dir-pub
+    restart: always
+    volumes:
+      - $SYNCDIR/pub:/var/www
+    networks:
+      - caddy
+    labels:
+      caddy.address: pub.$DOMAIN
+      caddy.targetport: "80"
+  dir-repo:
+    image: corfr/h5ai
+    container_name: dir-repo
+    restart: always
+    volumes:
+      -  $POOLDIR:/var/www
+    networks:
+      - caddy
+    labels:
+      caddy.address: repo.$DOMAIN
+      caddy.targetport: "80"
+      caddy.basicauth_1: / $NAME $PASS
+      caddy.basicauth_2: / $ALTU $ALTP
+  cgit:
+    image: invokr/cgit
+    container_name: cgit
+    restart: always
+    volumes:
+      - $SYNCDIR/src:/git
+    networks:
+      - caddy
+    labels:
+      caddy.address: git.$DOMAIN
+      caddy.targetport: 80
+  ipd:
+    image: joshdvir/ipd
+    container_name: ipd
+    restart: always
+    command: bash -c "sed -i 's/feep.me/$DOMAIN/g' index.html && ipd --country-db GeoLite2-Country.mmdb --port-lookup --reverse-lookup --trusted-header X-Forwarded-For --template /root/index.html"
+    networks:
+      - caddy
+    labels:
+      caddy.address: ip.$DOMAIN
+      caddy.targetport: "8080"
+  php-dev:
+    image: php:apache
+    container_name: php-dev
+    restart: always
+    command: bash -c "a2enmod rewrite && apache2-foreground"
+    volumes:
+      - $SYNCDIR/src/dev:/var/www/html
+      - $SYNCDIR/pub/.fjournal/:/fj
+      - $SYNCDIR/pub/.weight/:/weight
+    networks:
+      - caddy
+    labels:
+      caddy.address: dev.$DOMAIN
+      caddy.targetport: 80
+  beets: # docker exec -it beets /bin/bash
+    image: linuxserver/beets
+    container_name: beets
+    volumes:
+      - $CONFDIR/beets:/config
+      - $DOWNDIR/complete:/downloads
+      - $POOLDIR/audio:/music
+    environment:
+      - PGID=$PGID
+      - PUID=$PUID
