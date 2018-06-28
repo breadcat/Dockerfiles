@@ -191,3 +191,8 @@ services:
     labels:
       caddy.address: lib.$DOMAIN
       caddy.targetport: "80"
+  kms-server:
+    build: kms-server
+    container_name: kms-server
+    ports:
+      - 1688:1688
