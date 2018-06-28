@@ -5,6 +5,13 @@ networks:
     external: true
 
 services:
+  watchtower:
+    image: v2tec/watchtower
+    container_name: watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --schedule "0 0 4 * * *" --cleanup
   caddy:
     image: lucaslorentz/caddy-docker-proxy
     container_name: caddy
