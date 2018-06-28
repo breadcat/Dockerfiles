@@ -87,7 +87,7 @@ services:
     image: viossat/keeweb-webdav
     container_name: keeweb
     volumes:
-      - $SYNCDIR/pass:/var/www/html/webdav
+      - $CONFDIR/keeweb:/var/www/html/webdav
     environment:
       - WEBDAV_USERNAME=$NAME
       - WEBDAV_PASSWORD=$PASS
