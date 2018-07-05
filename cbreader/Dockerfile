@@ -1,4 +1,7 @@
 
+# to resolve broken comic covers, you can grab the firsts issue via:
+# for i in /comics/*; do cd "$i" && wget -O cover.jpg "ADDRESS/api.php?get=cover&comic=$(pwd | sed 's#.*/##')&issue=$(ls | head -1)" && cd .. ; done
+
 # base image
 FROM php:apache
 MAINTAINER Peter <peter@minskio.co.uk>
