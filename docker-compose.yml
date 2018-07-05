@@ -181,6 +181,18 @@ services:
       - $CONFDIR/flexget:/root/.flexget
       - $POOLDIR:/output
       - $DOWNDIR:/input
+  cbreader:
+    build: cbreader
+    container_name: cbreader
+    volumes:
+      - $POOLDIR/literature/comics:/comics
+    networks:
+      - caddy
+    labels:
+      caddy.address: cbr.$DOMAIN
+      caddy.targetport: "80"
+      caddy.basicauth_1: / $NAME $PASS
+      caddy.basicauth_2: / $ALTU $ALTP
   pico-cms:
     build: pico-cms
     container_name: pico-cms
