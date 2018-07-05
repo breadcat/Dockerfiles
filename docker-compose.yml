@@ -181,6 +181,17 @@ services:
       - $CONFDIR/flexget:/root/.flexget
       - $POOLDIR:/output
       - $DOWNDIR:/input
+  pico-cms:
+    build: pico-cms
+    container_name: pico-cms
+    volumes:
+      - $SYNCDIR/docs/blog:/var/www/html/content
+      - $CONFDIR/pico:/var/www/html/config
+    networks:
+      - caddy
+    labels:
+      caddy.address: blog.$DOMAIN www.$DOMAIN $DOMAIN
+      caddy.targetport: "80"
   the-epube: # docker exec -it the-epube php "/var/www/html/useradm.php" --add $(whoami)
     build: the-epube
     container_name: the-epube
