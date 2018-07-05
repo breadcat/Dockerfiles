@@ -181,6 +181,8 @@ services:
       - $CONFDIR/flexget:/root/.flexget
       - $POOLDIR:/output
       - $DOWNDIR:/input
+    networks:
+      - caddy
   cbreader:
     build: cbreader
     container_name: cbreader
