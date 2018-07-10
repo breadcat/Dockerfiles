@@ -8,7 +8,6 @@ services:
   watchtower:
     image: v2tec/watchtower
     container_name: watchtower
-    restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --schedule "0 0 4 * * *" --cleanup
@@ -99,7 +98,6 @@ services:
   mumble:
     image: coppit/mumble-server
     container_name: mumble
-    restart: always
     ports:
       - 64738:64738
       - 64738:64738/udp
@@ -108,7 +106,6 @@ services:
   dir-pub:
     image: corfr/h5ai
     container_name: dir-pub
-    restart: always
     volumes:
       - $SYNCDIR/pub:/var/www
     networks:
@@ -119,7 +116,6 @@ services:
   dir-repo:
     image: corfr/h5ai
     container_name: dir-repo
-    restart: always
     volumes:
       -  $POOLDIR:/var/www
     networks:
@@ -132,7 +128,6 @@ services:
   cgit:
     image: invokr/cgit
     container_name: cgit
-    restart: always
     volumes:
       - $SYNCDIR/src:/git
     networks:
@@ -143,7 +138,6 @@ services:
   ipd:
     image: joshdvir/ipd
     container_name: ipd
-    restart: always
     command: bash -c "sed -i 's/feep.me/$DOMAIN/g' index.html && ipd --country-db GeoLite2-Country.mmdb --port-lookup --reverse-lookup --trusted-header X-Forwarded-For --template /root/index.html"
     networks:
       - caddy
@@ -153,7 +147,6 @@ services:
   php-dev:
     image: php:apache
     container_name: php-dev
-    restart: always
     command: bash -c "a2enmod rewrite && apache2-foreground"
     volumes:
       - $SYNCDIR/src/dev:/var/www/html
