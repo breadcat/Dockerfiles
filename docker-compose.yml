@@ -156,7 +156,7 @@ services:
       - caddy
     labels:
       caddy.address: dev.$DOMAIN
-      caddy.targetport: 80
+      caddy.targetport: "80"
   beets: # docker exec -it beets /bin/bash
     image: linuxserver/beets
     container_name: beets
