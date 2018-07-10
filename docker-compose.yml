@@ -134,7 +134,7 @@ services:
       - caddy
     labels:
       caddy.address: git.$DOMAIN
-      caddy.targetport: 80
+      caddy.targetport: "80"
   ipd:
     image: joshdvir/ipd
     container_name: ipd
