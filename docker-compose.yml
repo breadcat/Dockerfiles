@@ -233,3 +233,21 @@ services:
       caddy.address: tv.$DOMAIN
       caddy.targetport: "8989"
       caddy.basicauth: / $NAME $PASS
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    environment:
+      - PGID=$PGID
+      - PUID=$PUID
+      - TZ=$TZ
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - $CONFDIR/radarr:/config
+      - $POOLDIR/videos/movies:/movies
+      - $DOWNDIR/complete:/downloads
+    networks:
+      - caddy
+    labels:
+      caddy.address: mov.$DOMAIN
+      caddy.targetport: "7878"
+      caddy.basicauth: / $NAME $PASS
