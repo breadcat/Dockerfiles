@@ -8,12 +8,14 @@ services:
   watchtower:
     image: v2tec/watchtower
     container_name: watchtower
+    restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --schedule "0 0 4 * * *" --cleanup
   caddy:
     image: lucaslorentz/caddy-docker-proxy
     container_name: caddy
+    restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - $CONFDIR/caddy:/root/.caddy
@@ -25,6 +27,7 @@ services:
   syncthing:
     image: linuxserver/syncthing
     container_name: syncthing
+    restart: always
     volumes:
       - $CONFDIR/syncthing:/config
       - $SYNCDIR:/vault
@@ -43,6 +46,7 @@ services:
   transmission:
     image: linuxserver/transmission
     container_name: transmission
+    restart: always
     volumes:
       - $CONFDIR/transmission:/config
       - $DOWNDIR:/downloads
@@ -63,6 +67,7 @@ services:
   selfoss:
     image: arckosfr/selfoss
     container_name: selfoss
+    restart: always
     volumes:
       - $CONFDIR/selfoss:/selfoss/data
     environment:
@@ -76,6 +81,7 @@ services:
   baikal:
     image: ckulka/baikal
     container_name: baikal
+    restart: always
     volumes:
       - $CONFDIR/baikal:/var/www/baikal/Specific
     networks:
@@ -86,6 +92,7 @@ services:
   keeweb:
     image: viossat/keeweb-webdav
     container_name: keeweb
+    restart: always
     volumes:
       - $CONFDIR/keeweb:/var/www/html/webdav
     environment:
@@ -99,6 +106,7 @@ services:
   mumble:
     image: coppit/mumble-server
     container_name: mumble
+    restart: always
     ports:
       - 64738:64738
       - 64738:64738/udp
@@ -107,6 +115,7 @@ services:
   dir-pub:
     image: corfr/h5ai
     container_name: dir-pub
+    restart: always
     volumes:
       - $SYNCDIR/pub:/var/www
     networks:
@@ -117,6 +126,7 @@ services:
   dir-repo:
     image: corfr/h5ai
     container_name: dir-repo
+    restart: always
     volumes:
       -  $POOLDIR:/var/www
     networks:
@@ -129,6 +139,7 @@ services:
   cgit:
     image: invokr/cgit
     container_name: cgit
+    restart: always
     volumes:
       - $SYNCDIR/src:/git
     networks:
@@ -139,6 +150,7 @@ services:
   ipd:
     image: joshdvir/ipd
     container_name: ipd
+    restart: always
     command: bash -c "sed -i 's/feep.me/$DOMAIN/g' index.html && ipd --country-db GeoLite2-Country.mmdb --port-lookup --reverse-lookup --trusted-header X-Forwarded-For --template /root/index.html"
     networks:
       - caddy
@@ -149,6 +161,7 @@ services:
     image: php:apache
     container_name: php-dev
     command: bash -c "a2enmod rewrite && apache2-foreground"
+    restart: always
     volumes:
       - $SYNCDIR/src/dev:/var/www/html
       - $SYNCDIR/pub/.fjournal/:/fj
@@ -171,6 +184,7 @@ services:
   cbreader:
     build: cbreader
     container_name: cbreader
+    restart: always
     volumes:
       - $POOLDIR/literature/comics:/comics
     networks:
@@ -183,6 +197,7 @@ services:
   pico-cms:
     build: pico-cms
     container_name: pico-cms
+    restart: always
     volumes:
       - $SYNCDIR/docs/blog:/var/www/html/content
       - $CONFDIR/pico:/var/www/html/config
@@ -194,6 +209,7 @@ services:
   the-epube: # docker exec -it the-epube php "/var/www/html/useradm.php" --add $(whoami)
     build: the-epube
     container_name: the-epube
+    restart: always
     volumes:
       - $POOLDIR/literature/books:/home/fox/Books
     networks:
@@ -204,6 +220,7 @@ services:
   kms-server:
     build: kms-server
     container_name: kms-server
+    restart: always
     ports:
       - 1688:1688
   sonarr:
