@@ -237,3 +237,27 @@ services:
     environment:
       - PGID=$PGID
       - PUID=$PUID
+  pihole:
+    image: pihole/pihole
+    container_name: pihole
+    restart: always
+    volumes:
+      - $CONFDIR/pihole/config:/etc/pihole
+      - $CONFDIR/pihole/dnsmasq:/etc/dnsmasq.d
+    environment:
+      - ServerIP=$IPEXT
+      - TZ=$TZ
+      - WEBPASSWORD=$PASS
+      - DNS1=1.1.1.1
+      - DNS2=8.8.8.8
+    ports:
+      - 53:53
+      - 53:53/udp
+      - 67:67/udp
+      - 9053:80
+      - 9054:443
+    networks:
+      - caddy
+    labels:
+      caddy.address: dns.$DOMAIN
+      caddy.targetport: "80"
