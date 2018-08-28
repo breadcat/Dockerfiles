@@ -15,6 +15,15 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --schedule "0 0 4 * * *" --cleanup
+  sslh:
+    image: shaddysignal/sslh-hub
+    container_name: sslh
+    restart: always
+    ports:
+      - 443:443
+    environment:
+      - SSH_HOST=$IPLOC
+      - HTTPS_HOST=$IPLOC
   caddy:
     image: lucaslorentz/caddy-docker-proxy
     container_name: caddy
@@ -24,7 +33,7 @@ services:
       - $CONFDIR/caddy:/root/.caddy
     ports:
       - 80:80
-      - 443:443
+      - 8443:443
     networks:
       - caddy
   syncthing:
