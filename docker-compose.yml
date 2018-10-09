@@ -8,6 +8,10 @@ networks:
     external: true
 
 services:
+
+  # services
+  # todo: archisteamfarm alarmclock ddns defile huginn kodi-headless openvpn/pritunl owntracks/ulogger ps3netsrv tpb-proxy wallboard minecraft mpd
+
   watchtower:
     image: v2tec/watchtower
     container_name: watchtower
@@ -184,16 +188,6 @@ services:
     labels:
       caddy.address: dev.$DOMAIN
       caddy.targetport: "80"
-  beets: # docker exec -it beets /bin/bash
-    image: linuxserver/beets
-    container_name: beets
-    volumes:
-      - $CONFDIR/beets:/config
-      - $DOWNDIR/complete:/downloads
-      - $POOLDIR/audio:/music
-    environment:
-      - PGID=$PGID
-      - PUID=$PUID
   cbreader:
     build: cbreader
     container_name: cbreader
@@ -271,3 +265,22 @@ services:
     labels:
       caddy.address: dns.$DOMAIN
       caddy.targetport: "80"
+    
+
+  # applications
+  # todo: debian plowshare ripme snapraid makemkv magnet2torrent
+
+  beets: # docker exec -it beets /bin/bash
+    image: linuxserver/beets
+    container_name: beets
+    volumes:
+      - $CONFDIR/beets:/config
+      - $DOWNDIR/complete:/downloads
+      - $POOLDIR/audio:/music
+    environment:
+      - PGID=$PGID
+      - PUID=$PUID
+  nano-vanity:
+    build: nano-vanity
+    container_name: nano-vanity
+
