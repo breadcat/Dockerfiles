@@ -252,6 +252,16 @@ services:
     networks:
       - caddy
     labels:
+  minecraft:
+    image: itzg/minecraft-server
+    container_name: minecraft
+    restart: unless-stopped
+    ports:
+      - 25565:25565
+    environment:
+      - EULA=TRUE
+    volumes:
+      - $CONFDIR/minecraft:/data
     
 
   # applications
