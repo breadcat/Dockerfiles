@@ -249,9 +249,19 @@ services:
     restart: unless-stopped
     ports:
       - 69:69/udp
+  paperless:
+    image: danielquinn/paperless
+    container_name: paperless
+    volumes:
+      - $CONFDIR/paperwork/incoming:/consume
+      - $CONFDIR/paperwork/outgoing:/export
+      - $CONFDIR/paperwork/data:/usr/src/paperless/data
+      - $CONFDIR/paperwork/media:/usr/src/paperless/media
     networks:
       - caddy
     labels:
+      caddy.address: docs.$DOMAIN
+      caddy.targetport: "8000"
   minecraft:
     image: itzg/minecraft-server
     container_name: minecraft
