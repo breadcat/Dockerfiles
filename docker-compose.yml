@@ -241,7 +241,12 @@ services:
     environment:
       - PGID=$PGID
       - PUID=$PUID
+  netboot:
+    image: rjocoleman/netboot.xyz
+    container_name: netboot
+    restart: unless-stopped
     ports:
+      - 69:69/udp
     networks:
       - caddy
     labels:
