@@ -15,14 +15,14 @@ services:
   watchtower:
     image: v2tec/watchtower
     container_name: watchtower
-    restart: always
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --schedule "0 0 4 * * *" --cleanup
   sslh:
     image: shaddysignal/sslh-hub
     container_name: sslh
-    restart: always
+    restart: unless-stopped
     ports:
       - 443:443
     environment:
@@ -31,7 +31,7 @@ services:
   caddy:
     image: lucaslorentz/caddy-docker-proxy
     container_name: caddy
-    restart: always
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - $CONFDIR/caddy:/root/.caddy
@@ -43,7 +43,7 @@ services:
   syncthing:
     image: linuxserver/syncthing
     container_name: syncthing
-    restart: always
+    restart: unless-stopped
     volumes:
       - $CONFDIR/syncthing:/config
       - $SYNCDIR:/vault
@@ -62,7 +62,7 @@ services:
   transmission:
     image: linuxserver/transmission
     container_name: transmission
-    restart: always
+    restart: unless-stopped
     volumes:
       - $CONFDIR/transmission:/config
       - $DOWNDIR:/downloads
@@ -83,7 +83,7 @@ services:
   selfoss:
     image: arckosfr/selfoss
     container_name: selfoss
-    restart: always
+    restart: unless-stopped
     volumes:
       - $CONFDIR/selfoss:/selfoss/data
     environment:
@@ -97,7 +97,7 @@ services:
   baikal:
     image: ckulka/baikal
     container_name: baikal
-    restart: always
+    restart: unless-stopped
     volumes:
       - $CONFDIR/baikal:/var/www/baikal/Specific
     networks:
@@ -108,7 +108,7 @@ services:
   keeweb:
     image: viossat/keeweb-webdav
     container_name: keeweb
-    restart: always
+    restart: unless-stopped
     volumes:
       - $CONFDIR/keeweb:/var/www/html/webdav
     environment:
@@ -122,7 +122,7 @@ services:
   mumble:
     image: coppit/mumble-server
     container_name: mumble
-    restart: always
+    restart: unless-stopped
     ports:
       - 64738:64738
       - 64738:64738/udp
@@ -131,7 +131,7 @@ services:
   dir-pub:
     image: corfr/h5ai
     container_name: dir-pub
-    restart: always
+    restart: unless-stopped
     volumes:
       - $SYNCDIR/pub:/var/www
     networks:
@@ -142,7 +142,7 @@ services:
   dir-repo:
     image: corfr/h5ai
     container_name: dir-repo
-    restart: always
+    restart: unless-stopped
     command: bash -c "sed -i 's|\"^_h5ai\"|\"^_h5ai\", \"lost\\\\\\\+found\"|' /usr/share/h5ai/_h5ai/private/conf/options.json && supervisord -c /etc/supervisor/conf.d/supervisord.conf"
     volumes:
       -  $POOLDIR:/var/www
@@ -156,7 +156,7 @@ services:
   cgit:
     image: invokr/cgit
     container_name: cgit
-    restart: always
+    restart: unless-stopped
     volumes:
       - $SYNCDIR/src:/git
     networks:
@@ -167,7 +167,7 @@ services:
   ipd:
     image: joshdvir/ipd
     container_name: ipd
-    restart: always
+    restart: unless-stopped
     command: bash -c "sed -i 's/feep.me/$DOMAIN/g' index.html && ipd --country-db GeoLite2-Country.mmdb --port-lookup --reverse-lookup --trusted-header X-Forwarded-For --template /root/index.html"
     networks:
       - caddy
@@ -178,7 +178,7 @@ services:
     image: php:apache
     container_name: php-dev
     command: bash -c "a2enmod rewrite && apache2-foreground"
-    restart: always
+    restart: unless-stopped
     volumes:
       - $SYNCDIR/src/dev:/var/www/html
       - $SYNCDIR/pub/.fjournal/:/fj
@@ -191,7 +191,7 @@ services:
   cbreader:
     build: cbreader
     container_name: cbreader
-    restart: always
+    restart: unless-stopped
     volumes:
       - $POOLDIR/literature/comics:/comics
     networks:
@@ -204,7 +204,7 @@ services:
   pico-cms:
     build: pico-cms
     container_name: pico-cms
-    restart: always
+    restart: unless-stopped
     volumes:
       - $SYNCDIR/docs/blog:/var/www/html/content
       - $CONFDIR/pico:/var/www/html/config
@@ -216,7 +216,7 @@ services:
   the-epube: # docker exec -it the-epube php "/var/www/html/useradm.php" --add $(whoami)
     build: the-epube
     container_name: the-epube
-    restart: always
+    restart: unless-stopped
     volumes:
       - $POOLDIR/literature/books:/home/fox/Books
     networks:
@@ -227,13 +227,13 @@ services:
   kms-server:
     build: kms-server
     container_name: kms-server
-    restart: always
+    restart: unless-stopped
     ports:
       - 1688:1688
   flexget:
     image: activ/arch-flexget
     container_name: flexget
-    restart: always
+    restart: unless-stopped
     volumes:
       - $CONFDIR/flexget:/config
       - $DOWNDIR/complete:/input
