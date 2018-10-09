@@ -88,6 +88,8 @@ services:
       - $CONFDIR/selfoss:/selfoss/data
     environment:
       - CRON_PERIOD=60m
+      - GID=$PGID
+      - UID=$PUID
     networks:
       - caddy
     labels:
