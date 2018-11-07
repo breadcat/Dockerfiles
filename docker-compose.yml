@@ -203,13 +203,13 @@ services:
       caddy.targetport: "80"
       caddy.basicauth_1: / $NAME $PASS
       caddy.basicauth_2: / $ALTU $ALTP
-  pico-cms:
-    build: pico-cms
-    container_name: pico-cms
+  bludit:
+    image: bludit/docker
+    container_name: bludit
     restart: unless-stopped
     volumes:
-      - $SYNCDIR/docs/blog:/var/www/html/content
-      - $CONFDIR/pico:/var/www/html/config
+      - $SYNCDIR/docs/blog:/usr/share/nginx/html/bl-content/pages
+      - $CONFDIR/bludit:/usr/share/nginx/html/bl-content/databases
     networks:
       - caddy
     labels:
