@@ -7,9 +7,9 @@ networks: # docker network create caddy
 
 services:
 
-  # services
   # todo: ajenti alarmclock archisteamfarm asterisk beancount cherrymusic dantalian ddns debian-worker defile fava groovebasin huginn jasper kodi-headless magnet2torrent makemkv minecraft mpd openvpn openvpn-as owntracks plowshare pritunl ps3netsrv reggata ripme snapraid tagfs tagsistant tmsu tpb-proxy ulogger wallboard
 
+  # services
   watchtower:
     image: v2tec/watchtower
     container_name: watchtower
@@ -273,11 +273,10 @@ services:
       - EULA=TRUE
     volumes:
       - $CONFDIR/minecraft:/data
-    
+
 
   # applications
-
-  beets: # docker exec -it beets /bin/bash
+  beets:
     image: linuxserver/beets
     container_name: beets
     volumes:
