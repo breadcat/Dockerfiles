@@ -10,7 +10,7 @@ networks:
 services:
 
   # services
-  # todo: archisteamfarm alarmclock ddns defile huginn kodi-headless openvpn/pritunl owntracks/ulogger ps3netsrv tpb-proxy wallboard minecraft mpd
+  # todo: ajenti alarmclock archisteamfarm asterisk beancount cherrymusic dantalian ddns debian-worker defile fava groovebasin huginn jasper kodi-headless magnet2torrent makemkv minecraft mpd openvpn openvpn-as owntracks plowshare pritunl ps3netsrv reggata ripme snapraid tagfs tagsistant tmsu tpb-proxy ulogger wallboard
 
   watchtower:
     image: v2tec/watchtower
@@ -28,7 +28,7 @@ services:
     environment:
       - SSH_HOST=$IPLOC
       - HTTPS_HOST=$IPLOC
-  caddy:
+  caddy: # todo: startpage / local-syncthing redirects
     image: lucaslorentz/caddy-docker-proxy
     container_name: caddy
     restart: unless-stopped
@@ -275,7 +275,6 @@ services:
     
 
   # applications
-  # todo: debian plowshare ripme snapraid makemkv magnet2torrent
 
   beets: # docker exec -it beets /bin/bash
     image: linuxserver/beets
