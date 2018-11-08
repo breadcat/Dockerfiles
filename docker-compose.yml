@@ -215,17 +215,6 @@ services:
     labels:
       caddy.address: blog.$DOMAIN www.$DOMAIN $DOMAIN
       caddy.targetport: "80"
-  the-epube: # docker exec -it the-epube php "/var/www/html/useradm.php" --add $(whoami)
-    build: the-epube
-    container_name: the-epube
-    restart: unless-stopped
-    volumes:
-      - $POOLDIR/literature/books:/home/fox/Books
-    networks:
-      - caddy
-    labels:
-      caddy.address: lib.$DOMAIN
-      caddy.targetport: "80"
   kms-server:
     build: kms-server
     container_name: kms-server
