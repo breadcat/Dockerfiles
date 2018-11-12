@@ -205,6 +205,7 @@ services:
     image: bludit/docker
     container_name: bludit
     restart: unless-stopped
+    command: bash -c "sed -i 's|998|$PUID|' /etc/passwd && sed -i 's|999|$PGID|' /etc/passwd && /usr/bin/supervisord -n -c /etc/supervisord.conf"
     volumes:
       - $SYNCDIR/docs/blog:/usr/share/nginx/html/bl-content/pages
       - $CONFDIR/bludit:/usr/share/nginx/html/bl-content/databases
