@@ -177,7 +177,7 @@ services:
   php-dev:
     image: php:apache
     container_name: php-dev
-    command: bash -c "a2enmod rewrite && apache2-foreground"
+    command: bash -c "sed -i 's|33|$PUID|g' /etc/passwd && a2enmod rewrite && apache2-foreground"
     restart: unless-stopped
     volumes:
       - $SYNCDIR/src/dev:/var/www/html
