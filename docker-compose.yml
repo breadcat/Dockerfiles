@@ -64,7 +64,7 @@ services:
     volumes:
       - $CONFDIR/transmission:/config
       - $DOWNDIR:/downloads
-      - $SYNCDIR/watch:/watch
+      - $SYNCDIR/import:/watch
     ports:
       - 9091:9091
       - 51413:51413
@@ -243,7 +243,7 @@ services:
     volumes:
       - $CONFDIR/paperless:/usr/src/paperless/data
       - /mnt/paperless:/usr/src/paperless/media
-      - $HOMEDIR/paperless-import:/consume
+      - $SYNCDIR/import:/consume
     environment:
       - PAPERLESS_OCR_LANGUAGES=eng
     command: ["runserver", "0.0.0.0:8000"]
@@ -261,7 +261,7 @@ services:
     volumes:
       - $CONFDIR/paperless:/usr/src/paperless/data
       - /mnt/paperless:/usr/src/paperless/media
-      - $HOMEDIR/paperless-import:/consume
+      - $SYNCDIR/import:/consume
     command: ["document_consumer"]
   minecraft:
     image: itzg/minecraft-server
