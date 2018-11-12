@@ -298,22 +298,22 @@ services:
 
 
   # crypto nodes
-  nano-node:
-    image: nanocurrency/nano
-    container_name: nano-node
-    restart: unless-stopped
-    volumes:
-      - $HOMEDIR/chains/nano:/root/RaiBlocks
-    ports:
-      - 7075:7075
-      - 7075:7075/udp
-      - 7076:7076
-  monero-node:
-    image: kannix/monero-full-node
-    container_name: monero-node
-    restart: unless-stopped
-    volumes:
-      - $HOMEDIR/chains/monero:/root/.bitmonero
-    ports:
-      - 18080:18080
-      - 18081:18081
+#  nano-node:
+#    image: nanocurrency/nano
+#    container_name: nano-node
+#    restart: unless-stopped
+#    volumes:
+#      - $HOMEDIR/chains/nano:/root/RaiBlocks
+#    ports:
+#      - 7075:7075
+#      - 7075:7075/udp
+#      - 7076:7076
+#  monero-node:
+#    image: kannix/monero-full-node
+#    container_name: monero-node
+#    restart: unless-stopped
+#    volumes:
+#      - $HOMEDIR/chains/monero:/root/.bitmonero
+#    ports:
+#      - 18080:18080
+#      - 18081:18081
