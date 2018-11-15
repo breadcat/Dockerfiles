@@ -201,19 +201,18 @@ services:
       caddy.targetport: "80"
       caddy.basicauth_1: / $NAME $PASS
       caddy.basicauth_2: / $ALTU $ALTP
-  bludit:
-    image: bludit/docker
-    container_name: bludit
+  jekyll:
+    image: jekyll/jekyll
+    container_name: jekyll
+    command: bash -c "jekyll serve ."
     restart: unless-stopped
-    command: bash -c "sed -i 's|998|$PUID|' /etc/passwd && sed -i 's|999|$PGID|' /etc/passwd && /usr/bin/supervisord -n -c /etc/supervisord.conf"
     volumes:
-      - $SYNCDIR/docs/blog:/usr/share/nginx/html/bl-content/pages
-      - $CONFDIR/bludit:/usr/share/nginx/html/bl-content/databases
+      - $SYNCDIR/src/blog:/srv/jekyll
     networks:
       - caddy
     labels:
       caddy.address: blog.$DOMAIN www.$DOMAIN $DOMAIN
-      caddy.targetport: "80"
+      caddy.targetport: "4000"
   kms-server:
     build: kms-server
     container_name: kms-server
