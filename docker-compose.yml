@@ -286,15 +286,6 @@ services:
     environment:
       - PGID=$PGID
       - PUID=$PUID
-  nano-vanity:
-    build: nano-vanity
-    container_name: nano-vanity
-  get-iplayer:
-    build: get-iplayer
-    container_name: get-iplayer
-    volumes:
-      - $CONFDIR/get-iplayer:/data/config
-      - $POOLDIR/_unsorted/get-iplayer:/data/output
 
 
   # crypto nodes
