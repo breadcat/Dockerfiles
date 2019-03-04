@@ -10,13 +10,18 @@ services:
   # todo: ajenti alarmclock archisteamfarm asterisk beancount cherrymusic dantalian ddns debian-worker defile fava groovebasin huginn jasper kodi-headless magnet2torrent makemkv minecraft mpd openvpn openvpn-as owntracks plowshare pritunl ps3netsrv reggata ripme snapraid tagfs tagsistant tmsu tpb-proxy ulogger wallboard
 
   # services
-  watchtower:
-    image: v2tec/watchtower
-    container_name: watchtower
+  ouroboros:
+    container_name: ouroboros
+    hostname: ouroboros
+    image: pyouroboros/ouroboros
+    environment:
+      - CLEANUP=true
+      - INTERVAL=300
+      - SELF_UPDATE=true
+      - TZ=$TZ
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --schedule "0 0 4 * * *" --cleanup
   sslh:
     image: shaddysignal/sslh-hub
     container_name: sslh
