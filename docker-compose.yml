@@ -164,16 +164,6 @@ services:
     labels:
       caddy.address: git.$DOMAIN
       caddy.targetport: "80"
-  ipd:
-    image: joshdvir/ipd
-    container_name: ipd
-    restart: unless-stopped
-    command: bash -c "sed -i 's/feep.me/$DOMAIN/g' index.html && ipd --country-db GeoLite2-Country.mmdb --port-lookup --reverse-lookup --trusted-header X-Forwarded-For --template /root/index.html"
-    networks:
-      - caddy
-    labels:
-      caddy.address: ip.$DOMAIN
-      caddy.targetport: "8080"
   php-dev:
     image: php:apache
     container_name: php-dev
@@ -230,12 +220,6 @@ services:
     environment:
       - PGID=$PGID
       - PUID=$PUID
-  netboot:
-    image: rjocoleman/netboot.xyz
-    container_name: netboot
-    restart: unless-stopped
-    ports:
-      - 69:69/udp
   paperless-web: # docker-compose run --rm paperless-web createsuperuser
     image: danielquinn/paperless
     container_name: paperless-web
