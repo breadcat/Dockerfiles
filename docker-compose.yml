@@ -162,7 +162,7 @@ services:
     restart: unless-stopped
     command: bash -c "sed -i 's|\"^_h5ai\"|\"^_h5ai\", \"lost\\\\\\\+found\"|' /usr/share/h5ai/_h5ai/private/conf/options.json && supervisord -c /etc/supervisor/conf.d/supervisord.conf"
     volumes:
-      -  $POOLDIR:/var/www
+      - $POOLDIR:/var/www
     networks:
       - caddy
     labels:
