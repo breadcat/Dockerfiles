@@ -144,6 +144,18 @@ services:
     labels:
       caddy.address: pub.$DOMAIN
       caddy.targetport: "80"
+  dir-kodi:
+    build: dir-kodi
+    container_name: dir-kodi
+    restart: unless-stopped
+    volumes:
+      - $POOLDIR:/pool
+    networks:
+      - caddy
+    labels:
+      caddy.address: kodi.$DOMAIN
+      caddy.targetport: "80"
+      caddy.basicauth_1: / $NAME $PASS
   dir-repo:
     image: corfr/h5ai
     container_name: dir-repo
