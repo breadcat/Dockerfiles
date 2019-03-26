@@ -98,7 +98,8 @@ services:
     labels:
       caddy.address: rss.$DOMAIN
       caddy.targetport: "8080"
-      caddy.basicauth: / $NAME $PASS
+      caddy.basicauth_1: / $NAME $PASS
+      caddy.basicauth_2: / $ALTU $ALTP
   baikal:
     image: ckulka/baikal
     container_name: baikal
