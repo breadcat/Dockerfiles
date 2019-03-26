@@ -155,7 +155,7 @@ services:
     labels:
       caddy.address: kodi.$DOMAIN
       caddy.targetport: "80"
-      caddy.basicauth_1: / $NAME $PASS
+      caddy.basicauth: / $NAME $PASS
   dir-repo:
     image: corfr/h5ai
     container_name: dir-repo
