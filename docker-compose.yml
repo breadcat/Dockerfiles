@@ -149,7 +149,7 @@ services:
     container_name: dir-kodi
     restart: unless-stopped
     volumes:
-      - $POOLDIR:/pool
+      - $POOLDIR:/usr/share/nginx/html
     networks:
       - caddy
     labels:
