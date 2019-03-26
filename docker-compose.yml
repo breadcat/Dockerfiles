@@ -282,7 +282,7 @@ services:
     container_name: beets
     volumes:
       - $CONFDIR/beets:/config
-      - $DOWNDIR/complete:/downloads
+      - $DOWNDIR:/downloads
       - $POOLDIR/audio:/music
     environment:
       - PGID=$PGID
