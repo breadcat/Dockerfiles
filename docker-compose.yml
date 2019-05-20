@@ -1,15 +1,132 @@
 
-version: '2'
+version: "2"
 
-networks: # docker network create caddy
-  caddy:
+networks:
+  proxy:
     external: true
 
 services:
-
-  # todo: ajenti alarmclock archisteamfarm asterisk beancount cherrymusic dantalian ddns debian-worker defile fava groovebasin huginn jasper kodi-headless magnet2torrent makemkv minecraft mpd openvpn openvpn-as owntracks plowshare pritunl ps3netsrv reggata ripme snapraid tagfs tagsistant tmsu tpb-proxy ulogger wallboard
-
-  # services
+  baikal:
+    image: ckulka/baikal
+    container_name: baikal
+    volumes:
+      - $CONFDIR/baikal:/var/www/baikal/Specific
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:dav.$DOMAIN"
+      traefik.port: "80"
+  cbreader:
+    build: cbreader
+    container_name: cbreader
+    volumes:
+      - $POOLDIR/literature/comics:/comics
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:cbr.$DOMAIN"
+      traefik.port: "80"
+  cgit:
+    image: invokr/cgit
+    container_name: cgit
+    volumes:
+      - $SYNCDIR/src:/git
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:git.$DOMAIN"
+      traefik.port: "80"
+  dir-pub:
+    image: corfr/h5ai
+    container_name: dir-pub
+    volumes:
+      - $SYNCDIR/pub:/var/www
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:pub.$DOMAIN"
+      traefik.port: "80"
+  dir-repo:
+    image: mumiehub/rclone-mount
+    container_name: dir-repo
+    command: "rclone --config '/config/rclone.conf' serve http '$RCLONE_REMOTE_MEDIA:' --addr '0.0.0.0:8080'"
+    volumes:
+      - $CONFDIR/rclone:/config
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:repo.$DOMAIN"
+      traefik.port: "8080"
+  dir-saves:
+    image: mumiehub/rclone-mount
+    container_name: dir-saves
+    command: "rclone --config '/config/rclone.conf' serve http '$RCLONE_REMOTE_SAVES:' --addr '0.0.0.0:8080'"
+    volumes:
+      - $CONFDIR/rclone:/config
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:saves.$DOMAIN"
+      traefik.port: "8080"
+  flexget:
+    image: wiserain/flexget
+    container_name: flexget
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TZ
+    volumes:
+      - $CONFDIR/flexget:/config
+      - $DOWNDIR:/input
+      - $POOLDIR:/output
+    restart: unless-stopped
+  jekyll:
+    image: jekyll/jekyll
+    container_name: jekyll
+    command: bash -c "jekyll serve ."
+    volumes:
+      - $SYNCDIR/src/blog:/srv/jekyll
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:$DOMAIN,blog.$DOMAIN,www.$DOMAIN"
+      traefik.port: "4000"
+  keeweb:
+    image: viossat/keeweb-webdav
+    container_name: keeweb
+    volumes:
+      - $CONFDIR/keeweb:/var/www/html/webdav
+    environment:
+      - WEBDAV_USERNAME=$NAME
+      - WEBDAV_PASSWORD=$PASS
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:pass.$DOMAIN"
+      traefik.port: "80"
+  kms-server:
+    build: kms-server
+    container_name: kms-server
+    restart: unless-stopped
+    ports:
+      - 1688:1688
+  mumble:
+    image: coppit/mumble-server
+    container_name: mumble
+    restart: unless-stopped
+    ports:
+      - 64738:64738
+      - 64738:64738/udp
+    volumes:
+      - $CONFDIR/mumble:/data
   ouroboros:
     container_name: ouroboros
     hostname: ouroboros
@@ -22,31 +139,70 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-  sslh:
-    image: shaddysignal/sslh-hub
-    container_name: sslh
+  paperless-srv:
+    image: danielquinn/paperless
+    container_name: paperless-srv
+    depends_on:
+      - paperless-web
+    volumes:
+      - $CONFDIR/paperless:/usr/src/paperless/data
+      - $WORKDIR:/usr/src/paperless/media
+      - $SYNCDIR/import:/consume
+    command: ["document_consumer"]
     restart: unless-stopped
-    ports:
-      - 443:443
+  paperless-web:
+    image: danielquinn/paperless
+    container_name: paperless-web
+    volumes:
+      - $CONFDIR/paperless:/usr/src/paperless/data
+      - $WORKDIR:/usr/src/paperless/media
+      - $SYNCDIR/import:/consume
     environment:
-      - SSH_HOST=$IPLOC
-      - HTTPS_HOST=$IPLOC
-  caddy: # todo: startpage / local-syncthing redirects
-    image: lucaslorentz/caddy-docker-proxy
-    container_name: caddy
+      - PAPERLESS_OCR_LANGUAGES=eng
+    command: ["runserver", "0.0.0.0:8000"]
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:docs.$DOMAIN"
+      traefik.port: "8000"
+  php-dev:
+    image: php:apache
+    container_name: php-dev
+    command: bash -c "sed -i 's|33|$PUID|g' /etc/passwd && a2enmod rewrite && apache2-foreground"
     restart: unless-stopped
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - $CONFDIR/caddy:/root/.caddy
-    ports:
-      - 80:80
-      - 8443:443
+      - $SYNCDIR/src/dev:/var/www/html
+      - $SYNCDIR/pub/.fjournal/:/fj
+      - $SYNCDIR/pub/.weight/:/weight
+      - $POOLDIR/literature/books/:/books
+    restart: unless-stopped
     networks:
-      - caddy
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:dev.$DOMAIN"
+      traefik.port: "80"
+  selfoss:
+    image: hardware/selfoss
+    container_name: selfoss
+    volumes:
+      - $CONFDIR/selfoss:/selfoss/data
+    environment:
+      - UID=$PUID
+      - GID=$PGID
+      - CRON_PERIOD=60m
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:rss.$DOMAIN"
+      traefik.port: "8888"
   syncthing:
     image: linuxserver/syncthing
     container_name: syncthing
-    restart: unless-stopped
+    environment:
+      - PGID=$PGID
+      - PUID=$PUID
     volumes:
       - $CONFDIR/syncthing:/config
       - $SYNCDIR:/vault
@@ -54,18 +210,28 @@ services:
     ports:
       - 22000:22000
       - 21027:21027/udp
-    environment:
-      - PGID=$PGID
-      - PUID=$PUID
+    restart: unless-stopped
     networks:
-      - caddy
+      - proxy
     labels:
-      caddy.address: sync.$DOMAIN
-      caddy.targetport: "8384"
+      traefik.frontend.rule: "Host:sync.$DOMAIN"
+      traefik.port: "8384"
+  traefik:
+    image: traefik
+    container_name: traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $CONFDIR/traefik/traefik.toml:/etc/traefik/traefik.toml
+      - $CONFDIR/traefik/acme.json:/etc/traefik/acme.json
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped
+    networks:
+      - proxy
   transmission:
     image: linuxserver/transmission
     container_name: transmission
-    restart: unless-stopped
     volumes:
       - $CONFDIR/transmission:/config
       - $DOWNDIR:/downloads
@@ -78,235 +244,22 @@ services:
       - PGID=$PGID
       - PUID=$PUID
       - TZ=$TZ
-    networks:
-      - caddy
-    labels:
-      caddy.address: tor.$DOMAIN
-      caddy.targetport: "9091"
-  selfoss:
-    image: arckosfr/selfoss
-    container_name: selfoss
     restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:tor.$DOMAIN"
+      traefik.port: "9091"
+  vsftpd:
+    image: onjin/alpine-vsftpd
+    container_name: vsftpd
+    network_mode: host
     volumes:
-      - $CONFDIR/selfoss:/selfoss/data
-    environment:
-      - CRON_PERIOD=60m
-      - GID=$PGID
-      - UID=$PUID
-    networks:
-      - caddy
-    labels:
-      caddy.address: rss.$DOMAIN
-      caddy.targetport: "8080"
-      caddy.basicauth_1: / $NAME $PASS
-      caddy.basicauth_2: / $ALTU $ALTP
-  baikal:
-    image: ckulka/baikal
-    container_name: baikal
-    restart: unless-stopped
-    volumes:
-      - $CONFDIR/baikal:/var/www/baikal/Specific
-    networks:
-      - caddy
-    labels:
-      caddy.address: dav.$DOMAIN
-      caddy.targetport: "80"
-  keeweb:
-    image: viossat/keeweb-webdav
-    container_name: keeweb
-    restart: unless-stopped
-    volumes:
-      - $CONFDIR/keeweb:/var/www/html/webdav
-    environment:
-      - WEBDAV_USERNAME=$NAME
-      - WEBDAV_PASSWORD=$PASS
-    networks:
-      - caddy
-    labels:
-      caddy.address: pass.$DOMAIN
-      caddy.targetport: "80"
-  mumble:
-    image: coppit/mumble-server
-    container_name: mumble
-    restart: unless-stopped
+      - $SYNCDIR/import:/home/files
     ports:
-      - 64738:64738
-      - 64738:64738/udp
-    volumes:
-      - $CONFDIR/mumble:/data
-  dir-pub:
-    image: corfr/h5ai
-    container_name: dir-pub
-    restart: unless-stopped
-    volumes:
-      - $SYNCDIR/pub:/var/www
-    networks:
-      - caddy
-    labels:
-      caddy.address: pub.$DOMAIN
-      caddy.targetport: "80"
-  dir-kodi:
-    build: dir-kodi
-    container_name: dir-kodi
-    restart: unless-stopped
-    volumes:
-      - $POOLDIR:/usr/share/nginx/html
-    networks:
-      - caddy
-    labels:
-      caddy.address: kodi.$DOMAIN
-      caddy.targetport: "80"
-      caddy.basicauth: / $NAME $PASS
-  dir-repo:
-    image: corfr/h5ai
-    container_name: dir-repo
-    restart: unless-stopped
-    command: bash -c "sed -i 's|\"^_h5ai\"|\"^_h5ai\", \"lost\\\\\\\+found\"|' /usr/share/h5ai/_h5ai/private/conf/options.json && supervisord -c /etc/supervisor/conf.d/supervisord.conf"
-    volumes:
-      - $POOLDIR:/var/www
-    networks:
-      - caddy
-    labels:
-      caddy.address: repo.$DOMAIN
-      caddy.targetport: "80"
-      caddy.basicauth_1: / $NAME $PASS
-      caddy.basicauth_2: / $ALTU $ALTP
-  cgit:
-    image: invokr/cgit
-    container_name: cgit
-    restart: unless-stopped
-    volumes:
-      - $SYNCDIR/src:/git
-    networks:
-      - caddy
-    labels:
-      caddy.address: git.$DOMAIN
-      caddy.targetport: "80"
-  php-dev:
-    image: php:apache
-    container_name: php-dev
-    command: bash -c "sed -i 's|33|$PUID|g' /etc/passwd && a2enmod rewrite && apache2-foreground"
-    restart: unless-stopped
-    volumes:
-      - $SYNCDIR/src/dev:/var/www/html
-      - $SYNCDIR/pub/.fjournal/:/fj
-      - $SYNCDIR/pub/.weight/:/weight
-    networks:
-      - caddy
-    labels:
-      caddy.address: dev.$DOMAIN
-      caddy.targetport: "80"
-  cbreader:
-    build: cbreader
-    container_name: cbreader
-    restart: unless-stopped
-    volumes:
-      - $POOLDIR/literature/comics:/comics
-    networks:
-      - caddy
-    labels:
-      caddy.address: cbr.$DOMAIN
-      caddy.targetport: "80"
-      caddy.basicauth_1: / $NAME $PASS
-      caddy.basicauth_2: / $ALTU $ALTP
-  jekyll:
-    image: jekyll/jekyll
-    container_name: jekyll
-    command: bash -c "jekyll serve ."
-    restart: unless-stopped
-    volumes:
-      - $SYNCDIR/src/blog:/srv/jekyll
-    networks:
-      - caddy
-    labels:
-      caddy.address: blog.$DOMAIN www.$DOMAIN $DOMAIN
-      caddy.targetport: "4000"
-  kms-server:
-    build: kms-server
-    container_name: kms-server
-    restart: unless-stopped
-    ports:
-      - 1688:1688
-  flexget:
-    image: activ/arch-flexget
-    container_name: flexget
-    restart: unless-stopped
-    volumes:
-      - $CONFDIR/flexget:/config
-      - $DOWNDIR/complete:/input
-      - $POOLDIR:/output
+      - 20:20
+      - 21:21
+      - 10090-10100:10090-10100
     environment:
-      - PGID=$PGID
-      - PUID=$PUID
-  paperless-web: # docker-compose run --rm paperless-web createsuperuser
-    image: danielquinn/paperless
-    container_name: paperless-web
+      - PASSWORD=$PASS
     restart: unless-stopped
-    volumes:
-      - $CONFDIR/paperless:/usr/src/paperless/data
-      - /mnt/paperless:/usr/src/paperless/media
-      - $SYNCDIR/import:/consume
-    environment:
-      - PAPERLESS_OCR_LANGUAGES=eng
-    command: ["runserver", "0.0.0.0:8000"]
-    networks:
-      - caddy
-    labels:
-      caddy.address: docs.$DOMAIN
-      caddy.targetport: "8000"
-  paperless-srv:
-    image: danielquinn/paperless
-    container_name: paperless-srv
-    restart: unless-stopped
-    depends_on:
-      - paperless-web
-    volumes:
-      - $CONFDIR/paperless:/usr/src/paperless/data
-      - /mnt/paperless:/usr/src/paperless/media
-      - $SYNCDIR/import:/consume
-    command: ["document_consumer"]
-  minecraft:
-    image: itzg/minecraft-server
-    container_name: minecraft
-    restart: unless-stopped
-    ports:
-      - 25565:25565
-    environment:
-      - EULA=TRUE
-    volumes:
-      - $CONFDIR/minecraft:/data
-
-
-  # applications
-  beets:
-    image: linuxserver/beets
-    container_name: beets
-    volumes:
-      - $CONFDIR/beets:/config
-      - $DOWNDIR:/downloads
-      - $POOLDIR/audio:/music
-    environment:
-      - PGID=$PGID
-      - PUID=$PUID
-
-
-  # crypto nodes
-#  nano-node:
-#    image: nanocurrency/nano
-#    container_name: nano-node
-#    restart: unless-stopped
-#    volumes:
-#      - $HOMEDIR/chains/nano:/root/RaiBlocks
-#    ports:
-#      - 7075:7075
-#      - 7075:7075/udp
-#      - 7076:7076
-#  monero-node:
-#    image: kannix/monero-full-node
-#    container_name: monero-node
-#    restart: unless-stopped
-#    volumes:
-#      - $HOMEDIR/chains/monero:/root/.bitmonero
-#    ports:
-#      - 18080:18080
-#      - 18081:18081
