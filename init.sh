@@ -4,12 +4,14 @@
 if [[ -f ".env" ]]; then echo Deleting existing env file && rm ".env"; fi
 
 # variables and functions
+traefik_conf_dir="$HOME/config/traefik"
 function rclone_remote() { grep "$1" "$HOME/.config/rclone/rclone.conf" | sed 1q | tr -d \[\]; }
-function domain_find() { grep domain "$HOME/config/traefik/traefik.toml" | cut -f2 -d\"; }
+function domain_find() { grep domain "$traefik_conf_dir/traefik.toml" | cut -f2 -d\"; }
 
 # password management
 PASS_FILE="password.txt"
 if ! [[ -f "$PASS_FILE" ]]; then head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16 > "$PASS_FILE"; fi
+if ! [[ -f "traefik_conf_dir/htpasswd" ]]; then echo $(htpasswd -nbB $(whoami) "$(cat $PASS_FILE)") > "$traefik_conf_dir/htpasswd"; fi
 
 # write env file
 echo Writing env file

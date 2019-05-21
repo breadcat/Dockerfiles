@@ -28,6 +28,7 @@ services:
     labels:
       traefik.frontend.rule: "Host:cbr.$DOMAIN"
       traefik.port: "80"
+      traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
   cgit:
     image: invokr/cgit
     container_name: cgit
@@ -62,6 +63,7 @@ services:
     labels:
       traefik.frontend.rule: "Host:repo.$DOMAIN"
       traefik.port: "8080"
+      traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
   dir-saves:
     image: mumiehub/rclone-mount
     container_name: dir-saves
@@ -233,6 +235,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - $CONFDIR/traefik/traefik.toml:/etc/traefik/traefik.toml
       - $CONFDIR/traefik/acme.json:/etc/traefik/acme.json
+      - $CONFDIR/traefik:/app/
     ports:
       - 80:80
       - 443:443
