@@ -21,7 +21,7 @@ PASS=$(cat $PASS_FILE)
 DOMAIN=$(domain_find)
 
 PUID=$(id -u)
-PGID=$(id | cut -f2 -d= | cut -f1 -d\()
+PGID=$(id -g)
 TZ=$(cat /etc/timezone)
 
 CONFDIR=$HOME/config
