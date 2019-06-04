@@ -171,6 +171,7 @@ services:
       - $SYNCDIR/import:/consume
     environment:
       - PAPERLESS_OCR_LANGUAGES=eng
+      - PAPERLESS_OCR_THREADS=1
     command: ["runserver", "0.0.0.0:8000"]
     restart: unless-stopped
     networks:
