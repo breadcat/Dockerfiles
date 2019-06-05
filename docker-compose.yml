@@ -17,6 +17,22 @@ services:
     labels:
       traefik.frontend.rule: "Host:dav.$DOMAIN"
       traefik.port: "80"
+  bitwarden:
+    image: bitwardenrs/server:latest
+    container_name: bitwarden
+    volumes:
+      - $CONFDIR/bitwarden:/data
+    environment:
+      - WEBSOCKET_ENABLED=true
+      - SIGNUPS_ALLOWED=false
+    ports:
+      - 3012:3012
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:pass.$DOMAIN"
+      traefik.port: "80"
   cbreader:
     build: cbreader
     container_name: cbreader
@@ -109,20 +125,6 @@ services:
       - proxy
     labels:
       traefik.frontend.rule: "Host:push.$DOMAIN"
-      traefik.port: "80"
-  keeweb:
-    image: viossat/keeweb-webdav
-    container_name: keeweb
-    volumes:
-      - $CONFDIR/keeweb:/var/www/html/webdav
-    environment:
-      - WEBDAV_USERNAME=$NAME
-      - WEBDAV_PASSWORD=$PASS
-    restart: unless-stopped
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:pass.$DOMAIN"
       traefik.port: "80"
   kms-server:
     build: kms-server
