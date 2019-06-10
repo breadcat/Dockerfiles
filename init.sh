@@ -34,6 +34,7 @@ WORKDIR=$HOME/paperwork
 RCLONE_REMOTE_MEDIA=$(rclone_remote media)
 RCLONE_REMOTE_SAVES=$(rclone_remote saves)
 RCLONE_REMOTE_WORK=$(rclone_remote work)
+RCLONE_REMOTE_UNSORTED=$(rclone_remote unsorted)
 EOF
 
 # clean up existing stuff

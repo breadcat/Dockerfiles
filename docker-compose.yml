@@ -92,6 +92,19 @@ services:
     labels:
       traefik.frontend.rule: "Host:saves.$DOMAIN"
       traefik.port: "8080"
+  dir-unsorted:
+    image: mumiehub/rclone-mount
+    container_name: dir-unsorted
+    command: "rclone --config '/config/rclone.conf' serve http '$RCLONE_REMOTE_UNSORTED:' --addr '0.0.0.0:8080'"
+    volumes:
+      - $CONFDIR/rclone:/config
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:uns.$DOMAIN"
+      traefik.port: "8080"
+      traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
   flexget:
     image: wiserain/flexget
     container_name: flexget
