@@ -132,15 +132,6 @@ services:
     restart: unless-stopped
     ports:
       - 1688:1688
-  mumble:
-    image: coppit/mumble-server
-    container_name: mumble
-    restart: unless-stopped
-    ports:
-      - 64738:64738
-      - 64738:64738/udp
-    volumes:
-      - $CONFDIR/mumble:/data
   ouroboros:
     container_name: ouroboros
     hostname: ouroboros
@@ -231,6 +222,16 @@ services:
     labels:
       traefik.frontend.rule: "Host:sync.$DOMAIN"
       traefik.port: "8384"
+  teamspeak:
+    image: teamspeak
+    container_name: teamspeak
+    ports:
+      - 9987:9987/udp
+      - 10011:10011
+      - 30033:30033
+    environment:
+      - TS3SERVER_LICENSE=accept
+    restart: unless-stopped
   traefik:
     image: traefik
     container_name: traefik
