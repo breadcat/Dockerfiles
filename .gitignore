@@ -1,3 +1,6 @@
 
 # password file
 password.txt
+
+# environment file
+.env
