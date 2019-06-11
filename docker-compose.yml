@@ -155,6 +155,9 @@ services:
     restart: unless-stopped
     ports:
       - 1688:1688
+  lazychrono:
+    build: lazychrono
+    container_name: lazychrono
   ouroboros:
     container_name: ouroboros
     hostname: ouroboros

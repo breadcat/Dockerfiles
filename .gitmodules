@@ -1,0 +1,3 @@
+[submodule "lazychrono"]
+	path = lazychrono
+	url = https://github.com/telekineticyeti/lazychrono.git
