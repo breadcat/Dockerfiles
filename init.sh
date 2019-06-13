@@ -40,6 +40,7 @@ EOF
 # clean up existing stuff
 echo Cleaning up existing docker files
 for i in volume image system network; do docker "$i" prune -f; done
+docker system prune -af
 
 # make network, if not existing
 if ! echo "$(docker network ls)" | grep -q "proxy"; then echo Creating docker network && docker network create proxy; fi
