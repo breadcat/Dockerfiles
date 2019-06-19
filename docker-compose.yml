@@ -115,6 +115,15 @@ services:
       traefik.frontend.rule: "Host:uns.$DOMAIN"
       traefik.port: "8080"
       traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
+  ipd:
+    image: joshdvir/ipd
+    container_name: ipd
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:ip.$DOMAIN"
+      traefik.port: "8080"
   flexget:
     image: wiserain/flexget
     container_name: flexget
