@@ -81,6 +81,7 @@ services:
     image: mumiehub/rclone-mount
     container_name: dir-repo
     command: "rclone --config '/config/rclone.conf' serve http '$RCLONE_REMOTE_MEDIA:' --addr '0.0.0.0:8080'"
+    user: $PUID:$PGID
     volumes:
       - $CONFDIR/rclone:/config
     restart: unless-stopped
@@ -94,6 +95,7 @@ services:
     image: mumiehub/rclone-mount
     container_name: dir-saves
     command: "rclone --config '/config/rclone.conf' serve http '$RCLONE_REMOTE_SAVES:' --addr '0.0.0.0:8080'"
+    user: $PUID:$PGID
     volumes:
       - $CONFDIR/rclone:/config
     restart: unless-stopped
@@ -106,6 +108,7 @@ services:
     image: mumiehub/rclone-mount
     container_name: dir-unsorted
     command: "rclone --config '/config/rclone.conf' serve http '$RCLONE_REMOTE_UNSORTED:' --addr '0.0.0.0:8080'"
+    user: $PUID:$PGID
     volumes:
       - $CONFDIR/rclone:/config
     restart: unless-stopped
