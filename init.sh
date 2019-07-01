@@ -13,6 +13,9 @@ PASS_FILE="password.txt"
 if ! [[ -f "$PASS_FILE" ]]; then head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16 > "$PASS_FILE"; fi
 if ! [[ -f "$traefik_conf_dir/htpasswd" ]]; then echo $(htpasswd -nbB $(whoami) "$(cat $PASS_FILE)") > "$traefik_conf_dir/htpasswd"; fi
 
+# update submodules
+git pull --recurse-submodules
+
 # write env file
 echo Writing env file
 cat << EOF > .env
