@@ -11,7 +11,7 @@ function domain_find() { grep domain "$traefik_conf_dir/traefik.toml" | cut -f2 
 # password management
 PASS_FILE="password.txt"
 if ! [[ -f "$PASS_FILE" ]]; then head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16 > "$PASS_FILE"; fi
-if ! [[ -f "traefik_conf_dir/htpasswd" ]]; then echo $(htpasswd -nbB $(whoami) "$(cat $PASS_FILE)") > "$traefik_conf_dir/htpasswd"; fi
+if ! [[ -f "$traefik_conf_dir/htpasswd" ]]; then echo $(htpasswd -nbB $(whoami) "$(cat $PASS_FILE)") > "$traefik_conf_dir/htpasswd"; fi
 
 # write env file
 echo Writing env file
