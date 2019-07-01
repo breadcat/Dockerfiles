@@ -1,6 +1,6 @@
-[submodule "lazychrono"]
-	path = lazychrono
-	url = https://github.com/telekineticyeti/lazychrono.git
 [submodule "duolingo"]
 	path = duolingo
 	url = https://github.com/KartikTalwar/Duolingo.git
+[submodule "lazychrono"]
+	path = lazychrono
+	url = https://github.com/telekineticyeti/lazychrono.git
