@@ -149,6 +149,23 @@ services:
     labels:
       traefik.frontend.rule: "Host:ip.$DOMAIN"
       traefik.port: "8080"
+  jackett:
+    image: linuxserver/jackett
+    container_name: jackett
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TZ
+    volumes:
+      - $CONFDIR/jackett:/config
+      - $SYNCDIR/import:/downloads
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:jack.$DOMAIN"
+      traefik.port: "9117"
+      traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
   jdownloader:
     image: plusminus/jdownloader2-headless
     container_name: jdownloader
