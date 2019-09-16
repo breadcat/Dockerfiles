@@ -219,34 +219,6 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-  paperless-srv:
-    image: danielquinn/paperless
-    container_name: paperless-srv
-    depends_on:
-      - paperless-web
-    volumes:
-      - $CONFDIR/paperless:/usr/src/paperless/data
-      - $WORKDIR:/usr/src/paperless/media
-      - $SYNCDIR/import:/consume
-    command: ["document_consumer"]
-    restart: unless-stopped
-  paperless-web:
-    image: danielquinn/paperless
-    container_name: paperless-web
-    volumes:
-      - $CONFDIR/paperless:/usr/src/paperless/data
-      - $WORKDIR:/usr/src/paperless/media
-      - $SYNCDIR/import:/consume
-    environment:
-      - PAPERLESS_OCR_LANGUAGES=eng
-      - PAPERLESS_OCR_THREADS=1
-    command: ["runserver", "0.0.0.0:8000"]
-    restart: unless-stopped
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:docs.$DOMAIN"
-      traefik.port: "8000"
   portainer:
     image: portainer/portainer
     container_name: portainer
