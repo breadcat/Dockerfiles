@@ -133,13 +133,6 @@ services:
       - $DOWNDIR:/input
       - $POOLDIR:/output
     restart: unless-stopped
-  freqtrade:
-    image: freqtradeorg/freqtrade
-    container_name: freqtrade
-    restart: unless-stopped
-    volumes:
-      - $CONFDIR/freqtrade/config.json:/freqtrade/config.json
-      - $CONFDIR/freqtrade/tradesv3.dryrun.sqlite:/freqtrade/tradesv3.dryrun.sqlite
   ipd:
     image: joshdvir/ipd
     container_name: ipd
