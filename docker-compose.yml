@@ -181,16 +181,6 @@ services:
     labels:
       traefik.frontend.rule: "Host:$DOMAIN,blog.$DOMAIN,www.$DOMAIN"
       traefik.port: "4000"
-  gotify:
-    image: gotify/server
-    container_name: gotify
-    volumes:
-      - $CONFDIR/gotify:/app/data
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:push.$DOMAIN"
-      traefik.port: "80"
   kms-server:
     build: kms-server
     container_name: kms-server
