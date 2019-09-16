@@ -337,27 +337,6 @@ services:
     restart: unless-stopped
     networks:
       - proxy
-  transmission:
-    image: linuxserver/transmission
-    container_name: transmission
-    volumes:
-      - $CONFDIR/transmission:/config
-      - $DOWNDIR:/downloads
-      - $SYNCDIR/import:/watch
-    ports:
-      - 9091:9091
-      - 51413:51413
-      - 51413:51413/udp
-    environment:
-      - PGID=$PGID
-      - PUID=$PUID
-      - TZ=$TZ
-    restart: unless-stopped
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:tor.$DOMAIN"
-      traefik.port: "9091"
   vsftpd:
     image: onjin/alpine-vsftpd
     container_name: vsftpd
