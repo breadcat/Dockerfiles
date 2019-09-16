@@ -219,19 +219,6 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-  portainer:
-    image: portainer/portainer
-    container_name: portainer
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - $CONFDIR/portainer:/data
-    ports:
-      - 9000:9000
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:port.$DOMAIN"
-      traefik.port: "9000"
   php-dev:
     image: php:apache
     container_name: php-dev
