@@ -337,16 +337,3 @@ services:
     restart: unless-stopped
     networks:
       - proxy
-  vsftpd:
-    image: onjin/alpine-vsftpd
-    container_name: vsftpd
-    network_mode: host
-    volumes:
-      - $SYNCDIR/import:/home/files
-    ports:
-      - 20:20
-      - 21:21
-      - 10090-10100:10090-10100
-    environment:
-      - PASSWORD=$PASS
-    restart: unless-stopped
