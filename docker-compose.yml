@@ -268,7 +268,7 @@ services:
       - TS3SERVER_LICENSE=accept
     restart: unless-stopped
   traefik:
-    image: traefik
+    image: traefik:1.7
     container_name: traefik
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
