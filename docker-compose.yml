@@ -41,7 +41,7 @@ services:
       - PUID=$PUID
     volumes:
       - $CONFDIR/beets:/config
-      - $DOWNDIR:/downloads
+      - $HOMEDIR:/import
       - $POOLDIR/audio:/music
   cbreader:
     build: cbreader
@@ -151,7 +151,7 @@ services:
       - TZ=$TZ
     volumes:
       - $CONFDIR/jackett:/config
-      - $SYNCDIR/import:/downloads
+      - $SYNCDIR:/downloads
     restart: unless-stopped
     networks:
       - proxy
@@ -164,7 +164,7 @@ services:
     container_name: jdownloader
     volumes:
       - $CONFDIR/jdownloader:/opt/JDownloader/cfg
-      - $DOWNDIR:/downloads
+      - $DOWNDIR/local:/downloads
     environment:
       - GID=$PGID
       - UID=$PUID
