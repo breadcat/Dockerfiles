@@ -27,6 +27,7 @@ PUID=$(id -u)
 PGID=$(id -g)
 TZ=$(cat /etc/timezone)
 
+HOMEDIR=$HOME
 CONFDIR=$HOME/config
 DOWNDIR=$HOME/downloads
 POOLDIR=$HOME/media
