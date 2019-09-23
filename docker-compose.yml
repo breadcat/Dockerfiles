@@ -78,10 +78,9 @@ services:
       traefik.frontend.rule: "Host:pub.$DOMAIN"
       traefik.port: "80"
   dir-repo:
-    image: mumiehub/rclone-mount
+    image: rclone/rclone
     container_name: dir-repo
-    command: "rclone --config '/config/rclone.conf' serve http '$RCLONE_REMOTE_MEDIA:' --addr '0.0.0.0:8080'"
-    user: $PUID:$PGID
+    command: "--config '/config/rclone.conf' serve http '$RCLONE_REMOTE_MEDIA:' --addr '0.0.0.0:8080'"
     volumes:
       - $CONFDIR/rclone:/config
     restart: unless-stopped
@@ -92,10 +91,9 @@ services:
       traefik.port: "8080"
       traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
   dir-saves:
-    image: mumiehub/rclone-mount
+    image: rclone/rclone
     container_name: dir-saves
-    command: "rclone --config '/config/rclone.conf' serve http '$RCLONE_REMOTE_SAVES:' --addr '0.0.0.0:8080'"
-    user: $PUID:$PGID
+    command: "--config '/config/rclone.conf' serve http '$RCLONE_REMOTE_SAVES:' --addr '0.0.0.0:8080'"
     volumes:
       - $CONFDIR/rclone:/config
     restart: unless-stopped
@@ -105,10 +103,9 @@ services:
       traefik.frontend.rule: "Host:saves.$DOMAIN"
       traefik.port: "8080"
   dir-unsorted:
-    image: mumiehub/rclone-mount
+    image: rclone/rclone
     container_name: dir-unsorted
-    command: "rclone --config '/config/rclone.conf' serve http '$RCLONE_REMOTE_UNSORTED:' --addr '0.0.0.0:8080'"
-    user: $PUID:$PGID
+    command: "--config '/config/rclone.conf' serve http '$RCLONE_REMOTE_UNSORTED:' --addr '0.0.0.0:8080'"
     volumes:
       - $CONFDIR/rclone:/config
     restart: unless-stopped
