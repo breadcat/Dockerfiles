@@ -254,7 +254,6 @@ services:
   teamspeak:
     image: teamspeak
     container_name: teamspeak
-    user: $PUID:$PGID
     ports:
       - 9987:9987/udp
       - 10011:10011
