@@ -1,5 +1,7 @@
 # Dockerfiles
 
-Personal docker files for use on a home server.
+Personal docker files and scripts for use on a home server.
 
-Thoroughly read through `init.sh` to see what it looks for a what it does before you run it.
+Thoroughly read through `server.sh` to see what each function does before you run it.
+
+To initialise the stack, run `server.sh docker`.

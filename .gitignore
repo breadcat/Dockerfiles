@@ -1,6 +1,6 @@
 
 # password file
-password.txt
+credentials.db
 
 # environment file
 .env
