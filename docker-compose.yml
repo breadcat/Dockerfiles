@@ -80,7 +80,7 @@ services:
   dir-repo:
     image: rclone/rclone
     container_name: dir-repo
-    command: "--config '/config/rclone.conf' serve http '$RCLONE_REMOTE_MEDIA:' --addr '0.0.0.0:8080'"
+    command: "--config '/config/rclone.conf' serve http '$RCLONE_REMOTE_MEDIA' --addr '0.0.0.0:8080'"
     volumes:
       - $CONFDIR/rclone:/config
     restart: unless-stopped
@@ -93,7 +93,7 @@ services:
   dir-saves:
     image: rclone/rclone
     container_name: dir-saves
-    command: "--config '/config/rclone.conf' serve http '$RCLONE_REMOTE_SAVES:' --addr '0.0.0.0:8080'"
+    command: "--config '/config/rclone.conf' serve http '$RCLONE_REMOTE_SAVES' --addr '0.0.0.0:8080'"
     volumes:
       - $CONFDIR/rclone:/config
     restart: unless-stopped
