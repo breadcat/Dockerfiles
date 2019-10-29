@@ -30,13 +30,6 @@ function func_docker_env_delete {
 		rm "$directory_script/.env"
 	fi
 	}
-function func_docker_compose_delete {
-	if [[ -f "$directory_script/docker-compose.yml" ]]
-	then
-		echo Deleting detected compose file
-		rm "$directory_script/docker-compose.yml"
-	fi
- 	}
 function func_docker_env_write {
 	{
 	printf "NAME=%s\\n" "$username"
