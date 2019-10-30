@@ -125,7 +125,7 @@ function func_archive {
 		echo Done!
 	fi
 	}
-function func_update-arch {
+function func_update_arch {
 	if [ -x "$(command -v yay)" ]
 	then
 		yay -Syu --noconfirm
@@ -133,7 +133,7 @@ function func_update-arch {
 		pacman -Syu --noconfirm
 	fi
 	}
-function func_update-debian {
+function func_update_debian {
 	export DEBIAN_FRONTEND=noninteractive
 	apt-get update
 	apt-get dist-upgrade -y
@@ -148,7 +148,7 @@ function func_update-debian {
 		curl --silent "https://rclone.org/install.sh" | bash
 	fi
 	}
-function func_update-remaining {
+function func_update_remaining {
 	if [ -f "$directory_home/.config/retroarch/lrcm/lrcm" ]
 	then
 		"$directory_home/.config/retroarch/lrcm/lrcm" update
@@ -270,7 +270,7 @@ function func_payslip {
 	rm -r "$directory_temp"
 	}
 function func_permissions {
-	check_running_as_root
+	func_check_running_as_root
 	chown "$username":"$username" "$directory_script/rclone.conf"
 	}
 function func_rclone_mount {
@@ -342,24 +342,24 @@ function func_status {
         printf "Hardware specifications themselves are covered on the [hardware page](/hardware/#server).\\n"
     } > "$status_filename"
 	}
-function func_sync-remotes {
+function func_sync_remotes {
 	source=$(func_rclone_remote gdrive | sed 1q)
 	dest=$(func_rclone_remote gdrive | sed -n 2p)
 	echo Syncing "$source" to "$dest"
 	$rclone_command sync "$source" "$dest" --drive-server-side-across-configs --verbose --log-file "$(func_dir_find config)/logs/rclone-sync-$(date +%Y-%m-%d-%H%M).log"
 	}
 function func_update {
-	check_running_as_root
+	func_check_running_as_root
 	if [[ $distro =~ "Debian" ]]
 	then
-		update-debian
+		func_update_debian
 	elif [[ $distro =~ "Arch" ]]
 	then
-		update-arch
+		func_update_arch
 	else
 		echo "Who knows what you're running"
 	fi
-	update-remaining
+	func_update_remaining
 	}
 function func_args {
 	action=$1
@@ -374,7 +374,7 @@ function func_args {
 		rclone) func_rclone_mount ;;
 		sshfs) func_sshfs_mount ;;
 		status) func_status ;;
-		sync) func_sync-remotes ;;
+		sync) func_sync_remotes ;;
 		update) func_update ;;
 		*) echo "$0" && func_available_options ;;
 	esac
