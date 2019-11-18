@@ -311,6 +311,7 @@ function func_sshfs_mount {
 		echo "sshfs mount exists"
 	else
 		echo "sshfs mount missing, mounting"
+		fusermount -uz "$seedbox_mount"
 		printf "%s" "$seedbox_password" | sshfs "$seedbox_username@$seedbox_host":/ "$seedbox_mount" -o password_stdin -o allow_other
 	fi
 	}
