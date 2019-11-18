@@ -65,7 +65,7 @@ function func_payslip_config_write {
 	}
 function func_payslip_decrypt {
 	cd "$(func_dir_find paperwork)" || exit
-	for i in *pdf
+	for i in *.pdf
 	do
 		fileProtected=0
 		qpdf "$i" --check || fileProtected=1
@@ -264,8 +264,11 @@ function func_payslip {
 	func_payslip_config_write
 	getmail --getmaildir "$directory_temp"
 	cd new || exit
-	grep "$payslip_sender" ./* | cut -f1 -d: | uniq | xargs munpack -f
-	mv "*.pdf" "$(func_dir_find paperwork)/"
+	grep "$payslip_sender" * | cut -f1 -d: | uniq | xargs munpack -f
+	for i in *.pdf
+	do
+		mv "$i" "$(func_dir_find paperwork)/"
+	done
 	func_payslip_decrypt
 	rm -r "$directory_temp"
 	}
