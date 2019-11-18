@@ -5,5 +5,6 @@ credentials.db
 # environment file
 .env
 
-# rclone config
+# rclone config file(s)
 rclone.conf
+rclone.sync-conflict-*
