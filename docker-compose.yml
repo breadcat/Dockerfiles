@@ -6,6 +6,9 @@ networks:
     external: true
 
 services:
+  autochronogg:
+    build: autochronogg
+    container_name: autochronogg
   baikal:
     image: ckulka/baikal
     container_name: baikal
@@ -173,9 +176,6 @@ services:
     restart: unless-stopped
     ports:
       - 1688:1688
-  lazychrono:
-    build: lazychrono
-    container_name: lazychrono
   ouroboros:
     container_name: ouroboros
     hostname: ouroboros
