@@ -55,8 +55,8 @@ function func_payslip_config_write {
 	printf "[retriever]\\n"
 	printf "type = SimpleIMAPSSLRetriever\\n"
 	printf "server = imap.yandex.com\\n"
-	printf	"username = %s\\n" "$payslip_username"
-	printf  "port = 993\\n"
+	printf "username = %s\\n" "$payslip_username"
+	printf "port = 993\\n"
 	printf "password = %s\\n\\n" "$payslip_password"
 	printf "[destination]\\n"
 	printf "type = Maildir\\n"
@@ -329,22 +329,22 @@ function func_status {
 	status_dockers=$(docker ps -q | wc -l)/$(docker ps -aq | wc -l)
 	status_packages=$(dpkg -l | grep ^ii -c)
 	status_ifdata=$(vnstat -i eth0 -m --oneline | cut -f11 -d\;)
-    {
-        printf -- "---\\nlayout: page\\ntitle: Server Status\\ndescription: A (hopefully) recently generated server status page\\npermalink: /status/\\n---\\n\\n"
-        printf "*Generated on %s*\\n\\n" "$status_timestamp"
-        printf "* Uptime: %s" "$status_uptime"
-        printf " Day%s\\n" "$(plural "$status_uptime")"
-        printf "* CPU Load: %s\\n" "$status_cpuavgs"
-        printf "* Users: %s\\n" "$status_users"
-        printf "* RAM Usage: %s%%\\n" "$status_ram"
-        printf "* Swap Usage: %s%%\\n" "$status_swap"
-        printf "* Root Usage: %s\\n" "$status_rootuse"
-        printf "* Downloads Usage: %s\\n" "$status_dluse"
-        printf "* [Dockers](https://github.com/breadcat/Dockerfiles): %s\\n" "$status_dockers"
-        printf "* Packages: %s\\n" "$status_packages"
-        printf "* Monthly Data: %s\\n\\n" "$status_ifdata"
-        printf "Hardware specifications themselves are covered on the [hardware page](/hardware/#server).\\n"
-    } > "$status_filename"
+	{
+		printf -- "---\\nlayout: page\\ntitle: Server Status\\ndescription: A (hopefully) recently generated server status page\\npermalink: /status/\\n---\\n\\n"
+		printf "*Generated on %s*\\n\\n" "$status_timestamp"
+		printf "* Uptime: %s" "$status_uptime"
+		printf " Day%s\\n" "$(plural "$status_uptime")"
+		printf "* CPU Load: %s\\n" "$status_cpuavgs"
+		printf "* Users: %s\\n" "$status_users"
+		printf "* RAM Usage: %s%%\\n" "$status_ram"
+		printf "* Swap Usage: %s%%\\n" "$status_swap"
+		printf "* Root Usage: %s\\n" "$status_rootuse"
+		printf "* Downloads Usage: %s\\n" "$status_dluse"
+		printf "* [Dockers](https://github.com/breadcat/Dockerfiles): %s\\n" "$status_dockers"
+		printf "* Packages: %s\\n" "$status_packages"
+		printf "* Monthly Data: %s\\n\\n" "$status_ifdata"
+		printf "Hardware specifications themselves are covered on the [hardware page](/hardware/#server).\\n"
+	} > "$status_filename"
 	}
 function func_sync_remotes {
 	source=$(func_rclone_remote gdrive | sed 1q)
@@ -391,7 +391,7 @@ function main {
 	directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 	rclone_command="rclone --config=$directory_script/rclone.conf"
 	docker_restart=("flexget" "cbreader" "syncthing")
-    func_args "$@"
+	func_args "$@"
 	}
 
 main "$@"
