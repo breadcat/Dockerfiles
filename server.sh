@@ -242,17 +242,18 @@ function func_magnet {
 		echo script not found, downloading
 		git clone "https://github.com/danfolkes/Magnet2Torrent.git" "$(func_dir_find config)/magnet2torrent"
 	fi
+	shopt -s nullglob
+	echo "processing magnets"
 	for i in *.magnet
 	do
-		echo Parsing magnet files
 		magnet_source="$(cat "$i")"
 		python "$mag2tor_script_path" -m "$magnet_source" -o "$(func_dir_find downloads)/remote/watch/"
 		rm "$i"
 	done
+	echo "processing torrents"
 	for i in *.torrent
 	do
-		echo Moving torrent files
-		mv "*.torrent" "$(func_dir_find downloads)/remote/watch/"
+		mv -v "$i" "$(func_dir_find downloads)/remote/watch/"
 	done
 	}
 function func_payslip {
