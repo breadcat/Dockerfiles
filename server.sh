@@ -278,6 +278,16 @@ function func_permissions {
 	}
 function func_rclone_mount {
 	echo rclone mount checker
+	# check allow_other in fuse.conf
+	if ! grep -q "^user_allow_other$" /etc/fuse.conf
+	then
+		echo user_allow_other not found in fuse.conf
+		func_check_running_as_root
+		echo Appending to file.
+		echo "user_allow_other" >> /etc/fuse.conf
+		echo Please restart the script.
+		exit 0
+	fi
 	for i in backups media paperwork pictures saves
 	do
 		mount_point="$directory_home/$i"
@@ -291,7 +301,7 @@ function func_rclone_mount {
 			echo sleeping
 			sleep 5
 			echo mounting
-			$rclone_command mount "drive-$i": "/home/peter/$i" --vfs-cache-mode minimal --allow-other --allow-non-empty --daemon --log-file "$(func_dir_find config)/logs/rclone-$i.log" # --allow-other requires user_allow_other in /etc/fuse.conf
+			$rclone_command mount "drive-$i": "/home/peter/$i" --vfs-cache-mode minimal --allow-other --allow-non-empty --daemon --log-file "$(func_dir_find config)/logs/rclone-$i.log"
 			echo restarting docker containers
 			for j in "${docker_restart[@]}"
 			do
