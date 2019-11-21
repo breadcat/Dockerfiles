@@ -265,7 +265,7 @@ function func_payslip {
 	func_payslip_config_write
 	getmail --getmaildir "$directory_temp"
 	cd new || exit
-	grep "$payslip_sender" * | cut -f1 -d: | uniq | xargs munpack -f
+	grep "$payslip_sender" ./* | cut -f1 -d: | uniq | xargs munpack -f
 	for i in *.pdf
 	do
 		mv "$i" "$(func_dir_find paperwork)/"
