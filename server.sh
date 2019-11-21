@@ -100,7 +100,7 @@ function func_archive {
 		cd "$(mktemp -d)" || exit
 		for i in "config" "vault"
 		do
-			tar -cJf "backup-$i-$(date +%Y-%m-%d-%H%M).tar.xz" --ignore-failed-read "$HOME/$i"
+			tar -cJf "backup-$i-$(date +%Y-%m-%d-%H%M).tar.xz" --ignore-failed-read "$directory_home/$i"
 		done
 		echo "Sending via rclone..."
 		for i in *
@@ -301,7 +301,7 @@ function func_rclone_mount {
 			echo sleeping
 			sleep 5
 			echo mounting
-			$rclone_command mount "drive-$i": "/home/peter/$i" --vfs-cache-mode minimal --allow-other --allow-non-empty --daemon --log-file "$(func_dir_find config)/logs/rclone-$i.log"
+			$rclone_command mount "drive-$i": "$directory_home/$i" --vfs-cache-mode minimal --allow-other --allow-non-empty --daemon --log-file "$(func_dir_find config)/logs/rclone-$i.log"
 			echo restarting docker containers
 			for j in "${docker_restart[@]}"
 			do
