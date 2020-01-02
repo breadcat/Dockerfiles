@@ -300,6 +300,20 @@ function func_permissions {
 	func_check_running_as_root
 	chown "$username":"$username" "$directory_script/rclone.conf"
 	}
+function func_media_sort {
+	if [ ! -x "$(command -v media-sort)" ] # not installed
+	then
+		echo media-sort not installed. Installing...
+		func_check_running_as_root
+		curl https://i.jpillora.com/media-sort | bash
+	fi
+	dir_import=$(func_dir_find remote)/files/complete/
+	dir_tv=$(func_dir_find media)/videos/television
+	dir_mov=$(func_dir_find media)/videos/movies
+	temp_tv="{{ .Name }}/{{ .Name }} S{{ printf \"%02d\" .Season }}E{{ printf \"%02d\" .Episode }}{{ if ne .ExtraEpisode -1 }}-{{ printf \"%02d\" .ExtraEpisode }}{{end}}.{{ .Ext }}"
+	temp_mov="{{ .Name }} ({{ .Year }})/{{ .Name }}.{{ .Ext }}"
+	media-sort -t "$dir_tv" -m "$dir_mov" --tv-template "$temp_tv" --movie-template "$temp_mov" --recursive --overwrite-if-larger "$dir_import"
+	}
 function func_rclone_mount {
 	echo rclone mount checker
 	# check allow_other in fuse.conf
@@ -411,6 +425,7 @@ function func_args {
 		payslip) func_payslip ;;
 		permissions) func_permissions ;;
 		rclone) func_rclone_mount ;;
+		sort) func_media_sort ;;
 		sshfs) func_sshfs_mount ;;
 		status) func_status ;;
 		sync) func_sync_remotes ;;

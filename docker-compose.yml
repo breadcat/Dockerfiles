@@ -108,18 +108,6 @@ services:
   duolingo:
     build: duolingo
     container_name: duolingo
-  flexget:
-    image: wiserain/flexget
-    container_name: flexget
-    environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
-    volumes:
-      - $CONFDIR/flexget:/config
-      - $DOWNDIR:/input
-      - $POOLDIR:/output
-    restart: unless-stopped
   ipd:
     image: joshdvir/ipd
     container_name: ipd
