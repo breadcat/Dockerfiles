@@ -200,6 +200,29 @@ function func_create_docker {
 	docker-compose up -d --remove-orphans
 	func_docker_env_delete
 	}
+function func_beets {
+	# exists for working around quirks with running beets through a docker container
+	func_check_running_as_root
+	# make directories
+	mkdir "$(func_dir_find downloads)/{export,staging}"
+	if ! printf "$(docker ps -a | grep beets)" | grep -q "Up"
+	then
+		echo Starting beets container, and waiting...
+		docker start beets
+		sleep 5s
+	fi
+	docker exec -it beets bash
+	echo Moving files
+	$rclone_command move "$(func_dir_find export)" "$(func_rclone_remote media)"/audio/ --verbose
+	echo Resetting permissions
+	chown -R "$username":"$username" "$(func_dir_find export)"
+	chown -R "$username":"$username" "$(func_dir_find staging)"
+	echo Cleaning folders
+	find "$(func_dir_find export)" -type d -empty
+	find "$(func_dir_find staging)" -type d -empty
+	echo Stopping beets container
+	docker stop beets
+	}
 function func_logger {
 	func_git_config
 	git_directory="$(func_dir_find logger)"
@@ -380,6 +403,7 @@ function func_args {
 	action=$1
 	case "$action" in
 		archive) func_archive "$@" ;;
+		beets) func_beets ;;
 		borg) func_borg ;;
 		docker) func_create_docker ;;
 		logger) func_logger ;;
