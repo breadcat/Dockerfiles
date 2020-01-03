@@ -372,7 +372,7 @@ function func_status {
 	status_dluse=$(df | awk '/downloads/ {print $5}')
 	status_dockers=$(docker ps -q | wc -l)/$(docker ps -aq | wc -l)
 	status_packages=$(dpkg -l | grep ^ii -c)
-	status_ifdata=$(vnstat -i eth0 -m --oneline | cut -f11 -d\;)
+	status_ifdata=$(vnstat -m --oneline | cut -f11 -d\;)
 	{
 		printf -- "---\\nlayout: page\\ntitle: Server Status\\ndescription: A (hopefully) recently generated server status page\\npermalink: /status/\\n---\\n\\n"
 		printf "*Generated on %s*\\n\\n" "$status_timestamp"
