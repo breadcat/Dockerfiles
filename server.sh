@@ -176,10 +176,6 @@ function func_create_docker {
 	func_include_credentials
 	# update submodules
 	git pull --recurse-submodules
-	# write compose file
-#	{
-#	printf "nope"
-#	} > docker-compose.yml
 	# write env file
 	func_docker_env_write
 	# clean up existing stuff
