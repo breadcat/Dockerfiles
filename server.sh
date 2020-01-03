@@ -270,7 +270,7 @@ function func_magnet {
 	for i in *.magnet
 	do
 		magnet_source="$(cat "$i")"
-		python "$mag2tor_script_path" -m "$magnet_source" -o "$(func_dir_find downloads)/remote/watch/"
+		python "$mag2tor_script_path" -m "$magnet_source" -o "$(func_dir_find downloads)/remote/watch/" &
 		rm "$i"
 	done
 	echo "processing torrents"
