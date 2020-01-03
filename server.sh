@@ -381,7 +381,7 @@ function func_status {
 		printf -- "---\\nlayout: page\\ntitle: Server Status\\ndescription: A (hopefully) recently generated server status page\\npermalink: /status/\\n---\\n\\n"
 		printf "*Generated on %s*\\n\\n" "$status_timestamp"
 		printf "* Uptime: %s" "$status_uptime"
-		printf " Day%s\\n" "$(plural "$status_uptime")"
+		printf " Day%s\\n" "$(func_plural "$status_uptime")"
 		printf "* CPU Load: %s\\n" "$status_cpuavgs"
 		printf "* Users: %s\\n" "$status_users"
 		printf "* RAM Usage: %s%%\\n" "$status_ram"
