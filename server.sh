@@ -297,6 +297,7 @@ function func_permissions {
 	chown "$username":"$username" "$directory_script/rclone.conf"
 	}
 function func_media_sort {
+	func_sshfs_mount
 	if [ ! -x "$(command -v media-sort)" ] # not installed
 	then
 		echo media-sort not installed. Installing...
@@ -308,7 +309,7 @@ function func_media_sort {
 	dir_mov=$(func_dir_find media)/videos/movies
 	temp_tv="{{ .Name }}/{{ .Name }} S{{ printf \"%02d\" .Season }}E{{ printf \"%02d\" .Episode }}{{ if ne .ExtraEpisode -1 }}-{{ printf \"%02d\" .ExtraEpisode }}{{end}}.{{ .Ext }}"
 	temp_mov="{{ .Name }} ({{ .Year }})/{{ .Name }}.{{ .Ext }}"
-	media-sort -t "$dir_tv" -m "$dir_mov" --tv-template "$temp_tv" --movie-template "$temp_mov" --recursive --overwrite-if-larger "$dir_import"
+	media-sort -c 1 -t "$dir_tv" -m "$dir_mov" --tv-template "$temp_tv" --movie-template "$temp_mov" --recursive --overwrite-if-larger "$dir_import"
 	}
 function func_rclone_mount {
 	echo rclone mount checker
