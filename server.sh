@@ -312,6 +312,19 @@ function func_media_sort {
 	temp_tv="{{ .Name }}/{{ .Name }} S{{ printf \"%02d\" .Season }}E{{ printf \"%02d\" .Episode }}{{ if ne .ExtraEpisode -1 }}-{{ printf \"%02d\" .ExtraEpisode }}{{end}}.{{ .Ext }}"
 	temp_mov="{{ .Name }} ({{ .Year }})/{{ .Name }}.{{ .Ext }}"
 	media-sort -c 1 -t "$dir_tv" -m "$dir_mov" --tv-template "$temp_tv" --movie-template "$temp_mov" --recursive --overwrite-if-larger "$dir_import"
+	func_junk_clean
+	}
+function func_junk_clean {
+	working_directory=$(func_dir_find remote)/files/complete/
+	find "$working_directory" -type f -iname "*.nfo" -delete
+	find "$working_directory" -type f -iname "*downloaded from*" -delete
+	find "$working_directory" -type f -iname "*yts*jpg" -delete
+	find "$working_directory" -type f -iname "*yify*jpg" -delete
+	find "$working_directory" -type f -name "RARBG*" -delete
+	find "$working_directory" -type f -name "*sample*" -delete
+	find "$working_directory" -type f -name "AhaShare*" -delete
+	find "$working_directory" -type d -iname 'sample' -exec rm -r {} +
+	find "$working_directory" -type d -empty -delete
 	}
 function func_rclone_mount {
 	echo rclone mount checker
@@ -420,6 +433,7 @@ function func_args {
 		borg) func_borg ;;
 		docker) func_create_docker ;;
 		logger) func_logger ;;
+		junk) func_junk_clean ;;
 		magnet) func_magnet ;;
 		payslip) func_payslip ;;
 		permissions) func_permissions ;;
