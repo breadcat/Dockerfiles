@@ -200,7 +200,7 @@ function func_beets {
 	# exists for working around quirks with running beets through a docker container
 	func_check_running_as_root
 	# make directories
-	mkdir "$(func_dir_find downloads)/{export,staging}"
+	for i in export staging; do mkdir "$(func_dir_find downloads)/$i"; done
 	if ! printf "$(docker ps -a | grep beets)" | grep -q "Up"
 	then
 		echo Starting beets container, and waiting...
@@ -214,10 +214,12 @@ function func_beets {
 	chown -R "$username":"$username" "$(func_dir_find export)"
 	chown -R "$username":"$username" "$(func_dir_find staging)"
 	echo Cleaning folders
-	find "$(func_dir_find export)" -type d -empty
-	find "$(func_dir_find staging)" -type d -empty
+	find "$(func_dir_find export)" -type d -empty -delete
+	find "$(func_dir_find staging)" -type d -empty -delete
 	echo Stopping beets container
 	docker stop beets
+	echo Cleaning old files
+	find "$(func_dir_find beets)" -type f -not -name 'config.yaml' -delete
 	}
 function func_logger {
 	func_git_config
