@@ -435,7 +435,7 @@ function func_args {
 function main {
 	export XZ_OPT=-e9
 	distro=$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)
-	username=$(grep home /etc/passwd | sed 1q | cut -f1 -d:)
+	username=$(grep home /etc/passwd -m1 | cut -f1 -d:)
 	directory_home="/home/$username"
 	directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 	rclone_command="rclone --config=$directory_script/rclone.conf"
