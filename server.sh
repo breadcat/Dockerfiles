@@ -439,7 +439,7 @@ function main {
 	directory_home="/home/$username"
 	directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 	rclone_command="rclone --config=$directory_script/rclone.conf"
-	docker_restart=("flexget" "cbreader" "syncthing")
+	docker_restart=("cbreader" "syncthing")
 	func_args "$@"
 	}
 
