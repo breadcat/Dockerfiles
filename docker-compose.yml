@@ -139,7 +139,7 @@ services:
     container_name: jdownloader
     volumes:
       - $CONFDIR/jdownloader:/opt/JDownloader/cfg
-      - $DOWNDIR/local:/downloads
+      - $DOWNDIR:/downloads
     environment:
       - GID=$PGID
       - UID=$PUID
