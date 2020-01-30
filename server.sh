@@ -390,7 +390,7 @@ function func_status {
 	status_packages=$(dpkg -l | grep ^ii -c)
 	status_ifdata=$(vnstat -m --oneline | cut -f11 -d\;)
 	{
-		printf -- "---\\nlayout: page\\ntitle: Server Status\\ndescription: A (hopefully) recently generated server status page\\npermalink: /status/\\n---\\n\\n"
+		printf -- "---\\nlayout: page\\ntitle: Status\\ndescription: A (hopefully) recently generated server status page\\npermalink: /status/\\n---\\n\\n"
 		printf "*Generated on %s*\\n\\n" "$status_timestamp"
 		printf "* Uptime: %s" "$status_uptime"
 		printf " Day%s\\n" "$(func_plural "$status_uptime")"
