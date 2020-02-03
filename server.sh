@@ -324,6 +324,7 @@ function func_junk_clean {
 	find "$working_directory" -type f -name "*sample*" -delete
 	find "$working_directory" -type f -name "AhaShare*" -delete
 	find "$working_directory" -type d -iname 'sample' -exec rm -r {} +
+	find "$working_directory" -type d -iname 'screens' -exec rm -r {} +
 	find "$working_directory" -type d -empty -delete
 	}
 function func_rclone_mount {
