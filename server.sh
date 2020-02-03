@@ -338,7 +338,7 @@ function func_rclone_mount {
 		echo Please restart the script.
 		exit 0
 	fi
-	for i in backups media paperwork pictures saves
+	for i in backups media paperwork pictures saves unsorted
 	do
 		mount_point="$directory_home/$i"
 		if [[ -f "$mount_point/.mountcheck" ]]
