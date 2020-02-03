@@ -186,7 +186,7 @@ function func_create_docker {
 	done
 	docker system prune -af
 	# make network, if not existing
-	if ! printf "$(docker network ls)" | grep -q "proxy"
+	if ! printf "%s" "$(docker network ls)" | grep -q "proxy"
 	then
 		echo Creating docker network
 		docker network create proxy
@@ -201,7 +201,7 @@ function func_beets {
 	func_check_running_as_root
 	# make directories
 	for i in export staging; do mkdir "$(func_dir_find downloads)/$i"; done
-	if ! printf "$(docker ps -a | grep beets)" | grep -q "Up"
+	if ! printf "%s" "$(docker ps -a | grep beets)" | grep -q "Up"
 	then
 		echo Starting beets container, and waiting...
 		docker start beets
