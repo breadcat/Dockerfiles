@@ -412,6 +412,15 @@ function func_status {
 		printf "Hardware specifications themselves are covered on the [hardware page](/hardware/#server).\\n"
 	} > "$status_filename"
 	}
+function func_dedupe_remote {
+	dests=$(func_rclone_remote "$rclone_core" | wc -l)
+	for i in $(seq 1 "$dests")
+	do
+		remote=$(func_rclone_remote "$rclone_core" | grep "$i")
+		echo Deduplicating "$remote"
+		$rclone_command dedupe --dedupe-mode newest "$remote" --log-file "$(func_dir_find config)/logs/rclone-dupe-$(date +%Y-%m-%d-%H%M).log"
+	done
+	}
 function func_sync_remotes {
 	source=$(func_rclone_remote gdrive | sed 1q)
 	dest=$(func_rclone_remote gdrive | sed -n 2p)
@@ -437,6 +446,7 @@ function func_args {
 		archive) func_archive "$@" ;;
 		beets) func_beets ;;
 		borg) func_borg ;;
+		dedupe) func_dedupe_remote ;;
 		docker) func_create_docker ;;
 		logger) func_logger ;;
 		junk) func_junk_clean ;;
@@ -459,6 +469,7 @@ function main {
 	directory_home="/home/$username"
 	directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 	rclone_command="rclone --config=$directory_script/rclone.conf"
+	rclone_core="gdrive"
 	docker_restart=("cbreader" "syncthing")
 	func_args "$@"
 	}
