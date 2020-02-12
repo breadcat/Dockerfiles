@@ -90,7 +90,7 @@ function func_include_credentials {
 	# shellcheck source=/home/peter/vault/src/dockerfiles/credentials.db
 	source "$directory_script/credentials.db"
 	}
-function func_archive {
+function func_backup_archive {
 	rclone_remote=$(func_rclone_remote backups)
 	working_directory=$(func_dir_find backups)/archives
 	echo "$working_directory"
@@ -165,7 +165,7 @@ function func_update_remaining {
 		chown -R "$username":"$username" "$directory_home/.config/plowshare"
 	fi
 	}
-function func_borg {
+function func_backup_borg {
 	# https://opensource.com/article/17/10/backing-your-machines-borg
 	working_directory=$(func_dir_find backups)/borg
 	echo "$working_directory"
@@ -449,9 +449,9 @@ function func_update {
 function func_args {
 	action=$1
 	case "$action" in
-		archive) func_archive "$@" ;;
+		archive) func_backup_archive "$@" ;;
 		beets) func_beets ;;
-		borg) func_borg ;;
+		borg) func_backup_borg ;;
 		dedupe) func_dedupe_remote ;;
 		docker) func_create_docker ;;
 		logger) func_logger ;;
