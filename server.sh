@@ -422,10 +422,14 @@ function func_dedupe_remote {
 	done
 	}
 function func_sync_remotes {
-	source=$(func_rclone_remote gdrive | sed 1q)
-	dest=$(func_rclone_remote gdrive | sed -n 2p)
-	echo Syncing "$source" to "$dest"
-	$rclone_command sync "$source" "$dest" --drive-server-side-across-configs --verbose --log-file "$(func_dir_find config)/logs/rclone-sync-$(date +%Y-%m-%d-%H%M).log"
+	source=$(func_rclone_remote "$rclone_core" | sed 1q)
+	dests=$(func_rclone_remote "$rclone_core" | wc -l)
+	for i in $(seq 2 "$dests")
+	do
+		dest=$(func_rclone_remote "$rclone_core" | grep "$i")
+		echo Syncing "$source" to "$dest"
+		$rclone_command sync "$source" "$dest" --drive-server-side-across-configs --verbose --log-file "$(func_dir_find config)/logs/rclone-sync-$(date +%Y-%m-%d-%H%M).log"
+	done
 	}
 function func_update {
 	func_check_running_as_root
