@@ -159,6 +159,12 @@ function func_update_remaining {
 	then
 		pip3 install --upgrade git+https://github.com/rachmadaniHaryono/we-get
 	fi
+	if [ -x "$(command -v media-sort)" ]
+	then
+		echo Updating media-sort
+		cd /usr/local/bin
+		curl https://i.jpillora.com/media-sort | bash
+	fi	
 	if [ -x "$(command -v plowmod)" ]
 	then
 		su -c "plowmod -u" -s /bin/sh "$username"
