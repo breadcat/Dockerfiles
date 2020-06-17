@@ -323,17 +323,20 @@ function func_media_sort {
 	}
 function func_junk_clean {
 	working_directory=$(func_dir_find remote)/files/complete/
-	find "$working_directory" -type f -iname "*.nfo" -delete
-	find "$working_directory" -type f -iname "*downloaded from*" -delete
-	find "$working_directory" -type f -iname "*yts*jpg" -delete
-	find "$working_directory" -type f -iname "*yify*jpg" -delete
-	find "$working_directory" -type f -name "RARBG*" -delete
-	find "$working_directory" -type f -name "*sample*" -delete
-	find "$working_directory" -type f -name "AhaShare*" -delete
-	find "$working_directory" -type d -iname 'sample' -exec rm -r {} +
-	find "$working_directory" -type d -iname 'screens' -exec rm -r {} +
-	find "$working_directory" -type d -iname 'featurettes' -exec rm -r {} +
-	find "$working_directory" -type d -empty -delete
+	if [[ -d "$working_directory" ]]
+	then
+		find "$working_directory" -type f -iname "*.nfo" -delete
+		find "$working_directory" -type f -iname "*downloaded from*" -delete
+		find "$working_directory" -type f -iname "*yts*jpg" -delete
+		find "$working_directory" -type f -iname "*yify*jpg" -delete
+		find "$working_directory" -type f -name "RARBG*" -delete
+		find "$working_directory" -type f -name "*sample*" -delete
+		find "$working_directory" -type f -name "AhaShare*" -delete
+		find "$working_directory" -type d -iname 'sample' -exec rm -r {} +
+		find "$working_directory" -type d -iname 'screens' -exec rm -r {} +
+		find "$working_directory" -type d -iname 'featurettes' -exec rm -r {} +
+		find "$working_directory" -type d -empty -delete
+	fi
 	}
 function func_rclone_mount {
 	echo rclone mount checker
