@@ -69,7 +69,7 @@ function func_payslip_decrypt {
 		qpdf "$i" --check || fileProtected=1
 		if [ $fileProtected == 1 ]
 		then
-			parsed_name=$(printf "$i" | cut -d\- -f4-6)
+			parsed_name=$(printf "%s" "$i" | cut -d"-" -f"4-6")
 			qpdf --password="$payslip_encryption" --decrypt "$i" "personal/workplace/wages/$parsed_name" && rm "$i"
 		fi
 	done
