@@ -444,7 +444,7 @@ function func_sync_remotes {
 	do
 		dest=$(func_rclone_remote "$rclone_core" | grep "$i")
 		echo Syncing "$source" to "$dest"
-		$rclone_command sync "$source" "$dest" --drive-server-side-across-configs --verbose --log-file "$(func_dir_find config)/logs/rclone-sync-$(date +%Y-%m-%d-%H%M).log"
+		$rclone_command sync "$source" "$dest" --verbose --log-file "$(func_dir_find config)/logs/rclone-sync-$(date +%Y-%m-%d-%H%M).log"
 	done
 	}
 function func_update {
