@@ -192,6 +192,20 @@ services:
     labels:
       traefik.frontend.rule: "Host:dev.$DOMAIN"
       traefik.port: "80"
+  searx:
+    image: searx/searx
+    container_name: searx
+    restart: unless-stopped
+    volumes:
+      - $CONFDIR/searx:/etc/searx
+    environment:
+      - SEARX_GID=$PGID
+      - SEARX_UID=$PUID
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:searx.$DOMAIN"
+      traefik.port: "8080"
   selfoss:
     image: hardware/selfoss
     container_name: selfoss
