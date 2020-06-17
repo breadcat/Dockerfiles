@@ -189,7 +189,6 @@ function func_backup_borg {
 function func_create_docker {
 	cd "$directory_script" || exit
 	func_docker_env_delete
-#	delete_docker_compose
 	func_include_credentials
 	# update submodules
 	git pull --recurse-submodules
