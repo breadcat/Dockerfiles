@@ -329,7 +329,7 @@ function func_media_sort {
 		dir_mov=$(func_dir_find media)/videos/movies
 		temp_tv="{{ .Name }}/{{ .Name }} S{{ printf \"%02d\" .Season }}E{{ printf \"%02d\" .Episode }}{{ if ne .ExtraEpisode -1 }}-{{ printf \"%02d\" .ExtraEpisode }}{{end}}.{{ .Ext }}"
 		temp_mov="{{ .Name }} ({{ .Year }})/{{ .Name }}.{{ .Ext }}"
-		media-sort -c 1 -t "$dir_tv" -m "$dir_mov" --tv-template "$temp_tv" --movie-template "$temp_mov" --recursive --overwrite-if-larger "$dir_import"
+		media-sort -c 1 --accuracy-threshold 90 -t "$dir_tv" -m "$dir_mov" --tv-template "$temp_tv" --movie-template "$temp_mov" --recursive --overwrite-if-larger "$dir_import"
 		func_junk_clean
 	else
 		printf "Import directory not found.\n"
