@@ -155,16 +155,18 @@ function func_update_remaining {
 	find "$(func_dir_find config)" -maxdepth 2 -name ".git" -type d | sed 's/\/.git//' | xargs -P10 -I{} git -C {} pull
 	if [ -x "$(command -v we-get)" ]
 	then
+		echo "Updating we-get..."
 		pip3 install --upgrade git+https://github.com/rachmadaniHaryono/we-get
 	fi
 	if [ -x "$(command -v media-sort)" ]
 	then
-		echo Updating media-sort
+		echo "Updating media-sort..."
 		cd /usr/local/bin
 		curl https://i.jpillora.com/media-sort | bash
 	fi	
 	if [ -x "$(command -v plowmod)" ]
 	then
+		echo "Updating plowshare..."
 		su -c "plowmod -u" -s /bin/sh "$username"
 		chown -R "$username":"$username" "$directory_home/.config/plowshare"
 	fi
@@ -385,14 +387,14 @@ function func_rclone_mount {
 
 function func_sshfs_mount {
 	func_include_credentials
-	echo sshfs mount checker
+	printf "sshfs mount checker... "
 	seedbox_host="$seedbox_username.seedbox.io"
 	seedbox_mount="$(func_dir_find downloads)/remote"
 	if [[ -d "$seedbox_mount/files" ]]
 	then
-		echo "sshfs mount exists"
+		printf "exists.\n"
 	else
-		echo "sshfs mount missing, mounting"
+		printf "missing.\nre-mounting"
 		fusermount -uz "$seedbox_mount"
 		printf "%s" "$seedbox_password" | sshfs "$seedbox_username@$seedbox_host":/ "$seedbox_mount" -o password_stdin -o allow_other
 	fi
