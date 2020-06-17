@@ -42,11 +42,9 @@ function func_docker_env_write {
 	printf "CONFDIR=%s\\n" "$(func_dir_find config)"
 	printf "DOWNDIR=%s\\n" "$(func_dir_find downloads)"
 	printf "POOLDIR=%s\\n" "$(func_dir_find media)"
-	printf "SAVEDIR=%s\\n" "$(func_dir_find saves)"
 	printf "SYNCDIR=%s\\n" "$(func_dir_find vault)"
 	printf "WORKDIR=%s\\n" "$(func_dir_find paperwork)"
 	printf "RCLONE_REMOTE_MEDIA=%s\\n" "$(func_rclone_remote media)"
-	printf "RCLONE_REMOTE_SAVES=%s\\n" "$(func_rclone_remote saves)"
 	printf "RCLONE_REMOTE_WORK=%s\\n" "$(func_rclone_remote work)"
 	} > "$directory_script/.env"
 	}
@@ -357,7 +355,7 @@ function func_rclone_mount {
 		echo Please restart the script.
 		exit 0
 	fi
-	for i in backups media paperwork pictures saves unsorted
+	for i in backups media paperwork pictures unsorted
 	do
 		mount_point="$directory_home/$i"
 		if [[ -f "$mount_point/.mountcheck" ]]
