@@ -143,12 +143,6 @@ services:
     labels:
       traefik.frontend.rule: "Host:$DOMAIN,blog.$DOMAIN,www.$DOMAIN"
       traefik.port: "4000"
-  kms-server:
-    build: kms-server
-    container_name: kms-server
-    restart: unless-stopped
-    ports:
-      - 1688:1688
   ouroboros:
     container_name: ouroboros
     hostname: ouroboros
