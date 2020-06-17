@@ -1,6 +1,3 @@
 [submodule "duolingo"]
 	path = duolingo
 	url = https://github.com/KartikTalwar/Duolingo.git
-[submodule "autochronogg"]
-	path = autochronogg
-	url = https://github.com/joaopsys/AutoChronoGG

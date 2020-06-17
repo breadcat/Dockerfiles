@@ -6,9 +6,6 @@ networks:
     external: true
 
 services:
-  autochronogg:
-    build: autochronogg
-    container_name: autochronogg
   baikal:
     image: ckulka/baikal
     container_name: baikal
