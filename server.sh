@@ -186,12 +186,35 @@ function func_backup_borg {
 	working_directory=$(func_dir_find backups)/borg
 	echo "$working_directory"
 	}
+function func_duolingo_streak {
+	# check api is installed
+	[[ -d "$(func_dir_find config)/duolingo" ]] || git clone https://github.com/KartikTalwar/Duolingo.git "$(func_dir_find config)/duolingo"
+	# include username:password variables
+	func_include_credentials
+	# cd to git dir to include module
+	cd "$(func_dir_find config)/duolingo"
+	# write script per user
+	for i in "${duolingo[@]}"
+	do
+		# split variables
+		username=$(echo "$i" | cut -f1 -d:)
+		password=$(echo "$i" | cut -f2 -d:)
+		# write script
+		{
+		printf "#!/usr/bin/env python3\\n\\n"
+		printf "import duolingo\\n"
+		printf "lingo  = duolingo.Duolingo(\'%s\', password=\'%s\')\\n" "$username" "$password"
+		printf "lingo.buy_streak_freeze()"
+		} > "$username.py"
+		# run and remove script
+		python "$username.py"
+		rm "$username.py"
+	done
+	}
 function func_create_docker {
 	cd "$directory_script" || exit
 	func_docker_env_delete
 	func_include_credentials
-	# update submodules
-	git pull --recurse-submodules
 	# write env file
 	func_docker_env_write
 	# clean up existing stuff
@@ -485,6 +508,7 @@ function func_args {
 		borg) func_backup_borg ;;
 		dedupe) func_dedupe_remote ;;
 		docker) func_create_docker ;;
+		duolingo) func_duolingo_streak ;;
 		logger) func_logger ;;
 		junk) func_junk_clean ;;
 		magnet) func_magnet ;;
