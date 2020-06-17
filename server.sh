@@ -163,7 +163,17 @@ function func_update_remaining {
 		echo "Updating media-sort..."
 		cd /usr/local/bin
 		curl https://i.jpillora.com/media-sort | bash
-	fi	
+	fi
+	if [ -x "$(command -v duplicacy)" ]
+	then
+		dupli_installed=$(duplicacy | awk '/VERSION/ && $0 != "" { getline; print $1}')
+		dupli_available=$(curl -s https://api.github.com/repos/gilbertchen/duplicacy/releases/latest | jq -r '.tag_name' | tr -d '[:alpha:]')
+		if [ $dupli_installed != $dupli_available ]
+		then
+			echo Updating Duplicacy
+			wget "$(curl -sL https://api.github.com/repos/gilbertchen/duplicacy/releases/latest | jq -r '.assets[].browser_download_url' | grep linux_x64)" -O "/usr/local/bin/duplicacy"
+		fi
+	fi
 	if [ -x "$(command -v plowmod)" ]
 	then
 		echo "Updating plowshare..."
