@@ -323,12 +323,18 @@ function func_media_sort {
 		curl https://i.jpillora.com/media-sort | bash
 	fi
 	dir_import=$(func_dir_find remote)/files/complete/
-	dir_tv=$(func_dir_find media)/videos/television
-	dir_mov=$(func_dir_find media)/videos/movies
-	temp_tv="{{ .Name }}/{{ .Name }} S{{ printf \"%02d\" .Season }}E{{ printf \"%02d\" .Episode }}{{ if ne .ExtraEpisode -1 }}-{{ printf \"%02d\" .ExtraEpisode }}{{end}}.{{ .Ext }}"
-	temp_mov="{{ .Name }} ({{ .Year }})/{{ .Name }}.{{ .Ext }}"
-	media-sort -c 1 -t "$dir_tv" -m "$dir_mov" --tv-template "$temp_tv" --movie-template "$temp_mov" --recursive --overwrite-if-larger "$dir_import"
-	func_junk_clean
+	if [[ -d "$dir_import" ]]
+	then
+		dir_tv=$(func_dir_find media)/videos/television
+		dir_mov=$(func_dir_find media)/videos/movies
+		temp_tv="{{ .Name }}/{{ .Name }} S{{ printf \"%02d\" .Season }}E{{ printf \"%02d\" .Episode }}{{ if ne .ExtraEpisode -1 }}-{{ printf \"%02d\" .ExtraEpisode }}{{end}}.{{ .Ext }}"
+		temp_mov="{{ .Name }} ({{ .Year }})/{{ .Name }}.{{ .Ext }}"
+		media-sort -c 1 -t "$dir_tv" -m "$dir_mov" --tv-template "$temp_tv" --movie-template "$temp_mov" --recursive --overwrite-if-larger "$dir_import"
+		func_junk_clean
+	else
+		printf "Import directory not found.\n"
+		exit 0
+	fi
 	}
 function func_junk_clean {
 	working_directory=$(func_dir_find remote)/files/complete/
