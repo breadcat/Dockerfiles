@@ -325,16 +325,23 @@ function func_junk_clean {
 	working_directory=$(func_dir_find remote)/files/complete/
 	if [[ -d "$working_directory" ]]
 	then
+		find "$working_directory" -type f -iname "* poster.jpg" -delete
 		find "$working_directory" -type f -iname "*.nfo" -delete
+		find "$working_directory" -type f -iname "*.url" -delete
+		find "$working_directory" -type f -iname "*.website" -delete
 		find "$working_directory" -type f -iname "*downloaded from*" -delete
-		find "$working_directory" -type f -iname "*yts*jpg" -delete
+		find "$working_directory" -type f -iname "*sample*" -delete
 		find "$working_directory" -type f -iname "*yify*jpg" -delete
-		find "$working_directory" -type f -name "RARBG*" -delete
-		find "$working_directory" -type f -name "*sample*" -delete
-		find "$working_directory" -type f -name "AhaShare*" -delete
+		find "$working_directory" -type f -iname "*yts*jpg" -delete
+		find "$working_directory" -type f -iname "ahashare*" -delete
+		find "$working_directory" -type f -iname "encoded by*" -delete
+		find "$working_directory" -type f -iname "folder.jpg" -delete
+		find "$working_directory" -type f -iname "how to play*" -delete
+		find "$working_directory" -type f -iname "rarbg*" -delete
+		find "$working_directory" -type d -iname 'featurettes' -exec rm -r {} +
 		find "$working_directory" -type d -iname 'sample' -exec rm -r {} +
 		find "$working_directory" -type d -iname 'screens' -exec rm -r {} +
-		find "$working_directory" -type d -iname 'featurettes' -exec rm -r {} +
+		find "$working_directory" -type d -iname 'screenshot*' -exec rm -r {} +
 		find "$working_directory" -type d -empty -delete
 	fi
 	}
