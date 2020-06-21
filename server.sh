@@ -373,6 +373,7 @@ function func_junk_clean {
 		find "$working_directory" -type f -iname "*yts*jpg" -delete
 		find "$working_directory" -type f -iname "ahashare*" -delete
 		find "$working_directory" -type f -iname "encoded by*" -delete
+		find "$working_directory" -type f -iname "cover*.jpg" -delete
 		find "$working_directory" -type f -iname "folder.jpg" -delete
 		find "$working_directory" -type f -iname "how to play*" -delete
 		find "$working_directory" -type f -iname "rarbg*" -delete
