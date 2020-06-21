@@ -116,16 +116,6 @@ services:
       traefik.frontend.rule: "Host:jack.$DOMAIN"
       traefik.port: "9117"
       traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
-  jdownloader:
-    image: plusminus/jdownloader2-headless
-    container_name: jdownloader
-    volumes:
-      - $CONFDIR/jdownloader:/opt/JDownloader/cfg
-      - $DOWNDIR:/downloads
-    environment:
-      - GID=$PGID
-      - UID=$PUID
-    restart: unless-stopped
   jekyll:
     image: jekyll/jekyll
     container_name: jekyll
