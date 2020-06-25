@@ -409,7 +409,7 @@ function func_rclone_mount {
 			echo sleeping
 			sleep 5
 			echo mounting
-			$rclone_command mount "drive-$i": "$directory_home/$i" --vfs-cache-mode minimal --allow-other --allow-non-empty --daemon --log-file "$(func_dir_find config)/logs/rclone-$i.log"
+			$rclone_command mount "drive-$i": "$directory_home/$i" --allow-other --allow-non-empty --daemon --log-file "$(func_dir_find config)/logs/rclone-$i.log"
 			echo restarting docker containers
 			for j in "${docker_restart[@]}"
 			do
