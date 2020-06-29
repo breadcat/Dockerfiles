@@ -130,7 +130,6 @@ services:
       traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
   ouroboros:
     container_name: ouroboros
-    hostname: ouroboros
     image: pyouroboros/ouroboros
     environment:
       - CLEANUP=true
