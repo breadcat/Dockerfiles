@@ -441,7 +441,7 @@ function func_sshfs_mount {
 
 function func_status {
 	status_filename=$(func_dir_find blog.$(func_domain_find))/content/status.md
-	status_timestamp="$(date +%Y-%m-%d) at $(date +%H:%M)"
+	status_timestamp="$(date +%Y-%m-%d\ \a\t\ %H:%M)"
 	status_uptime=$(( $(cut -f1 -d. </proc/uptime) / 86400 ))
 	status_cpuavgs=$(cut -d" " -f1-3 < /proc/loadavg)
 	status_users=$(uptime | grep -oP '.{3}user' | sed 's/\user//g' | xargs)
