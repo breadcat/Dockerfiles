@@ -80,7 +80,7 @@ services:
   dir-repo:
     image: rclone/rclone
     container_name: dir-repo
-    command: "--config '/config/rclone.conf' serve http '$RCLONE_REMOTE_MEDIA' --addr '0.0.0.0:8080' --drive-disable-http2=false -vv"
+    command: "--config '/config/rclone.conf' serve http '$RCLONE_REMOTE_MEDIA' --addr '0.0.0.0:8080' -vv"
     volumes:
       - $CONFDIR/rclone:/config
     restart: unless-stopped
