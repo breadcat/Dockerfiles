@@ -9,5 +9,4 @@ credentials.db
 gcd-token.json
 
 # rclone config file(s)
-rclone.conf
-rclone.sync-conflict-*
+rclone*.conf
