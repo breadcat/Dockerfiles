@@ -438,36 +438,23 @@ function func_sshfs_mount {
 		printf "%s" "$seedbox_password" | sshfs "$seedbox_username@$seedbox_host":/ "$seedbox_mount" -o password_stdin -o allow_other
 	fi
 	}
-
 function func_status {
-	status_filename=$(func_dir_find blog.$(func_domain_find))/content/status.md
-	status_timestamp="$(date +%Y-%m-%d\ \a\t\ %H:%M)"
 	status_uptime=$(( $(cut -f1 -d. </proc/uptime) / 86400 ))
-	status_cpuavgs=$(cut -d" " -f1-3 < /proc/loadavg)
-	status_users=$(uptime | grep -oP '.{3}user' | sed 's/\user//g' | xargs)
-	status_ram=$(printf "%.0f" "$(free | awk '/Mem/ {print $3/$2 * 100.0}')")
-	status_swap=$(printf "%.0f" "$(free | awk '/Swap/ {print $3/$2 * 100.0}')")
-	status_rootuse=$(df / | awk 'END{print $5}')
-	status_dluse=$(df | awk '/downloads/ {print $5}')
-	status_dockers=$(docker ps -q | wc -l)/$(docker ps -aq | wc -l)
-	status_packages=$(dpkg -l | grep ^ii -c)
-	status_ifdata=$(vnstat -m --oneline | cut -f11 -d\;)
 	{
 		printf -- "---\\ntitle: Status\\nlayout: single\\n---\\n\\n"
-		printf "*Generated on %s*\\n\\n" "$status_timestamp"
-		printf "* Uptime: %s" "$status_uptime"
-		printf " Day%s\\n" "$(func_plural "$status_uptime")"
-		printf "* CPU Load: %s\\n" "$status_cpuavgs"
-		printf "* Users: %s\\n" "$status_users"
-		printf "* RAM Usage: %s%%\\n" "$status_ram"
-		printf "* Swap Usage: %s%%\\n" "$status_swap"
-		printf "* Root Usage: %s\\n" "$status_rootuse"
-		printf "* Downloads Usage: %s\\n" "$status_dluse"
-		printf "* [Dockers](https://github.com/breadcat/Dockerfiles): %s\\n" "$status_dockers"
-		printf "* Packages: %s\\n" "$status_packages"
-		printf "* Monthly Data: %s\\n\\n" "$status_ifdata"
+		printf "*Generated on %s*\\n\\n" "$(date +%Y-%m-%d\ \a\t\ %H:%M)"
+		printf "* Uptime: %s Day%s\\n" "$status_uptime" "$(func_plural "$status_uptime")"
+		printf "* CPU Load: %s\\n" "$(cut -d" " -f1-3 < /proc/loadavg)"
+		printf "* Users: %s\\n" "$(uptime | grep -oP '.{3}user' | sed 's/\user//g' | xargs)"
+		printf "* RAM Usage: %s%%\\n" "$(printf "%.0f" "$(free | awk '/Mem/ {print $3/$2 * 100.0}')")"
+		printf "* Swap Usage: %s%%\\n" "$(printf "%.0f" "$(free | awk '/Swap/ {print $3/$2 * 100.0}')")"
+		printf "* Root Usage: %s\\n" "$(df / | awk 'END{print $5}')"
+		printf "* Downloads Usage: %s\\n" "$(df | awk '/downloads/ {print $5}')"
+		printf "* [Dockers](https://github.com/breadcat/Dockerfiles): %s\\n" "$(docker ps -q | wc -l)/$(docker ps -aq | wc -l)"
+		printf "* Packages: %s\\n" "$(dpkg -l | grep ^ii -c)"
+		printf "* Monthly Data: %s\\n\\n" "$(vnstat -m --oneline | cut -f11 -d\;)"
 		printf "Hardware specifications themselves are covered on the [hardware page](/hardware/#server).\\n"
-	} > "$status_filename"
+	} > "$(func_dir_find blog.$(func_domain_find))/content/status.md"
 	}
 function func_dedupe_remote {
 	dests=$(func_rclone_remote "$rclone_core" | wc -l)
