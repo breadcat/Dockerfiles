@@ -229,3 +229,29 @@ services:
     restart: unless-stopped
     networks:
       - proxy
+  wireguard:
+    image: place1/wg-access-server
+    container_name: wireguard
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    environment:
+      WIREGUARD_PRIVATE_KEY: $WG_PRIVKEY
+      STORAGE: file:///wireguard-clients/
+      CONFIG: "/config.yaml"
+      ADMIN_USERNAME: $NAME
+      ADMIN_PASSWORD: $PASS
+    volumes:
+      - $CONFDIR/wireguard/data:/data
+      - $CONFDIR/wireguard/clients:/wireguard-clients
+      - $CONFDIR/wireguard/config.yaml:/config.yaml:ro
+    ports:
+      - 51820:51820/udp
+    devices:
+      - "/dev/net/tun:/dev/net/tun"
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:vpn.$DOMAIN"
+      traefik.port: "8000"
+

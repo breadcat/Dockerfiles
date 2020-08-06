@@ -46,6 +46,7 @@ function func_docker_env_write {
 	printf "WORKDIR=%s\\n" "$(func_dir_find paperwork)"
 	printf "RCLONE_REMOTE_MEDIA=%s\\n" "$(func_rclone_remote media)"
 	printf "RCLONE_REMOTE_WORK=%s\\n" "$(func_rclone_remote work)"
+	printf "WG_PRIVKEY=%s\\n" "$wireguard_key"
 	} > "$directory_script/.env"
 	}
 function func_payslip_config_write {
