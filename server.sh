@@ -476,7 +476,7 @@ function func_weight {
 		plot "temp.dat" using 1:2 smooth cspline with lines
 	EOF
 	# compress graph
-	svgo -i "temp.svg" --multipass -o "temp.min.svg"
+	svgo -i "temp.svg" --multipass -o "temp.min.svg" -q
 	# write page
 	{
 		printf -- "---\\ntitle: Weight\\nlayout: single\\ndate: %s\\nlastmod: %s\\n---\\n\\n" "$weight_dateinit" "$weight_datemod"
