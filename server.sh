@@ -491,8 +491,8 @@ function func_args {
 		dedupe) func_dedupe_remote ;;
 		docker) func_create_docker ;;
 		duolingo) func_duolingo_streak ;;
-		logger) func_logger ;;
 		junk) func_junk_clean ;;
+		logger) func_logger ;;
 		magnet) func_magnet ;;
 		payslip) func_payslip ;;
 		permissions) func_permissions ;;
