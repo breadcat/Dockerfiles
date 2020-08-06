@@ -450,6 +450,43 @@ function func_status {
 		printf "Hardware specifications themselves are covered on the [hardware page](/hardware/#server).\\n"
 	} > "$(func_dir_find blog.$(func_domain_find))/content/status.md"
 	}
+function func_weight {
+	# variables
+	weight_filename=$(func_dir_find blog.$(func_domain_find))/content/weight.md
+	# cd to temporary directory
+	cd "$(mktemp -d)" || exit
+	# pull raw data from source
+	weight_rawdata="$(awk '/<pre>/{flag=1; next} /<\/pre>/{flag=0} flag' $weight_filename | sort -u)"
+	printf "%s" "$weight_rawdata" > temp.dat
+	weight_dateinit="$(awk '/date:/ {print $2}' $weight_filename)"
+	weight_datemod="$(date +%Y-%m-%d\T%H:%M:%S)"
+	# draw graph
+	gnuplot <<- EOF
+		set grid
+		set datafile separator comma
+		set xlabel "Date"
+		set xdata time
+		set timefmt "%Y-%m-%d"
+		set xtics format "%m %y"
+		set ylabel "Kilograms"
+		set key off
+		set term svg font 'sans-serif,12'
+		set sample 50
+		set output "temp.svg"
+		plot "temp.dat" using 1:2 smooth cspline with lines
+	EOF
+	# compress graph
+	svgo -i "temp.svg" --multipass -o "temp.min.svg"
+	# write page
+	{
+		printf -- "---\\ntitle: Weight\\nlayout: single\\ndate: %s\\nlastmod: %s\\n---\\n\\n" "$weight_dateinit" "$weight_datemod"
+		printf "%s\\n\\n" "$(cat temp.min.svg)"
+		printf "<details><summary>Raw data</summary>\\n<pre>\\n%s\\n</pre></details>" "$weight_rawdata"
+
+	} > "$weight_filename"
+	# clean up
+	rm -r "$PWD"
+	}
 function func_dedupe_remote {
 	dests=$(func_rclone_remote "$rclone_core" | wc -l)
 	for i in $(seq 1 "$dests")
@@ -502,6 +539,7 @@ function func_args {
 		status) func_status ;;
 		sync) func_sync_remotes ;;
 		update) func_update ;;
+		weight) func_weight ;;
 		*) echo "$0" && func_available_options ;;
 	esac
 	}
