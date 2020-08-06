@@ -417,13 +417,7 @@ function func_rclone_mount {
 			done
 		fi
 	done
-	if ls "$directory_script"/rclone.sync-conflict* 1> /dev/null 2>&1
-	then
-		echo removing sync-conflict files
-		rm -r "$directory_script"/rclone.sync-conflict*
-	fi
 	}
-
 function func_sshfs_mount {
 	func_include_credentials
 	printf "sshfs mount checker... "
