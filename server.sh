@@ -204,7 +204,7 @@ function func_duolingo_streak {
 		{
 		printf "#!/usr/bin/env python3\\n\\n"
 		printf "import duolingo\\n"
-		printf "lingo  = duolingo.Duolingo(\'%s\', password=\'%s\')\\n" "$username" "$password"
+		printf "lingo  = duolingo.Duolingo('%s', password='%s')\\n" "$username" "$password"
 		printf "lingo.buy_streak_freeze()"
 		} > "$username.py"
 		# run and remove script
