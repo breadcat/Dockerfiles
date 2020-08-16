@@ -458,7 +458,7 @@ function func_weight {
 	cd "$(mktemp -d)" || exit
 	# pull raw data from source
 	weight_rawdata="$(awk '/<pre>/{flag=1; next} /<\/pre>/{flag=0} flag' $weight_filename | sort -u)"
-	printf "%s" "$weight_rawdata" > temp.dat
+	printf "%s" "$weight_rawdata" | grep "^$(date +%Y)" > temp.dat
 	weight_dateinit="$(awk '/date:/ {print $2}' $weight_filename)"
 	weight_datemod="$(date +%Y-%m-%d\T%H:%M:%S)"
 	# draw graph
@@ -481,7 +481,7 @@ function func_weight {
 	# write page
 	{
 		printf -- "---\\ntitle: Weight\\nlayout: single\\ndate: %s\\nlastmod: %s\\n---\\n\\n" "$weight_dateinit" "$weight_datemod"
-		printf "%s\\n\\n" "$(cat temp.min.svg)"
+		printf "%s\\n\\n%s graph\\n\\n" "$(cat temp.min.svg)" "$(date +%Y)"
 		printf "<details><summary>Raw data</summary>\\n<pre>\\n%s\\n</pre></details>" "$weight_rawdata"
 
 	} > "$weight_filename"
