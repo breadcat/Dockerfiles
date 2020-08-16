@@ -44,7 +44,7 @@ services:
       - $HOMEDIR:/import
       - $POOLDIR/audio:/music
   cbreader:
-    build: cbreader
+    image: wervv/cbreader
     container_name: cbreader
     volumes:
       - $POOLDIR/literature/comics:/comics
