@@ -94,7 +94,7 @@ services:
   hugo:
     image: jojomi/hugo
     container_name: hugo
-    command: "hugo server --watch=true --source=/src --baseURL=https://$DOMAIN --bind=0.0.0.0 --appendPort=false"
+    command: "hugo server --watch=true --minify --source=/src --baseURL=https://$DOMAIN --bind=0.0.0.0 --appendPort=false"
     volumes:
       - $SYNCDIR/src/blog.$DOMAIN:/src
     restart: unless-stopped
