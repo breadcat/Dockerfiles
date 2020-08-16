@@ -162,14 +162,14 @@ function func_update_remaining {
 	if [ -x "$(command -v media-sort)" ]
 	then
 		echo "Updating media-sort..."
-		cd /usr/local/bin
+		cd "/usr/local/bin" || return
 		curl https://i.jpillora.com/media-sort | bash
 	fi
 	if [ -x "$(command -v duplicacy)" ]
 	then
-		dupli_installed=$(duplicacy | awk '/VERSION/ && $0 != "" { getline; print $1}')
-		dupli_available=$(curl -s https://api.github.com/repos/gilbertchen/duplicacy/releases/latest | jq -r '.tag_name' | tr -d '[:alpha:]')
-		if [ $dupli_installed != $dupli_available ]
+		dupli_installed="$(duplicacy | awk '/VERSION/ && $0 != "" { getline; print $1}')"
+		dupli_available="$(curl -s https://api.github.com/repos/gilbertchen/duplicacy/releases/latest | jq -r '.tag_name' | tr -d '[:alpha:]')"
+		if [ "$dupli_installed" != "$dupli_available" ]
 		then
 			echo Updating Duplicacy
 			wget "$(curl -sL https://api.github.com/repos/gilbertchen/duplicacy/releases/latest | jq -r '.assets[].browser_download_url' | grep linux_x64)" -O "/usr/local/bin/duplicacy"
@@ -193,7 +193,7 @@ function func_duolingo_streak {
 	# include username:password variables
 	func_include_credentials
 	# cd to git dir to include module
-	cd "$(func_dir_find config)/duolingo"
+	cd "$(func_dir_find config)/duolingo" || return
 	# write script per user
 	for i in "${duolingo[@]}"
 	do
@@ -356,7 +356,7 @@ function func_media_sort {
 		media-sort --action copy --concurrency 1 --accuracy-threshold 90 --tv-dir "$dir_tv" --movie-dir "$dir_mov" --tv-template "$temp_tv" --movie-template "$temp_mov" --recursive --overwrite-if-larger "$dir_import"
 		func_junk_clean
 	else
-		printf "Import directory not found.\n"
+		printf "Import directory not found.\\n"
 		exit 0
 	fi
 	}
@@ -426,9 +426,9 @@ function func_sshfs_mount {
 	seedbox_mount="$(func_dir_find downloads)/remote"
 	if [[ -d "$seedbox_mount/files" ]]
 	then
-		printf "exists.\n"
+		printf "exists.\\n"
 	else
-		printf "missing.\nre-mounting"
+		printf "missing.\\nre-mounting"
 		fusermount -uz "$seedbox_mount"
 		printf "%s" "$seedbox_password" | sshfs "$seedbox_username@$seedbox_host":/ "$seedbox_mount" -o password_stdin -o allow_other
 	fi
@@ -449,17 +449,17 @@ function func_status {
 		printf "* Packages: %s\\n" "$(dpkg -l | grep ^ii -c)"
 		printf "* Monthly Data: %s\\n\\n" "$(vnstat -m --oneline | cut -f11 -d\;)"
 		printf "Hardware specifications themselves are covered on the [hardware page](/hardware/#server).\\n"
-	} > "$(func_dir_find blog.$(func_domain_find))/content/status.md"
+	} > "$(func_dir_find blog."$(func_domain_find)")/content/status.md"
 	}
 function func_weight {
 	# variables
-	weight_filename=$(func_dir_find blog.$(func_domain_find))/content/weight.md
+	weight_filename="$(func_dir_find blog."$(func_domain_find)")/content/weight.md"
 	# cd to temporary directory
 	cd "$(mktemp -d)" || exit
 	# pull raw data from source
-	weight_rawdata="$(awk '/<pre>/{flag=1; next} /<\/pre>/{flag=0} flag' $weight_filename | sort -u)"
+	weight_rawdata="$(awk '/<pre>/{flag=1; next} /<\/pre>/{flag=0} flag' "$weight_filename" | sort -u)"
 	printf "%s" "$weight_rawdata" | grep "^$(date +%Y)" > temp.dat
-	weight_dateinit="$(awk '/date:/ {print $2}' $weight_filename)"
+	weight_dateinit="$(awk '/date:/ {print $2}' "$weight_filename")"
 	weight_datemod="$(date +%Y-%m-%d\T%H:%M:%S)"
 	# draw graph
 	gnuplot <<- EOF
