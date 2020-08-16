@@ -100,7 +100,7 @@ function func_backup_archive {
 		cd "$(mktemp -d)" || exit
 		for i in "config" "vault"
 		do
-			tar -cJf "backup-$i-$(date +%Y-%m-%d-%H%M).tar.xz" --ignore-failed-read "$directory_home/$i"
+			tar -cJf "backup-$i-$(date +%F-%H%M).tar.xz" --ignore-failed-read "$directory_home/$i"
 		done
 		echo "Sending via rclone..."
 		for i in *
@@ -114,7 +114,7 @@ function func_backup_archive {
 	else
 		echo Creating single archive...
 		cd "$(mktemp -d)" || exit
-		tar -cJf "backup-$1-$(date +%Y-%m-%d-%H%M).tar.xz" --ignore-failed-read "$directory_home/$1"
+		tar -cJf "backup-$1-$(date +%F-%H%M).tar.xz" --ignore-failed-read "$directory_home/$1"
 		echo "Sending via rclone..."
 		for i in *
 		do
@@ -286,7 +286,7 @@ function func_logger {
 	$rclone_command ls "$log_remote" | sort -k2 > "$file_git_log" # create log
 	$rclone_command size "$log_remote" >> "$file_git_log" # append size
 	$log_command add "$file_git_log" # add log file
-	$log_command commit -m "Update: $(date +%Y-%m-%d)" # commit to repo, datestamped
+	$log_command commit -m "Update: $(date +%F)" # commit to repo, datestamped
 	if [ -e "$file_git_log.xz" ]
 	then
 		rm "$file_git_log.xz"
@@ -494,7 +494,7 @@ function func_dedupe_remote {
 	do
 		remote=$(func_rclone_remote "$rclone_core" | grep "$i")
 		echo Deduplicating "$remote"
-		$rclone_command dedupe --dedupe-mode newest "$remote" --log-file "$(func_dir_find config)/logs/rclone-dupe-$(date +%Y-%m-%d-%H%M).log"
+		$rclone_command dedupe --dedupe-mode newest "$remote" --log-file "$(func_dir_find config)/logs/rclone-dupe-$(date +%F-%H%M).log"
 	done
 	}
 function func_sync_remotes {
@@ -504,7 +504,7 @@ function func_sync_remotes {
 	do
 		dest=$(func_rclone_remote "$rclone_core" | grep "$i")
 		echo Syncing "$source" to "$dest"
-		$rclone_command sync "$source" "$dest" --verbose --log-file "$(func_dir_find config)/logs/rclone-sync-$(date +%Y-%m-%d-%H%M).log"
+		$rclone_command sync "$source" "$dest" --verbose --log-file "$(func_dir_find config)/logs/rclone-sync-$(date +%F-%H%M).log"
 	done
 	}
 function func_update {
