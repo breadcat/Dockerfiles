@@ -437,7 +437,7 @@ function func_status {
 	status_uptime=$(( $(cut -f1 -d. </proc/uptime) / 86400 ))
 	{
 		printf -- "---\\ntitle: Status\\nlayout: single\\n---\\n\\n"
-		printf "*Generated on %s*\\n\\n" "$(date +%Y-%m-%d\ \a\t\ %H:%M)"
+		printf "*Generated on %(%Y-%m-%d at %H:%M)T*\\n\\n" -1
 		printf "* Uptime: %s Day%s\\n" "$status_uptime" "$(func_plural "$status_uptime")"
 		printf "* CPU Load: %s\\n" "$(cut -d" " -f1-3 < /proc/loadavg)"
 		printf "* Users: %s\\n" "$(uptime | grep -oP '.{3}user' | sed 's/\user//g' | xargs)"
@@ -460,7 +460,6 @@ function func_weight {
 	weight_rawdata="$(awk '/<pre>/{flag=1; next} /<\/pre>/{flag=0} flag' "$weight_filename" | sort -u)"
 	printf "%s" "$weight_rawdata" | grep "^$(date +%Y)" > temp.dat
 	weight_dateinit="$(awk '/date:/ {print $2}' "$weight_filename")"
-	weight_datemod="$(date +%Y-%m-%d\T%H:%M:%S)"
 	# draw graph
 	gnuplot <<- EOF
 		set grid
@@ -480,7 +479,7 @@ function func_weight {
 	svgo -i "temp.svg" --multipass -o "temp.min.svg" -q
 	# write page
 	{
-		printf -- "---\\ntitle: Weight\\nlayout: single\\ndate: %s\\nlastmod: %s\\n---\\n\\n" "$weight_dateinit" "$weight_datemod"
+		printf -- "---\\ntitle: Weight\\nlayout: single\\ndate: %s\\nlastmod: %(%Y-%m-%dT%H:%M:00)T\\n---\\n\\n" "$weight_dateinit" -1
 		printf "%s\\n\\n%s graph\\n\\n" "$(cat temp.min.svg)" "$(date +%Y)"
 		printf "<details><summary>Raw data</summary>\\n<pre>\\n%s\\n</pre></details>" "$weight_rawdata"
 
