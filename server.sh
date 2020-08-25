@@ -467,7 +467,7 @@ function func_weight {
 		set xlabel "Date"
 		set xdata time
 		set timefmt "%Y-%m-%d"
-		set xtics format "%m %y"
+		set xtics format "%B"
 		set ylabel "Kilograms"
 		set key off
 		set term svg font 'sans-serif,12'
