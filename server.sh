@@ -316,6 +316,8 @@ function func_magnet {
 	do
 		mv -v "$i" "$(func_dir_find downloads)/remote/watch/"
 	done
+	echo "cleaning up tmp directory"
+	find /tmp/ -type d -empty -delete
 	}
 function func_payslip {
 	# depends on: getmail4 mpack qpdf
