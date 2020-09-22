@@ -300,7 +300,7 @@ function func_magnet {
 	mag2tor_script_path="$(func_dir_find config)/magnet2torrent/Magnet_To_Torrent2.py"
 	if [ ! -f "$mag2tor_script_path" ]
 	then
-		echo script not found, downloading
+		echo "script not found, downloading"
 		git clone "https://github.com/danfolkes/Magnet2Torrent.git" "$(func_dir_find config)/magnet2torrent"
 	fi
 	shopt -s nullglob
