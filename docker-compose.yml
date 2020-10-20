@@ -260,4 +260,3 @@ services:
     labels:
       traefik.frontend.rule: "Host:vpn.$DOMAIN"
       traefik.port: "8000"
-
