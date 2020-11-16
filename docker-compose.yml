@@ -153,8 +153,6 @@ services:
     restart: unless-stopped
     volumes:
       - $SYNCDIR/src/php-dev:/var/www/html
-      - $SYNCDIR/pub/.fjournal/:/fj
-      - $SYNCDIR/pub/.weight/:/weight
       - $POOLDIR/literature/books/:/books
     restart: unless-stopped
     networks:
