@@ -159,6 +159,18 @@ services:
     labels:
       traefik.frontend.rule: "Host:dev.$DOMAIN"
       traefik.port: "80"
+  rss-bridge:
+    image: rssbridge/rss-bridge
+    container_name: rss-bridge
+    restart: unless-stopped
+    depends_on:
+      - traefik
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:bridge.$DOMAIN"
+      traefik.port: "80"
+      traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
   selfoss:
     image: hardware/selfoss
     container_name: selfoss
