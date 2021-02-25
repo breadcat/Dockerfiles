@@ -33,16 +33,6 @@ services:
     labels:
       traefik.frontend.rule: "Host:pass.$DOMAIN"
       traefik.port: "80"
-  beets:
-    image: linuxserver/beets
-    container_name: beets
-    environment:
-      - PGID=$PGID
-      - PUID=$PUID
-    volumes:
-      - $CONFDIR/beets:/config
-      - $HOMEDIR:/import
-      - $POOLDIR/audio:/music
   cbreader:
     image: wervv/cbreader
     container_name: cbreader
