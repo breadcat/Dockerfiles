@@ -152,7 +152,7 @@ services:
     networks:
       - proxy
     labels:
-      traefik.frontend.rule: "Host:rss.$DOMAIN"
+      traefik.frontend.rule: "Host:oldrss.$DOMAIN"
       traefik.port: "8888"
   syncthing:
     image: linuxserver/syncthing
