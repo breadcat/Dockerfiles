@@ -12,6 +12,8 @@ services:
     volumes:
       - $CONFDIR/baikal:/var/www/baikal/Specific
     restart: unless-stopped
+    depends_on:
+      - traefik
     networks:
       - proxy
     labels:
@@ -28,6 +30,8 @@ services:
     ports:
       - 3012:3012
     restart: unless-stopped
+    depends_on:
+      - traefik
     networks:
       - proxy
     labels:
@@ -39,6 +43,8 @@ services:
     volumes:
       - $POOLDIR/literature/comics:/comics
     restart: unless-stopped
+    depends_on:
+      - traefik
     networks:
       - proxy
     labels:
@@ -51,6 +57,8 @@ services:
     volumes:
       - $SYNCDIR/src:/git
     restart: unless-stopped
+    depends_on:
+      - traefik
     networks:
       - proxy
     labels:
@@ -62,6 +70,8 @@ services:
     volumes:
       - $SYNCDIR/pub:/var/www
     restart: unless-stopped
+    depends_on:
+      - traefik
     networks:
       - proxy
     labels:
@@ -75,6 +85,8 @@ services:
     volumes:
       - $CONFDIR/rclone:/config
     restart: unless-stopped
+    depends_on:
+      - traefik
     networks:
       - proxy
     labels:
@@ -94,6 +106,8 @@ services:
     volumes:
       - $SYNCDIR/src/blog.$DOMAIN:/src
     restart: unless-stopped
+    depends_on:
+      - traefik
     networks:
       - proxy
     labels:
@@ -103,6 +117,8 @@ services:
     image: joshdvir/ipd
     container_name: ipd
     restart: unless-stopped
+    depends_on:
+      - traefik
     networks:
       - proxy
     labels:
@@ -119,6 +135,8 @@ services:
       - $CONFDIR/jackett:/config
       - $SYNCDIR:/downloads
     restart: unless-stopped
+    depends_on:
+      - traefik
     networks:
       - proxy
     labels:
@@ -134,6 +152,8 @@ services:
       - $SYNCDIR/src/php-dev:/var/www/html
       - $POOLDIR/literature/books/:/books
     restart: unless-stopped
+    depends_on:
+      - traefik
     networks:
       - proxy
     labels:
@@ -149,6 +169,8 @@ services:
       - GID=$PGID
       - CRON_PERIOD=60m
     restart: unless-stopped
+    depends_on:
+      - traefik
     networks:
       - proxy
     labels:
