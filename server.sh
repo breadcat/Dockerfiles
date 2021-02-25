@@ -406,13 +406,15 @@ function func_rclone_mount {
 		then
 			echo "$i" still mounted
 		else
+			mount_points_remounted=true
 			echo "$i" not mounted
 			echo force unmounting
 			fusermount -uz "$mount_point"
-			echo sleeping
-			sleep 5
+			echo sleeping && sleep 3
 			echo mounting
 			$rclone_command mount "drive-$i": "$directory_home/$i" --allow-other --allow-non-empty --daemon --log-file "$(func_dir_find config)/logs/rclone-$i.log"
+		fi
+		if [ "$mount_points_remounted" = true ] ; then
 			echo restarting docker containers
 			for j in "${docker_restart[@]}"
 			do
