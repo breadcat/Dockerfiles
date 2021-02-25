@@ -159,6 +159,17 @@ services:
     labels:
       traefik.frontend.rule: "Host:dev.$DOMAIN"
       traefik.port: "80"
+  postgres:
+    image: postgres:alpine
+    container_name: postgres
+    user: "$PUID:$PGID"
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=$DBPASSWORD
+    volumes:
+      - $CONFDIR/postgres:/var/lib/postgresql/data
   rss-bridge:
     image: rssbridge/rss-bridge
     container_name: rss-bridge
@@ -232,6 +243,25 @@ services:
     restart: unless-stopped
     networks:
       - proxy
+  ttrss:
+    image: skyr0/ttrss
+    container_name: ttrss
+    restart: unless-stopped
+    environment:
+      - BASE_URL=https://rss.$DOMAIN/
+      - DB_HOST=$DOMAIN
+      - DB_PASS=$DBPASSWORD
+      - DB_PORT=5432
+      - DB_TYPE=pgsql
+      - DB_USER=postgres
+    depends_on:
+      - postgres
+      - traefik
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:rss.$DOMAIN"
+      traefik.port: "8080"
   watchtower:
     image: containrrr/watchtower
     container_name: watchtower
