@@ -125,17 +125,6 @@ services:
       traefik.frontend.rule: "Host:jack.$DOMAIN"
       traefik.port: "9117"
       traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
-  ouroboros:
-    container_name: ouroboros
-    image: pyouroboros/ouroboros
-    environment:
-      - CLEANUP=true
-      - INTERVAL=300
-      - SELF_UPDATE=true
-      - TZ=$TZ
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
   php-dev:
     image: php:apache
     container_name: php-dev
@@ -223,6 +212,12 @@ services:
     restart: unless-stopped
     networks:
       - proxy
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
   wireguard:
     image: place1/wg-access-server
     container_name: wireguard
