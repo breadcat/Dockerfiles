@@ -162,7 +162,6 @@ services:
   postgres:
     image: postgres:alpine
     container_name: postgres
-    user: "$PUID:$PGID"
     restart: unless-stopped
     ports:
       - 5432:5432
