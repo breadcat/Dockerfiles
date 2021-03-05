@@ -181,23 +181,6 @@ services:
       traefik.frontend.rule: "Host:bridge.$DOMAIN"
       traefik.port: "80"
       traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
-  selfoss:
-    image: hardware/selfoss
-    container_name: selfoss
-    volumes:
-      - $CONFDIR/selfoss:/selfoss/data
-    environment:
-      - UID=$PUID
-      - GID=$PGID
-      - CRON_PERIOD=60m
-    restart: unless-stopped
-    depends_on:
-      - traefik
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:oldrss.$DOMAIN"
-      traefik.port: "8888"
   syncthing:
     image: linuxserver/syncthing
     container_name: syncthing
