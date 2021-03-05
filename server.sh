@@ -11,7 +11,7 @@ function func_plural {
 	fi
 	}
 function func_dir_find {
-	find "$directory_home" -maxdepth 3 -mount -type d -name "$1"
+	find "$directory_home" -maxdepth 3 -mount -type d -name "$1" 2>/dev/null
 	}
 function func_domain_find {
 	file_config_traefik="$(func_dir_find config)/traefik/traefik.toml"
