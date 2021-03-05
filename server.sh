@@ -352,6 +352,7 @@ function func_media_sort {
 	dir_import=$(func_dir_find remote)/files/complete/
 	if [[ -d "$dir_import" ]]
 	then
+		func_junk_clean
 		dir_tv=$(func_dir_find media)/videos/television
 		dir_mov=$(func_dir_find media)/videos/movies
 		temp_tv="{{ .Name }}/{{ .Name }} S{{ printf \"%02d\" .Season }}E{{ printf \"%02d\" .Episode }}{{ if ne .ExtraEpisode -1 }}-{{ printf \"%02d\" .ExtraEpisode }}{{end}}.{{ .Ext }}"
@@ -382,7 +383,7 @@ function func_junk_clean {
 		find "$working_directory" -type f -iname "how to play*" -delete
 		find "$working_directory" -type f -iname "rarbg*" -delete
 		find "$working_directory" -type d -iname 'featurettes' -exec rm -r {} +
-		find "$working_directory" -type d -iname 'sample' -exec rm -r {} +
+		find "$working_directory" -type d -iname 'sample*' -exec rm -r {} +
 		find "$working_directory" -type d -iname 'screens' -exec rm -r {} +
 		find "$working_directory" -type d -iname 'screenshot*' -exec rm -r {} +
 		find "$working_directory" -type d -empty -delete
