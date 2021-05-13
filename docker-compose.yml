@@ -169,18 +169,6 @@ services:
       - POSTGRES_PASSWORD=$DBPASSWORD
     volumes:
       - $CONFDIR/postgres:/var/lib/postgresql/data
-  rss-bridge:
-    image: rssbridge/rss-bridge
-    container_name: rss-bridge
-    restart: unless-stopped
-    depends_on:
-      - traefik
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:bridge.$DOMAIN"
-      traefik.port: "80"
-      traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
   syncthing:
     image: linuxserver/syncthing
     container_name: syncthing
