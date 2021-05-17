@@ -54,10 +54,10 @@ function func_payslip_config_write {
 	{
 	printf "[retriever]\\n"
 	printf "type = SimpleIMAPSSLRetriever\\n"
-	printf "server = imap.yandex.com\\n"
-	printf "username = %s\\n" "$payslip_username"
+	printf "server = %s\\n" "$mail_server"
+	printf "username = %s\\n" "$mail_username"
 	printf "port = 993\\n"
-	printf "password = %s\\n\\n" "$payslip_password"
+	printf "password = %s\\n\\n" "$mail_password"
 	printf "[destination]\\n"
 	printf "type = Maildir\\n"
 	printf "path = %s/\\n" "$directory_temp"
