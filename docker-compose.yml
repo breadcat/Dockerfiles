@@ -40,6 +40,7 @@ services:
   cbreader:
     image: wervv/cbreader
     container_name: cbreader
+    user: "$PUID:$PGID"
     volumes:
       - $POOLDIR/literature/comics:/comics
     restart: unless-stopped
