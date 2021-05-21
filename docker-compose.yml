@@ -147,7 +147,7 @@ services:
   php-dev:
     image: php:apache
     container_name: php-dev
-    command: bash -c "sed -i 's|33|$PUID|g' /etc/passwd && apt-get update && apt-get install zlib1g-dev libzip-dev libxslt-dev -y && docker-php-ext-install xsl zip && docker-php-ext-enable xsl zip && a2enmod rewrite && apache2-foreground"
+    command: bash -c "sed -i 's|33|$PUID|g' /etc/passwd && apt-get update && apt-get install barcode imagemagick libxslt-dev libzip-dev pngquant qrencode zlib1g-dev -y && docker-php-ext-install xsl zip && docker-php-ext-enable xsl zip && a2enmod rewrite && apache2-foreground"
     restart: unless-stopped
     volumes:
       - $SYNCDIR/src/php-dev:/var/www/html
