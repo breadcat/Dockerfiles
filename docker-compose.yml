@@ -19,24 +19,6 @@ services:
     labels:
       traefik.frontend.rule: "Host:dav.$DOMAIN"
       traefik.port: "80"
-  bitwarden:
-    image: bitwardenrs/server:latest
-    container_name: bitwarden
-    volumes:
-      - $CONFDIR/bitwarden:/data
-    environment:
-      - WEBSOCKET_ENABLED=false
-      - SIGNUPS_ALLOWED=false
-    ports:
-      - 3012:3012
-    restart: unless-stopped
-    depends_on:
-      - traefik
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:pass.$DOMAIN"
-      traefik.port: "80"
   cbreader:
     image: wervv/cbreader
     container_name: cbreader
@@ -233,6 +215,24 @@ services:
     labels:
       traefik.frontend.rule: "Host:rss.$DOMAIN"
       traefik.port: "8080"
+  vaultwarden:
+    image: vaultwarden/server
+    container_name: vaultwarden
+    volumes:
+      - $CONFDIR/vaultwarden:/data
+    environment:
+      - WEBSOCKET_ENABLED=false
+      - SIGNUPS_ALLOWED=false
+    ports:
+      - 3012:3012
+    restart: unless-stopped
+    depends_on:
+      - traefik
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:pass.$DOMAIN"
+      traefik.port: "80"
   watchtower:
     image: containrrr/watchtower
     container_name: watchtower
