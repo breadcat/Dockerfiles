@@ -14,8 +14,7 @@ function func_dir_find {
 	find "$directory_home" -maxdepth 3 -mount -type d -name "$1" 2>/dev/null
 	}
 function func_domain_find {
-	file_config_traefik="$(func_dir_find config)/traefik/traefik.toml"
-	awk -F'"' '/domain/ {print $2}' "$file_config_traefik"
+	awk -F'"' '/domain/ {print $2}' "$(func_dir_find traefik)/traefik.toml"
 	}
 function func_git_config {
 	git config --global user.email "$username@$(func_domain_find)"
