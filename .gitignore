@@ -2,11 +2,5 @@
 # password file
 credentials.db
 
-# environment file
-.env
-
-# duplicacy token
-gcd-token.json
-
 # rclone config file(s)
 rclone*.conf
