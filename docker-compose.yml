@@ -83,11 +83,12 @@ services:
       - 22:2222
     restart: always
   hugo:
-    image: jojomi/hugo
+    image: klakegg/hugo
     container_name: hugo
-    command: "hugo server --watch=true --minify --source=/src --baseURL=https://$DOMAIN --bind=0.0.0.0 --appendPort=false"
+    command: "server --watch=true --minify --source=/src --baseURL=https://$DOMAIN --bind=0.0.0.0 --appendPort=false"
     volumes:
       - $SYNCDIR/src/blog.$DOMAIN:/src
+      - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
     depends_on:
       - traefik
