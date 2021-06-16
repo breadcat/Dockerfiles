@@ -39,6 +39,7 @@ services:
     container_name: cgit
     volumes:
       - $SYNCDIR/src:/git
+      - $CONFDIR/cgit/cgit.css:/var/www/htdocs/cgit/cgit.css
     restart: unless-stopped
     depends_on:
       - traefik
