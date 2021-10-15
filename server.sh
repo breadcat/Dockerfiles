@@ -508,7 +508,7 @@ function func_weight_date {
 	}
 function func_dedupe_remote {
 	dests=$(func_rclone_remote "$rclone_core" | wc -l)
-	for i in $(seq 1 "$dests")
+	for i in $(seq "$dests")
 	do
 		remote=$(func_rclone_remote "$rclone_core" | grep "$i")
 		echo Deduplicating "$remote"
