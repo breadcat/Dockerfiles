@@ -65,9 +65,9 @@ services:
     image: rclone/rclone
     container_name: dir-repo
     user: "$PUID:$PGID"
-    command: "--config '/config/rclone.conf' serve http '$RCLONE_REMOTE_MEDIA' --addr '0.0.0.0:8080' -vv"
+    command: "serve http '$RCLONE_REMOTE_MEDIA' --addr '0.0.0.0:8080' -vv"
     volumes:
-      - $CONFDIR/rclone:/config
+      - $CONFDIR/rclone:/config/rclone/
     restart: unless-stopped
     depends_on:
       - traefik
