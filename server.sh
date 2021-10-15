@@ -126,9 +126,9 @@ function func_backup_archive {
 	fi
 	}
 function func_update_arch {
-	if [ -x "$(command -v yay)" ]
+	if [ -x "$(command -v paru)" ]
 	then
-		yay -Syu --noconfirm
+		paru -Syu --noconfirm
 	else
 		pacman -Syu --noconfirm
 	fi
