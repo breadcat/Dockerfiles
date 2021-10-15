@@ -89,7 +89,6 @@ services:
     command: "server --watch=true --minify --source=/src --baseURL=https://$DOMAIN --bind=0.0.0.0 --appendPort=false --buildFuture"
     volumes:
       - $SYNCDIR/src/blog.$DOMAIN:/src
-      - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
     depends_on:
       - traefik
