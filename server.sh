@@ -492,6 +492,20 @@ function func_weight {
 	# clean up
 	rm -r "$PWD"
 	}
+function func_weight_date {
+	# variables
+	weight_filename="$(func_dir_find blog."$(func_domain_find)")/content/weight.md"
+	page_source="$(head -n -2 "$weight_filename")"
+	previous_date="$(printf %s "$page_source" | awk -F, 'END{print $1}')"
+	todays_date="$(date +%F)"
+	sequence_count="$(( ($(date --date="$todays_date" +%s) - $(date --date="$previous_date" +%s) )/(60*60*24) ))"
+	# operation
+	{
+		printf "%s\\n" "$page_source"
+		printf "%s" "$(for i in $(seq $sequence_count); do printf "%s,\\n" "$(date -d "$previous_date+$i day" +%F)"; done)"
+		printf "\\n</pre></details>"
+	} > "$weight_filename"
+	}
 function func_dedupe_remote {
 	dests=$(func_rclone_remote "$rclone_core" | wc -l)
 	for i in $(seq 1 "$dests")
@@ -545,6 +559,7 @@ function func_args {
 		sync) func_sync_remotes ;;
 		update) func_update ;;
 		weight) func_weight ;;
+		weightdate) func_weight_date ;;
 		*) echo "$0" && func_available_options ;;
 	esac
 	}
