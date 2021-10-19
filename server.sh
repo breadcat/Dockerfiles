@@ -538,9 +538,16 @@ function func_update {
 	fi
 	func_update_remaining
 	}
-function func_args {
-	action=$1
-	case "$action" in
+function main {
+	export XZ_OPT=-e9
+	distro=$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)
+	username=$(grep home /etc/passwd -m1 | cut -f1 -d:)
+	directory_home="/home/$username"
+	directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+	rclone_command="rclone --config=$directory_script/rclone.conf"
+	rclone_core="gdrive"
+	docker_restart=("cbreader" "syncthing")
+	case "$@" in
 		archive) func_backup_archive "$@" ;;
 		beets) func_beets ;;
 		borg) func_backup_borg ;;
@@ -562,17 +569,6 @@ function func_args {
 		weightdate) func_weight_date ;;
 		*) echo "$0" && func_available_options ;;
 	esac
-	}
-function main {
-	export XZ_OPT=-e9
-	distro=$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)
-	username=$(grep home /etc/passwd -m1 | cut -f1 -d:)
-	directory_home="/home/$username"
-	directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-	rclone_command="rclone --config=$directory_script/rclone.conf"
-	rclone_core="gdrive"
-	docker_restart=("cbreader" "syncthing")
-	func_args "$@"
 	}
 
 main "$@"
