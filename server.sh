@@ -13,11 +13,8 @@ function func_plural {
 function func_dir_find {
 	find "$directory_home" -maxdepth 3 -mount -type d -name "$1" 2>/dev/null
 	}
-function func_domain_find {
-	awk -F'"' '/domain/ {print $2}' "$(func_dir_find traefik)/traefik.toml"
-	}
 function func_git_config {
-	git config --global user.email "$username@$(func_domain_find)"
+	git config --global user.email "$username@$domain"
 	git config --global user.name "$username"
 	git config pack.windowMemory 10m
 	git config pack.packSizeLimit 20m
@@ -33,7 +30,7 @@ function func_docker_env_write {
 	{
 	printf "NAME=%s\\n" "$username"
 	printf "PASS=%s\\n" "$docker_password"
-	printf "DOMAIN=%s\\n" "$(func_domain_find)"
+	printf "DOMAIN=%s\\n" "$domain"
 	printf "PUID=%s\\n" "$(id -u)"
 	printf "PGID=%s\\n" "$(id -g)"
 	printf "TZ=%s\\n" "$(cat /etc/timezone)"
@@ -454,11 +451,11 @@ function func_status {
 		printf "* Packages: %s\\n" "$(dpkg -l | grep ^ii -c)"
 		printf "* Monthly Data: %s\\n\\n" "$(vnstat -m --oneline | cut -f11 -d\;)"
 		printf "Hardware specifications themselves are covered on the [hardware page](/hardware/#server).\\n"
-	} > "$(func_dir_find blog."$(func_domain_find)")/content/status.md"
+	} > "$(func_dir_find blog."$domain")/content/status.md"
 	}
 function func_weight {
 	# variables
-	weight_filename="$(func_dir_find blog."$(func_domain_find)")/content/weight.md"
+	weight_filename="$(func_dir_find blog."$domain")/content/weight.md"
 	# cd to temporary directory
 	cd "$(mktemp -d)" || exit
 	# pull raw data from source
@@ -494,7 +491,7 @@ function func_weight {
 	}
 function func_weight_date {
 	# variables
-	weight_filename="$(func_dir_find blog."$(func_domain_find)")/content/weight.md"
+	weight_filename="$(func_dir_find blog."$domain")/content/weight.md"
 	page_source="$(head -n -2 "$weight_filename")"
 	previous_date="$(printf %s "$page_source" | awk -F, 'END{print $1}')"
 	todays_date="$(date +%F)"
@@ -543,6 +540,7 @@ function main {
 	distro="$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)"
 	username="$(awk -F':' '/home/ {print $1;exit}' /etc/passwd)"
 	directory_home="/home/$username"
+	domain="$(awk -F'"' '/domain/ {print $2}' "$(func_dir_find traefik)/traefik.toml")"
 	directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 	rclone_command="rclone --config=$directory_script/rclone.conf"
 	rclone_core="gdrive"
