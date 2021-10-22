@@ -305,13 +305,13 @@ function func_magnet {
 	for i in *.magnet
 	do
 		magnet_source="$(cat "$i")"
-		timeout 5m python "$mag2tor_script_path" -m "$magnet_source" -o "$(func_dir_find downloads)/remote/watch/"
+		timeout 5m python "$mag2tor_script_path" -m "$magnet_source" -o "$(func_dir_find downloads)/watch/"
 		rm "$i"
 	done
 	echo "processing torrents"
 	for i in *.torrent
 	do
-		mv -v "$i" "$(func_dir_find downloads)/remote/watch/"
+		mv -v "$i" "$(func_dir_find downloads)/watch/"
 	done
 	echo "cleaning up tmp directory"
 	find /tmp/ -type d -empty -delete
@@ -345,7 +345,7 @@ function func_media_sort {
 		func_check_running_as_root
 		curl https://i.jpillora.com/media-sort | bash
 	fi
-	dir_import=$(func_dir_find remote)/files/complete/
+	dir_import=$(func_dir_find downloads)/files/complete/
 	if [[ -d "$dir_import" ]]
 	then
 		func_junk_clean
@@ -361,7 +361,7 @@ function func_media_sort {
 	fi
 }
 function func_junk_clean {
-	working_directory=$(func_dir_find remote)/files/complete/
+	working_directory=$(func_dir_find downloads)/files/complete/
 	if [[ -d "$working_directory" ]]
 	then
 		find "$working_directory" -type f -iname "* poster.jpg" -delete
@@ -425,7 +425,7 @@ function func_sshfs_mount {
 	func_include_credentials
 	printf "sshfs mount checker... "
 	seedbox_host="$seedbox_username.seedbox.io"
-	seedbox_mount="$(func_dir_find downloads)/remote"
+	seedbox_mount="$(func_dir_find downloads)"
 	if [[ -d "$seedbox_mount/files" ]]
 	then
 		printf "exists.\\n"
