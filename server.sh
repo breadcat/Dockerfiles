@@ -3,62 +3,62 @@
 # functions
 function func_available_options {
 	sed -n '/^\tcase/,/\tesac$/p' "$0" | cut -f1 -d")" | sed '1d;$d' | sort | tr -d "*" | xargs
-	}
+}
 function func_plural {
 	if (("$1">1))
 	then
 		echo s
 	fi
-	}
+}
 function func_dir_find {
 	find "$directory_home" -maxdepth 3 -mount -type d -name "$1" 2>/dev/null
-	}
+}
 function func_git_config {
 	git config --global user.email "$username@$domain"
 	git config --global user.name "$username"
 	git config pack.windowMemory 10m
 	git config pack.packSizeLimit 20m
-	}
+}
 function func_docker_env_delete {
 	if [[ -f "$directory_script/.env" ]]
 	then
 		echo Deleting detected env file
 		rm "$directory_script/.env"
 	fi
-	}
+}
 function func_docker_env_write {
 	{
-	printf "NAME=%s\\n" "$username"
-	printf "PASS=%s\\n" "$docker_password"
-	printf "DOMAIN=%s\\n" "$domain"
-	printf "PUID=%s\\n" "$(id -u)"
-	printf "PGID=%s\\n" "$(id -g)"
-	printf "TZ=%s\\n" "$(cat /etc/timezone)"
-	printf "HOMEDIR=%s\\n" "$directory_home"
-	printf "CONFDIR=%s\\n" "$(func_dir_find config)"
-	printf "DOWNDIR=%s\\n" "$(func_dir_find downloads)"
-	printf "POOLDIR=%s\\n" "$(func_dir_find media)"
-	printf "SYNCDIR=%s\\n" "$(func_dir_find vault)"
-	printf "WORKDIR=%s\\n" "$(func_dir_find paperwork)"
-	printf "RCLONE_REMOTE_MEDIA=%s\\n" "$(func_rclone_remote media)"
-	printf "RCLONE_REMOTE_WORK=%s\\n" "$(func_rclone_remote work)"
-	printf "WG_PRIVKEY=%s\\n" "$wireguard_key"
-	printf "DBPASSWORD=%s\\n" "$database_password"
+		printf "NAME=%s\\n" "$username"
+		printf "PASS=%s\\n" "$docker_password"
+		printf "DOMAIN=%s\\n" "$domain"
+		printf "PUID=%s\\n" "$(id -u)"
+		printf "PGID=%s\\n" "$(id -g)"
+		printf "TZ=%s\\n" "$(cat /etc/timezone)"
+		printf "HOMEDIR=%s\\n" "$directory_home"
+		printf "CONFDIR=%s\\n" "$(func_dir_find config)"
+		printf "DOWNDIR=%s\\n" "$(func_dir_find downloads)"
+		printf "POOLDIR=%s\\n" "$(func_dir_find media)"
+		printf "SYNCDIR=%s\\n" "$(func_dir_find vault)"
+		printf "WORKDIR=%s\\n" "$(func_dir_find paperwork)"
+		printf "RCLONE_REMOTE_MEDIA=%s\\n" "$(func_rclone_remote media)"
+		printf "RCLONE_REMOTE_WORK=%s\\n" "$(func_rclone_remote work)"
+		printf "WG_PRIVKEY=%s\\n" "$wireguard_key"
+		printf "DBPASSWORD=%s\\n" "$database_password"
 	} > "$directory_script/.env"
-	}
+}
 function func_payslip_config_write {
 	{
-	printf "[retriever]\\n"
-	printf "type = SimpleIMAPSSLRetriever\\n"
-	printf "server = %s\\n" "$mail_server"
-	printf "username = %s\\n" "$mail_username"
-	printf "port = 993\\n"
-	printf "password = %s\\n\\n" "$mail_password"
-	printf "[destination]\\n"
-	printf "type = Maildir\\n"
-	printf "path = %s/\\n" "$directory_temp"
+		printf "[retriever]\\n"
+		printf "type = SimpleIMAPSSLRetriever\\n"
+		printf "server = %s\\n" "$mail_server"
+		printf "username = %s\\n" "$mail_username"
+		printf "port = 993\\n"
+		printf "password = %s\\n\\n" "$mail_password"
+		printf "[destination]\\n"
+		printf "type = Maildir\\n"
+		printf "path = %s/\\n" "$directory_temp"
 	} > getmailrc
-	}
+}
 function func_payslip_decrypt {
 	cd "$(func_dir_find paperwork)" || exit
 	for i in *.pdf
@@ -71,21 +71,21 @@ function func_payslip_decrypt {
 			qpdf --password="$payslip_encryption" --decrypt "$i" "personal/workplace/wages/$parsed_name" && rm "$i"
 		fi
 	done
-	}
+}
 function func_rclone_remote {
 	$rclone_command listremotes | grep "$1"
-	}
+}
 function func_check_running_as_root {
 	if [ "$EUID" -ne 0 ]
 	then
 		echo "Please run as root"
 		exit 0
 	fi
-	}
+}
 function func_include_credentials {
 	# shellcheck source=/home/peter/vault/src/dockerfiles/credentials.db
 	source "$directory_script/credentials.db"
-	}
+}
 function func_backup_archive {
 	rclone_remote=$(func_rclone_remote backups)
 	working_directory=$(func_dir_find backups)/archives
@@ -121,7 +121,7 @@ function func_backup_archive {
 		rm -r "$PWD"
 		echo Done!
 	fi
-	}
+}
 function func_update_arch {
 	if [ -x "$(command -v paru)" ]
 	then
@@ -129,7 +129,7 @@ function func_update_arch {
 	else
 		pacman -Syu --noconfirm
 	fi
-	}
+}
 function func_update_debian {
 	export DEBIAN_FRONTEND=noninteractive
 	apt-get update
@@ -144,7 +144,7 @@ function func_update_debian {
 	then
 		curl --silent "https://rclone.org/install.sh" | bash
 	fi
-	}
+}
 function func_update_remaining {
 	if [ -f "$directory_home/.config/retroarch/lrcm/lrcm" ]
 	then
@@ -178,12 +178,12 @@ function func_update_remaining {
 		su -c "plowmod -u" -s /bin/sh "$username"
 		chown -R "$username":"$username" "$directory_home/.config/plowshare"
 	fi
-	}
+}
 function func_backup_borg {
 	# https://opensource.com/article/17/10/backing-your-machines-borg
 	working_directory=$(func_dir_find backups)/borg
 	echo "$working_directory"
-	}
+}
 function func_duolingo_streak {
 	# check api is installed
 	[[ -d "$(func_dir_find config)/duolingo" ]] || git clone https://github.com/KartikTalwar/Duolingo.git "$(func_dir_find config)/duolingo"
@@ -199,16 +199,16 @@ function func_duolingo_streak {
 		password=$(echo "$i" | cut -f2 -d:)
 		# write script
 		{
-		printf "#!/usr/bin/env python3\\n\\n"
-		printf "import duolingo\\n"
-		printf "lingo  = duolingo.Duolingo('%s', password='%s')\\n" "$username" "$password"
-		printf "lingo.buy_streak_freeze()"
+			printf "#!/usr/bin/env python3\\n\\n"
+			printf "import duolingo\\n"
+			printf "lingo  = duolingo.Duolingo('%s', password='%s')\\n" "$username" "$password"
+			printf "lingo.buy_streak_freeze()"
 		} > "$username.py"
 		# run and remove script
 		python "$username.py"
 		rm "$username.py"
 	done
-	}
+}
 function func_create_docker {
 	cd "$directory_script" || exit
 	func_docker_env_delete
@@ -232,7 +232,7 @@ function func_create_docker {
 	echo Starting docker containers
 	docker-compose up -d --remove-orphans
 	func_docker_env_delete
-	}
+}
 function func_beets {
 	# exists for working around quirks with running beets through a docker container
 	func_check_running_as_root
@@ -257,7 +257,7 @@ function func_beets {
 	docker stop beets
 	echo Cleaning old files
 	find "$(func_dir_find beets)" -type f -not -name 'config.yaml' -delete
-	}
+}
 function func_logger {
 	func_git_config
 	git_directory="$(func_dir_find logger)"
@@ -290,7 +290,7 @@ function func_logger {
 	fi
 	xz "$file_git_log" # compress log
 	$log_command gc --aggressive --prune # compress repo
-	}
+}
 function func_magnet {
 	cd "$(func_dir_find vault)" || exit
 	func_sshfs_mount
@@ -315,7 +315,7 @@ function func_magnet {
 	done
 	echo "cleaning up tmp directory"
 	find /tmp/ -type d -empty -delete
-	}
+}
 function func_payslip {
 	# depends on: getmail4 mpack qpdf
 	directory_temp="$(mktemp -d)"
@@ -332,11 +332,11 @@ function func_payslip {
 	done
 	func_payslip_decrypt
 	rm -r "$directory_temp"
-	}
+}
 function func_permissions {
 	func_check_running_as_root
 	chown "$username":"$username" "$directory_script/rclone.conf"
-	}
+}
 function func_media_sort {
 	func_sshfs_mount
 	if [ ! -x "$(command -v media-sort)" ] # not installed
@@ -359,7 +359,7 @@ function func_media_sort {
 		printf "Import directory not found.\\n"
 		exit 0
 	fi
-	}
+}
 function func_junk_clean {
 	working_directory=$(func_dir_find remote)/files/complete/
 	if [[ -d "$working_directory" ]]
@@ -384,7 +384,7 @@ function func_junk_clean {
 		find "$working_directory" -type d -iname 'screenshot*' -exec rm -r {} +
 		find "$working_directory" -type d -empty -delete
 	fi
-	}
+}
 function func_rclone_mount {
 	echo rclone mount checker
 	# check allow_other in fuse.conf
@@ -420,7 +420,7 @@ function func_rclone_mount {
 			done
 		fi
 	done
-	}
+}
 function func_sshfs_mount {
 	func_include_credentials
 	printf "sshfs mount checker... "
@@ -434,7 +434,7 @@ function func_sshfs_mount {
 		fusermount -uz "$seedbox_mount"
 		printf "%s" "$seedbox_password" | sshfs "$seedbox_username@$seedbox_host":/ "$seedbox_mount" -o password_stdin -o allow_other
 	fi
-	}
+}
 function func_status {
 	status_uptime=$(( $(cut -f1 -d. </proc/uptime) / 86400 ))
 	{
@@ -452,7 +452,7 @@ function func_status {
 		printf "* Monthly Data: %s\\n\\n" "$(vnstat -m --oneline | cut -f11 -d\;)"
 		printf "Hardware specifications themselves are covered on the [hardware page](/hardware/#server).\\n"
 	} > "$(func_dir_find blog."$domain")/content/status.md"
-	}
+}
 function func_weight {
 	# variables
 	weight_filename="$(func_dir_find blog."$domain")/content/weight.md"
@@ -488,7 +488,7 @@ function func_weight {
 	} > "$weight_filename"
 	# clean up
 	rm -r "$PWD"
-	}
+}
 function func_weight_date {
 	# variables
 	weight_filename="$(func_dir_find blog."$domain")/content/weight.md"
@@ -502,7 +502,7 @@ function func_weight_date {
 		printf "%s" "$(for i in $(seq $sequence_count); do printf "%s,\\n" "$(date -d "$previous_date+$i day" +%F)"; done)"
 		printf "\\n</pre></details>"
 	} > "$weight_filename"
-	}
+}
 function func_dedupe_remote {
 	dests=$(func_rclone_remote "$rclone_core" | wc -l)
 	for i in $(seq "$dests")
@@ -511,7 +511,7 @@ function func_dedupe_remote {
 		echo Deduplicating "$remote"
 		$rclone_command dedupe --dedupe-mode newest "$remote" --log-file "$(func_dir_find config)/logs/rclone-dupe-$(date +%F-%H%M).log"
 	done
-	}
+}
 function func_sync_remotes {
 	source=$(func_rclone_remote "$rclone_core" | sed 1q)
 	dests=$(func_rclone_remote "$rclone_core" | wc -l)
@@ -521,7 +521,7 @@ function func_sync_remotes {
 		echo Syncing "$source" to "$dest"
 		$rclone_command sync "$source" "$dest" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(func_dir_find config)/logs/rclone-sync-$(date +%F-%H%M).log"
 	done
-	}
+}
 function func_update {
 	func_check_running_as_root
 	if [[ $distro =~ "Debian" ]]
@@ -534,7 +534,7 @@ function func_update {
 		echo "Who knows what you're running"
 	fi
 	func_update_remaining
-	}
+}
 function main {
 	export XZ_OPT=-e9
 	distro="$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)"
@@ -567,6 +567,6 @@ function main {
 		weightdate) func_weight_date ;;
 		*) echo "$0" && func_available_options ;;
 	esac
-	}
+}
 
 main "$@"
