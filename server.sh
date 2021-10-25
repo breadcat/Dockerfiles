@@ -61,13 +61,13 @@ function func_payslip_config_write {
 }
 function func_payslip_decrypt {
 	cd "$(func_dir_find paperwork)" || exit
-	for i in *.pdf
+	for i in *.PDF
 	do
 		fileProtected=0
 		qpdf "$i" --check || fileProtected=1
 		if [ $fileProtected == 1 ]
 		then
-			parsed_name=$(printf "%s" "$i" | cut -d"-" -f"4-6")
+			parsed_name="$(printf "%s" "$i" | awk -FX '{print substr($3,5,4) "-" substr($3,3,2) "-" substr($3,1,2) ".pdf"}')"
 			qpdf --password="$payslip_encryption" --decrypt "$i" "personal/workplace/wages/$parsed_name" && rm "$i"
 		fi
 	done
@@ -326,7 +326,7 @@ function func_payslip {
 	getmail --getmaildir "$directory_temp"
 	cd new || exit
 	grep "$payslip_sender" ./* | cut -f1 -d: | uniq | xargs munpack -f
-	for i in *.pdf
+	for i in *.PDF
 	do
 		mv "$i" "$(func_dir_find paperwork)/"
 	done
