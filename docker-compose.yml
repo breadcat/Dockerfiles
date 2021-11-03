@@ -40,6 +40,8 @@ services:
     volumes:
       - $SYNCDIR/src:/git
       - $CONFDIR/cgit/cgit.css:/var/www/htdocs/cgit/cgit.css
+      - $CONFDIR/cgit/cgitrc:/etc/cgitrc
+      - $CONFDIR/cgit/httpd.conf:/etc/httpd/conf/httpd.conf
     restart: unless-stopped
     depends_on:
       - traefik
