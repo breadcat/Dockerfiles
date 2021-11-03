@@ -35,13 +35,16 @@ services:
       traefik.port: "80"
       traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
   cgit:
-    image: invokr/cgit
+    image: chruth/alpine-cgit
     container_name: cgit
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TZ
     volumes:
       - $SYNCDIR/src:/git
-      - $CONFDIR/cgit/cgit.css:/var/www/htdocs/cgit/cgit.css
-      - $CONFDIR/cgit/cgitrc:/etc/cgitrc
-      - $CONFDIR/cgit/httpd.conf:/etc/httpd/conf/httpd.conf
+      - $CONFDIR/cgit:/config
+      - $CONFDIR/cgit/cgit.css:/app/cgit.css
     restart: unless-stopped
     depends_on:
       - traefik
