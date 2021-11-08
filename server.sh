@@ -136,9 +136,9 @@ function func_update_debian {
 	apt-get dist-upgrade -y
 	apt-get autoremove --purge -y
 	apt-get clean
-	if [ -x "$(command -v youtube-dl)" ]
+	if [ -x "$(command -v yt-dlp)" ]
 	then
-		youtube-dl -U
+		yt-dlp -U
 	fi
 	if [ -x "$(command -v rclone)" ]
 	then
