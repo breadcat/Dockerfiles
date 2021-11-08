@@ -447,6 +447,7 @@ function func_status {
 		printf "* Swap Usage: %s%%\\n" "$(printf "%.0f" "$(free | awk '/Swap/ {print $3/$2 * 100.0}')")"
 		printf "* Root Usage: %s\\n" "$(df / | awk 'END{print $5}')"
 		printf "* Downloads Usage: %s\\n" "$(df | awk '/downloads/ {print $5}')"
+		printf "* Cloud Usage: %s\\n" "$(git --git-dir="$(func_dir_find logger)/.git" show | awk 'END{print $3" "$4}')"
 		printf "* [Dockers](https://github.com/breadcat/Dockerfiles): %s\\n" "$(docker ps -q | wc -l)/$(docker ps -aq | wc -l)"
 		printf "* Packages: %s\\n" "$(dpkg -l | grep ^ii -c)"
 		printf "* Monthly Data: %s\\n\\n" "$(vnstat -m --oneline | cut -f11 -d\;)"
