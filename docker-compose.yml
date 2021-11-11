@@ -54,10 +54,14 @@ services:
       traefik.frontend.rule: "Host:git.$DOMAIN"
       traefik.port: "80"
   dir-pub:
-    image: corfr/h5ai
+    image: awesometic/h5ai
     container_name: dir-pub
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TZ
     volumes:
-      - $SYNCDIR/pub:/var/www
+      - $SYNCDIR/pub:/h5ai
     restart: unless-stopped
     depends_on:
       - traefik
