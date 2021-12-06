@@ -28,21 +28,16 @@ function func_docker_env_delete {
 }
 function func_docker_env_write {
 	{
-		printf "NAME=%s\\n" "$username"
-		printf "PASS=%s\\n" "$(password_manager pass htpasswd)"
 		printf "DOMAIN=%s\\n" "$domain"
 		printf "PUID=%s\\n" "$(id -u)"
 		printf "PGID=%s\\n" "$(id -g)"
 		printf "TZ=%s\\n" "$(cat /etc/timezone)"
-		printf "HOMEDIR=%s\\n" "$directory_home"
 		printf "CONFDIR=%s\\n" "$(func_dir_find config)"
-		printf "DOWNDIR=%s\\n" "$(func_dir_find downloads)"
 		printf "POOLDIR=%s\\n" "$(func_dir_find media)"
 		printf "SYNCDIR=%s\\n" "$(func_dir_find vault)"
-		printf "WORKDIR=%s\\n" "$(func_dir_find paperwork)"
 		printf "RCLONE_REMOTE_MEDIA=%s\\n" "$(func_rclone_remote media)"
-		printf "RCLONE_REMOTE_WORK=%s\\n" "$(func_rclone_remote work)"
-		printf "WG_PRIVKEY=%s\\n" "$(password_manager pass wireguard)"
+		printf "WG_WEBUI_PASS=%s\\n" "$(password_manager pass 'wireguard admin')"
+		printf "WG_PRIVKEY=%s\\n" "$(password_manager pass 'wireguard private key')"
 		printf "DBPASSWORD=%s\\n" "$(password_manager pass postgresql)"
 	} > "$directory_script/.env"
 }

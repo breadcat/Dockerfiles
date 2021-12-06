@@ -243,15 +243,10 @@ services:
     cap_add:
       - NET_ADMIN
     environment:
-      WIREGUARD_PRIVATE_KEY: $WG_PRIVKEY
-      STORAGE: file:///wireguard-clients/
-      CONFIG: "/config.yaml"
-      ADMIN_USERNAME: $NAME
-      ADMIN_PASSWORD: $PASS
+      WG_ADMIN_PASSWORD: $WG_WEBUI_PASS
+      WG_WIREGUARD_PRIVATE_KEY: $WG_PRIVKEY
     volumes:
-      - $CONFDIR/wireguard/data:/data
-      - $CONFDIR/wireguard/clients:/wireguard-clients
-      - $CONFDIR/wireguard/config.yaml:/config.yaml:ro
+      - $CONFDIR/wireguard:/data
     ports:
       - 51820:51820/udp
     devices:
