@@ -82,6 +82,7 @@ function password_manager {
 		addr) rbw get --full "$2" | awk '/URI\:/ {print $2}' ;;
 		full) rbw get --full "$2" ;;
 		pass) rbw get "$2" ;;
+		sync) rbw sync ;;
 		user) rbw get --full "$2" | awk '/Username\:/ {print $2}' ;;
 		*) rbw get "$2" ;;
 	esac
@@ -534,6 +535,7 @@ function func_update {
 }
 function main {
 	export XZ_OPT=-e9
+	password_manager sync
 	distro="$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)"
 	username="$(awk -F':' '/home/ {print $1;exit}' /etc/passwd)"
 	directory_home="/home/$username"
