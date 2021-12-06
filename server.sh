@@ -14,7 +14,7 @@ function func_dir_find {
 	find "$directory_home" -maxdepth 3 -mount -type d -name "$1" 2>/dev/null
 }
 function func_git_config {
-	git config --global user.email "$username@$domain"
+	git config --global user.email "$(password_manager user email)"
 	git config --global user.name "$username"
 	git config pack.windowMemory 10m
 	git config pack.packSizeLimit 20m
@@ -29,7 +29,7 @@ function func_docker_env_delete {
 function func_docker_env_write {
 	{
 		printf "NAME=%s\\n" "$username"
-		printf "PASS=%s\\n" "$docker_password"
+		printf "PASS=%s\\n" "$(password_manager pass htpasswd)"
 		printf "DOMAIN=%s\\n" "$domain"
 		printf "PUID=%s\\n" "$(id -u)"
 		printf "PGID=%s\\n" "$(id -g)"
@@ -42,18 +42,18 @@ function func_docker_env_write {
 		printf "WORKDIR=%s\\n" "$(func_dir_find paperwork)"
 		printf "RCLONE_REMOTE_MEDIA=%s\\n" "$(func_rclone_remote media)"
 		printf "RCLONE_REMOTE_WORK=%s\\n" "$(func_rclone_remote work)"
-		printf "WG_PRIVKEY=%s\\n" "$wireguard_key"
-		printf "DBPASSWORD=%s\\n" "$database_password"
+		printf "WG_PRIVKEY=%s\\n" "$(password_manager pass wireguard)"
+		printf "DBPASSWORD=%s\\n" "$(password_manager pass postgresql)"
 	} > "$directory_script/.env"
 }
 function func_payslip_config_write {
 	{
 		printf "[retriever]\\n"
 		printf "type = SimpleIMAPSSLRetriever\\n"
-		printf "server = %s\\n" "$mail_server"
-		printf "username = %s\\n" "$mail_username"
+		printf "server = %s\\n" "$(password_manager full email | awk -F: '/Incoming/ {print $2}' | tr -d " ")"
+		printf "username = %s\\n" "$(password_manager user email)"
 		printf "port = 993\\n"
-		printf "password = %s\\n\\n" "$mail_password"
+		printf "password = %s\\n\\n" "$(password_manager pass email)"
 		printf "[destination]\\n"
 		printf "type = Maildir\\n"
 		printf "path = %s/\\n" "$directory_temp"
@@ -68,7 +68,7 @@ function func_payslip_decrypt {
 		if [ $fileProtected == 1 ]
 		then
 			parsed_name="$(printf "%s" "$i" | awk -FX '{print substr($3,5,4) "-" substr($3,3,2) "-" substr($3,1,2) ".pdf"}')"
-			qpdf --password="$payslip_encryption" --decrypt "$i" "personal/workplace/wages/$parsed_name" && rm "$i"
+			qpdf --password="$(password_manager pass payslip)" --decrypt "$i" "personal/workplace/wages/$parsed_name" && rm "$i"
 		fi
 	done
 }
@@ -82,9 +82,14 @@ function func_check_running_as_root {
 		exit 0
 	fi
 }
-function func_include_credentials {
-	# shellcheck source=/home/peter/vault/src/dockerfiles/credentials.db
-	source "$directory_script/credentials.db"
+function password_manager {
+	case "$1" in
+		addr) rbw get --full "$2" | awk '/URI\:/ {print $2}' ;;
+		full) rbw get --full "$2" ;;
+		pass) rbw get "$2" ;;
+		user) rbw get --full "$2" | awk '/Username\:/ {print $2}' ;;
+		*) rbw get "$2" ;;
+	esac
 }
 function func_backup_archive {
 	rclone_remote=$(func_rclone_remote backups)
@@ -187,32 +192,25 @@ function func_backup_borg {
 function func_duolingo_streak {
 	# check api is installed
 	[[ -d "$(func_dir_find config)/duolingo" ]] || git clone https://github.com/KartikTalwar/Duolingo.git "$(func_dir_find config)/duolingo"
-	# include username:password variables
-	func_include_credentials
 	# cd to git dir to include module
 	cd "$(func_dir_find config)/duolingo" || return
-	# write script per user
-	for i in "${duolingo[@]}"
-	do
-		# split variables
-		username=$(echo "$i" | cut -f1 -d:)
-		password=$(echo "$i" | cut -f2 -d:)
-		# write script
-		{
-			printf "#!/usr/bin/env python3\\n\\n"
-			printf "import duolingo\\n"
-			printf "lingo  = duolingo.Duolingo('%s', password='%s')\\n" "$username" "$password"
-			printf "lingo.buy_streak_freeze()"
-		} > "$username.py"
-		# run and remove script
-		python "$username.py"
-		rm "$username.py"
-	done
+	# determine credentials
+	duolingo_username=$(password_manager user duolingo)
+	duolingo_password=$(password_manager pass duolingo)
+	# write script
+	{
+		printf "#!/usr/bin/env python3\\n\\n"
+		printf "import duolingo\\n"
+		printf "lingo  = duolingo.Duolingo('%s', password='%s')\\n" "$duolingo_username" "$duolingo_password"
+		printf "lingo.buy_streak_freeze()"
+	} > "$duolingo_username.py"
+	# run and remove script
+	python "$duolingo_username.py"
+	rm "$duolingo_username.py"
 }
 function func_create_docker {
 	cd "$directory_script" || exit
 	func_docker_env_delete
-	func_include_credentials
 	# write env file
 	func_docker_env_write
 	# clean up existing stuff
@@ -319,13 +317,12 @@ function func_magnet {
 function func_payslip {
 	# depends on: getmail4 mpack qpdf
 	directory_temp="$(mktemp -d)"
-	func_include_credentials
 	cd "$directory_temp" || exit
 	mkdir {cur,new,tmp}
 	func_payslip_config_write
 	getmail --getmaildir "$directory_temp"
 	cd new || exit
-	grep "$payslip_sender" ./* | cut -f1 -d: | uniq | xargs munpack -f
+	grep "$(password_manager user payslip)" ./* | cut -f1 -d: | uniq | xargs munpack -f
 	for i in *.PDF
 	do
 		mv "$i" "$(func_dir_find paperwork)/"
@@ -422,10 +419,14 @@ function func_rclone_mount {
 	done
 }
 function func_sshfs_mount {
-	func_include_credentials
-	printf "sshfs mount checker... "
-	seedbox_host="$seedbox_username.seedbox.io"
+	# determine credentials
+	seedbox_provider=$(password_manager addr seedbox | cut -f2-3 -d.)
+	seedbox_username=$(password_manager user seedbox)
+	seedbox_password=$(password_manager pass seedbox)
+	seedbox_host="$seedbox_username.$seedbox_provider"
 	seedbox_mount="$(func_dir_find downloads)"
+	# check for mount
+	printf "sshfs mount checker... "
 	if [[ -d "$seedbox_mount/files" ]]
 	then
 		printf "exists.\\n"

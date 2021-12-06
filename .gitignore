@@ -1,6 +1,3 @@
 
-# password file
-credentials.db
-
 # rclone config file(s)
 rclone*.conf
