@@ -2,7 +2,7 @@
 
 # functions
 function func_available_options {
-	sed -n '/^\tcase/,/\tesac$/p' "$0" | cut -f1 -d")" | sed '1d;$d' | sort | tr -d "*" | xargs
+	awk '/^function main/,EOF' "$0" | awk '/case/{flag=1;next}/esac/{flag=0}flag' | awk -F"\t|)" '{print $3}' | tr -d "*" | sort | xargs
 }
 function func_plural {
 	if (("$1">1))
@@ -547,7 +547,7 @@ function main {
 	rclone_command="rclone --config=$directory_script/rclone.conf"
 	rclone_core="gdrive"
 	docker_restart=("cbreader" "syncthing")
-	case "$@" in
+	case "$1" in
 		archive) func_backup_archive "$@" ;;
 		beets) func_beets ;;
 		borg) func_backup_borg ;;
