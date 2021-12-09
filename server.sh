@@ -1,71 +1,8 @@
 #!/bin/bash
 
 # functions
-function func_available_options {
-	awk '/^function main/,EOF' "$0" | awk '/case/{flag=1;next}/esac/{flag=0}flag' | awk -F"\t|)" '{print $3}' | tr -d "*" | sort | xargs
-}
-function func_plural {
-	if (("$1">1))
-	then
-		echo s
-	fi
-}
 function func_dir_find {
 	find "$directory_home" -maxdepth 3 -mount -type d -name "$1" 2>/dev/null
-}
-function func_git_config {
-	git config --global user.email "$(password_manager user email)"
-	git config --global user.name "$username"
-	git config pack.windowMemory 10m
-	git config pack.packSizeLimit 20m
-}
-function func_docker_env_delete {
-	if [[ -f "$directory_script/.env" ]]
-	then
-		echo Deleting detected env file
-		rm "$directory_script/.env"
-	fi
-}
-function func_docker_env_write {
-	{
-		printf "DOMAIN=%s\\n" "$domain"
-		printf "PUID=%s\\n" "$(id -u)"
-		printf "PGID=%s\\n" "$(id -g)"
-		printf "TZ=%s\\n" "$(cat /etc/timezone)"
-		printf "CONFDIR=%s\\n" "$(func_dir_find config)"
-		printf "POOLDIR=%s\\n" "$(func_dir_find media)"
-		printf "SYNCDIR=%s\\n" "$(func_dir_find vault)"
-		printf "RCLONE_REMOTE_MEDIA=%s\\n" "$(func_rclone_remote media)"
-		printf "WG_WEBUI_PASS=%s\\n" "$(password_manager pass 'wireguard admin')"
-		printf "WG_PRIVKEY=%s\\n" "$(password_manager pass 'wireguard private key')"
-		printf "DBPASSWORD=%s\\n" "$(password_manager pass postgresql)"
-	} > "$directory_script/.env"
-}
-function func_payslip_config_write {
-	{
-		printf "[retriever]\\n"
-		printf "type = SimpleIMAPSSLRetriever\\n"
-		printf "server = %s\\n" "$(password_manager full email | awk -F: '/Incoming/ {print $2}' | tr -d " ")"
-		printf "username = %s\\n" "$(password_manager user email)"
-		printf "port = 993\\n"
-		printf "password = %s\\n\\n" "$(password_manager pass email)"
-		printf "[destination]\\n"
-		printf "type = Maildir\\n"
-		printf "path = %s/\\n" "$directory_temp"
-	} > getmailrc
-}
-function func_payslip_decrypt {
-	cd "$(func_dir_find paperwork)" || exit
-	for i in *.PDF
-	do
-		fileProtected=0
-		qpdf "$i" --check || fileProtected=1
-		if [ $fileProtected == 1 ]
-		then
-			parsed_name="$(printf "%s" "$i" | awk -FX '{print substr($3,5,4) "-" substr($3,3,2) "-" substr($3,1,2) ".pdf"}')"
-			qpdf --password="$(password_manager pass payslip)" --decrypt "$i" "personal/workplace/wages/$parsed_name" && rm "$i"
-		fi
-	done
 }
 function func_rclone_remote {
 	$rclone_command listremotes | grep "$1"
@@ -123,63 +60,6 @@ function func_backup_archive {
 		echo Done!
 	fi
 }
-function func_update_arch {
-	if [ -x "$(command -v paru)" ]
-	then
-		paru -Syu --noconfirm
-	else
-		pacman -Syu --noconfirm
-	fi
-}
-function func_update_debian {
-	export DEBIAN_FRONTEND=noninteractive
-	apt-get update
-	apt-get dist-upgrade -y
-	apt-get autoremove --purge -y
-	apt-get clean
-	if [ -x "$(command -v yt-dlp)" ]
-	then
-		yt-dlp -U
-	fi
-	if [ -x "$(command -v rclone)" ]
-	then
-		curl --silent "https://rclone.org/install.sh" | bash
-	fi
-}
-function func_update_remaining {
-	if [ -f "$directory_home/.config/retroarch/lrcm/lrcm" ]
-	then
-		"$directory_home/.config/retroarch/lrcm/lrcm" update
-	fi
-	find "$(func_dir_find config)" -maxdepth 2 -name ".git" -type d | sed 's/\/.git//' | xargs -P10 -I{} git -C {} pull
-	if [ -x "$(command -v we-get)" ]
-	then
-		echo "Updating we-get..."
-		pip3 install --upgrade git+https://github.com/rachmadaniHaryono/we-get
-	fi
-	if [ -x "$(command -v media-sort)" ]
-	then
-		echo "Updating media-sort..."
-		cd "/usr/local/bin" || return
-		curl https://i.jpillora.com/media-sort | bash
-	fi
-	if [ -x "$(command -v duplicacy)" ]
-	then
-		dupli_installed="$(duplicacy | awk '/VERSION/ && $0 != "" { getline; print $1}')"
-		dupli_available="$(curl -s https://api.github.com/repos/gilbertchen/duplicacy/releases/latest | jq -r '.tag_name' | tr -d '[:alpha:]')"
-		if [ "$dupli_installed" != "$dupli_available" ]
-		then
-			echo Updating Duplicacy
-			wget "$(curl -sL https://api.github.com/repos/gilbertchen/duplicacy/releases/latest | jq -r '.assets[].browser_download_url' | grep linux_x64)" -O "/usr/local/bin/duplicacy"
-		fi
-	fi
-	if [ -x "$(command -v plowmod)" ]
-	then
-		echo "Updating plowshare..."
-		su -c "plowmod -u" -s /bin/sh "$username"
-		chown -R "$username":"$username" "$directory_home/.config/plowshare"
-	fi
-}
 function func_backup_borg {
 	# https://opensource.com/article/17/10/backing-your-machines-borg
 	working_directory=$(func_dir_find backups)/borg
@@ -190,25 +70,33 @@ function func_duolingo_streak {
 	[[ -d "$(func_dir_find config)/duolingo" ]] || git clone https://github.com/KartikTalwar/Duolingo.git "$(func_dir_find config)/duolingo"
 	# cd to git dir to include module
 	cd "$(func_dir_find config)/duolingo" || return
-	# determine credentials
-	duolingo_username=$(password_manager user duolingo)
-	duolingo_password=$(password_manager pass duolingo)
 	# write script
 	{
 		printf "#!/usr/bin/env python3\\n\\n"
 		printf "import duolingo\\n"
-		printf "lingo  = duolingo.Duolingo('%s', password='%s')\\n" "$duolingo_username" "$duolingo_password"
+		printf "lingo  = duolingo.Duolingo('%s', password='%s')\\n" "$(password_manager user duolingo)" "$(password_manager pass duolingo)"
 		printf "lingo.buy_streak_freeze()"
-	} > "$duolingo_username.py"
+	} > "streak-freeze.py"
 	# run and remove script
-	python "$duolingo_username.py"
-	rm "$duolingo_username.py"
+	python "streak-freeze.py"
+	rm "streak-freeze.py"
 }
 function func_create_docker {
 	cd "$directory_script" || exit
-	func_docker_env_delete
-	# write env file
-	func_docker_env_write
+	# write env file, overwriting any existing
+	{
+		printf "DOMAIN=%s\\n" "$domain"
+		printf "PUID=%s\\n" "$(id -u)"
+		printf "PGID=%s\\n" "$(id -g)"
+		printf "TZ=%s\\n" "$(cat /etc/timezone)"
+		printf "CONFDIR=%s\\n" "$(func_dir_find config)"
+		printf "POOLDIR=%s\\n" "$(func_dir_find media)"
+		printf "SYNCDIR=%s\\n" "$(func_dir_find vault)"
+		printf "RCLONE_REMOTE_MEDIA=%s\\n" "$(func_rclone_remote media)"
+		printf "WG_WEBUI_PASS=%s\\n" "$(password_manager pass 'wireguard admin')"
+		printf "WG_PRIVKEY=%s\\n" "$(password_manager pass 'wireguard private key')"
+		printf "DBPASSWORD=%s\\n" "$(password_manager pass postgresql)"
+	} > "$directory_script/.env"
 	# clean up existing stuff
 	echo Cleaning up existing docker files
 	for i in volume image system network
@@ -225,7 +113,12 @@ function func_create_docker {
 	# start containers
 	echo Starting docker containers
 	docker-compose up -d --remove-orphans
-	func_docker_env_delete
+	# delete temporary env file
+	if [[ -f "$directory_script/.env" ]]
+	then
+		echo Deleting detected env file
+		rm "$directory_script/.env"
+	fi
 }
 function func_beets {
 	# exists for working around quirks with running beets through a docker container
@@ -253,7 +146,12 @@ function func_beets {
 	find "$(func_dir_find beets)" -type f -not -name 'config.yaml' -delete
 }
 function func_logger {
-	func_git_config
+	# git configuruation
+	git config --global user.email "$(password_manager user email)"
+	git config --global user.name "$username"
+	git config pack.windowMemory 10m
+	git config pack.packSizeLimit 20m
+	# specify working points
 	git_directory="$(func_dir_find logger)"
 	file_git_log="$git_directory/media.log"
 	log_command="git --git-dir=$git_directory/.git --work-tree=$git_directory"
@@ -315,7 +213,18 @@ function func_payslip {
 	directory_temp="$(mktemp -d)"
 	cd "$directory_temp" || exit
 	mkdir {cur,new,tmp}
-	func_payslip_config_write
+	# write config file
+	{
+		printf "[retriever]\\n"
+		printf "type = SimpleIMAPSSLRetriever\\n"
+		printf "server = %s\\n" "$(password_manager full email | awk -F: '/Incoming/ {print $2}' | tr -d " ")"
+		printf "username = %s\\n" "$(password_manager user email)"
+		printf "port = 993\\n"
+		printf "password = %s\\n\\n" "$(password_manager pass email)"
+		printf "[destination]\\n"
+		printf "type = Maildir\\n"
+		printf "path = %s/\\n" "$directory_temp"
+	} > getmailrc
 	getmail --getmaildir "$directory_temp"
 	cd new || exit
 	grep "$(password_manager user payslip)" ./* | cut -f1 -d: | uniq | xargs munpack -f
@@ -323,7 +232,19 @@ function func_payslip {
 	do
 		mv "$i" "$(func_dir_find paperwork)/"
 	done
-	func_payslip_decrypt
+	# decrypt payslip file
+	cd "$(func_dir_find paperwork)" || exit
+	for i in *.PDF
+	do
+		fileProtected=0
+		qpdf "$i" --check || fileProtected=1
+		if [ $fileProtected == 1 ]
+		then
+			parsed_name="$(printf "%s" "$i" | awk -FX '{print substr($3,5,4) "-" substr($3,3,2) "-" substr($3,1,2) ".pdf"}')"
+			qpdf --password="$(password_manager pass payslip)" --decrypt "$i" "personal/workplace/wages/$parsed_name" && rm "$i"
+		fi
+	done
+	# clean up temp directory
 	rm -r "$directory_temp"
 }
 function func_permissions {
@@ -437,7 +358,7 @@ function func_status {
 	{
 		printf -- "---\\ntitle: Status\\nlayout: single\\n---\\n\\n"
 		printf "*Generated on %(%Y-%m-%d at %H:%M)T*\\n\\n" -1
-		printf "* Uptime: %s Day%s\\n" "$status_uptime" "$(func_plural "$status_uptime")"
+		printf "* Uptime: %s Day%s\\n" "$status_uptime" "$(if (("$status_uptime">1)); then echo s; fi)"
 		printf "* CPU Load: %s\\n" "$(cut -d" " -f1-3 < /proc/loadavg)"
 		printf "* Users: %s\\n" "$(uptime | grep -oP '.{3}user' | sed 's/\user//g' | xargs)"
 		printf "* RAM Usage: %s%%\\n" "$(printf "%.0f" "$(free | awk '/Mem/ {print $3/$2 * 100.0}')")"
@@ -524,14 +445,65 @@ function func_update {
 	func_check_running_as_root
 	if [[ $distro =~ "Debian" ]]
 	then
-		func_update_debian
+		# Update Debian	
+		export DEBIAN_FRONTEND=noninteractive
+		apt-get update
+		apt-get dist-upgrade -y
+		apt-get autoremove --purge -y
+		apt-get clean
+		if [ -x "$(command -v yt-dlp)" ]
+		then
+			yt-dlp -U
+		fi
+		if [ -x "$(command -v rclone)" ]
+		then
+			curl --silent "https://rclone.org/install.sh" | bash
+		fi
 	elif [[ $distro =~ "Arch" ]]
 	then
-		func_update_arch
+		# Update Archlinux
+		if [ -x "$(command -v paru)" ]
+		then
+			paru -Syu --noconfirm
+		else
+			pacman -Syu --noconfirm
+		fi
 	else
 		echo "Who knows what you're running"
 	fi
-	func_update_remaining
+	# Update remaining applications
+	if [ -f "$directory_home/.config/retroarch/lrcm/lrcm" ]
+	then
+		"$directory_home/.config/retroarch/lrcm/lrcm" update
+	fi
+	find "$(func_dir_find config)" -maxdepth 2 -name ".git" -type d | sed 's/\/.git//' | xargs -P10 -I{} git -C {} pull
+	if [ -x "$(command -v we-get)" ]
+	then
+		echo "Updating we-get..."
+		pip3 install --upgrade git+https://github.com/rachmadaniHaryono/we-get
+	fi
+	if [ -x "$(command -v media-sort)" ]
+	then
+		echo "Updating media-sort..."
+		cd "/usr/local/bin" || return
+		curl https://i.jpillora.com/media-sort | bash
+	fi
+	if [ -x "$(command -v duplicacy)" ]
+	then
+		dupli_installed="$(duplicacy | awk '/VERSION/ && $0 != "" { getline; print $1}')"
+		dupli_available="$(curl -s https://api.github.com/repos/gilbertchen/duplicacy/releases/latest | jq -r '.tag_name' | tr -d '[:alpha:]')"
+		if [ "$dupli_installed" != "$dupli_available" ]
+		then
+			echo Updating Duplicacy
+			wget "$(curl -sL https://api.github.com/repos/gilbertchen/duplicacy/releases/latest | jq -r '.assets[].browser_download_url' | grep linux_x64)" -O "/usr/local/bin/duplicacy"
+		fi
+	fi
+	if [ -x "$(command -v plowmod)" ]
+	then
+		echo "Updating plowshare..."
+		su -c "plowmod -u" -s /bin/sh "$username"
+		chown -R "$username":"$username" "$directory_home/.config/plowshare"
+	fi
 }
 function main {
 	export XZ_OPT=-e9
@@ -564,7 +536,7 @@ function main {
 		update) func_update ;;
 		weight) func_weight ;;
 		weightdate) func_weight_date ;;
-		*) echo "$0" && func_available_options ;;
+		*) echo "$0" && awk '/^function main/,EOF' "$0" | awk '/case/{flag=1;next}/esac/{flag=0}flag' | awk -F"\t|)" '{print $3}' | tr -d "*" | sort | xargs ;;
 	esac
 }
 
