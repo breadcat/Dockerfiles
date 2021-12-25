@@ -217,7 +217,7 @@ function func_payslip {
 	{
 		printf "[retriever]\\n"
 		printf "type = SimpleIMAPSSLRetriever\\n"
-		printf "server = %s\\n" "$(password_manager full email | awk -F: '/Incoming/ {print $2}' | tr -d " ")"
+		printf "server = %s\\n" "$(password_manager full email | awk -F: '/Incoming/ {gsub(/ /,""); print $2}')"
 		printf "username = %s\\n" "$(password_manager user email)"
 		printf "port = 993\\n"
 		printf "password = %s\\n\\n" "$(password_manager pass email)"
