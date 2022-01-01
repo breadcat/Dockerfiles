@@ -445,7 +445,7 @@ function func_update {
 	func_check_running_as_root
 	if [[ $distro =~ "Debian" ]]
 	then
-		# Update Debian	
+		# Update Debian
 		export DEBIAN_FRONTEND=noninteractive
 		apt-get update
 		apt-get dist-upgrade -y
