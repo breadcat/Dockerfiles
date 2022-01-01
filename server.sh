@@ -487,7 +487,7 @@ function func_update {
 function main {
 	export XZ_OPT=-e9
 	distro="$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)"
-	username="$(awk -F':' '/home/ {print $1;exit}' /etc/passwd)"
+	username="$(logname)"
 	directory_home="/home/$username"
 	domain="$(awk -F'"' '/domain/ {print $2}' "$(func_dir_find traefik)/traefik.toml")"
 	directory_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
