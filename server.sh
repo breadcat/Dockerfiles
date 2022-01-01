@@ -353,12 +353,13 @@ function func_status {
 }
 function func_weight {
 	# variables
+	if [ -n "$2" ]; then year=$2; else year=$(date +%Y); fi
 	weight_filename="$(func_dir_find blog."$domain")/content/weight.md"
 	# cd to temporary directory
 	cd "$(mktemp -d)" || exit
 	# pull raw data from source
 	weight_rawdata="$(awk '/<pre>/{flag=1; next} /<\/pre>/{flag=0} flag' "$weight_filename" | sort -u)"
-	printf "%s" "$weight_rawdata" | grep "^$(date +%Y)" > temp.dat
+	printf "%s" "$weight_rawdata" | grep "^$year-" > temp.dat
 	weight_dateinit="$(awk '/date:/ {print $2}' "$weight_filename")"
 	# draw graph
 	gnuplot <<- EOF
@@ -380,7 +381,7 @@ function func_weight {
 	# write page
 	{
 		printf -- "---\\ntitle: Weight\\nlayout: single\\ndate: %s\\nlastmod: %(%Y-%m-%dT%H:%M:00)T\\n---\\n\\n" "$weight_dateinit" -1
-		printf "%s\\n\\n%s graph\\n\\n" "$(cat temp.min.svg)" "$(date +%Y)"
+		printf "%s\\n\\n%s graph\\n\\n" "$(cat temp.min.svg)" "$year"
 		printf "<details><summary>Raw data</summary>\\n<pre>\\n%s\\n</pre></details>" "$weight_rawdata"
 
 	} > "$weight_filename"
@@ -511,7 +512,7 @@ function main {
 		status) func_status ;;
 		sync) func_sync_remotes ;;
 		update) func_update ;;
-		weight) func_weight ;;
+		weight) func_weight "$@" ;;
 		weightdate) func_weight_date ;;
 		*) echo "$0" && awk '/^function main/,EOF' "$0" | awk '/case/{flag=1;next}/esac/{flag=0}flag' | awk -F"\t|)" '{print $3}' | tr -d "*" | sort | xargs ;;
 	esac
