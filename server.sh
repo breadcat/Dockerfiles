@@ -71,6 +71,7 @@ function func_duolingo_streak {
 	# cd to git dir to include module
 	cd "$(func_dir_find config)/duolingo" || return
 	# write script
+	password_manager sync
 	{
 		printf "#!/usr/bin/env python3\\n\\n"
 		printf "import duolingo\\n"
@@ -84,6 +85,7 @@ function func_duolingo_streak {
 function func_create_docker {
 	cd "$directory_script" || exit
 	# write env file, overwriting any existing
+	password_manager sync
 	{
 		printf "DOMAIN=%s\\n" "$domain"
 		printf "PUID=%s\\n" "$(id -u)"
@@ -146,6 +148,7 @@ function func_beets {
 	find "$(func_dir_find beets)" -type f -not -name 'config.yaml' -delete
 }
 function func_logger {
+	password_manager sync
 	# git configuruation
 	git config --global user.email "$(password_manager user email)"
 	git config --global user.name "$username"
@@ -214,6 +217,7 @@ function func_payslip {
 	cd "$directory_temp" || exit
 	mkdir {cur,new,tmp}
 	# write config file
+	password_manager sync
 	{
 		printf "[retriever]\\n"
 		printf "type = SimpleIMAPSSLRetriever\\n"
@@ -336,18 +340,19 @@ function func_rclone_mount {
 	done
 }
 function func_sshfs_mount {
-	# determine credentials
-	seedbox_provider=$(password_manager addr seedbox | cut -f2-3 -d.)
-	seedbox_username=$(password_manager user seedbox)
-	seedbox_password=$(password_manager pass seedbox)
-	seedbox_host="$seedbox_username.$seedbox_provider"
-	seedbox_mount="$(func_dir_find downloads)"
 	# check for mount
 	printf "sshfs mount checker... "
+	seedbox_mount="$(func_dir_find downloads)"
 	if [[ -d "$seedbox_mount/files" ]]
 	then
 		printf "exists.\\n"
 	else
+		password_manaher sync
+		# determine credentials
+		seedbox_provider=$(password_manager addr seedbox | cut -f2-3 -d.)
+		seedbox_username=$(password_manager user seedbox)
+		seedbox_password=$(password_manager pass seedbox)
+		seedbox_host="$seedbox_username.$seedbox_provider"
 		printf "missing.\\nre-mounting"
 		fusermount -uz "$seedbox_mount"
 		printf "%s" "$seedbox_password" | sshfs "$seedbox_username@$seedbox_host":/ "$seedbox_mount" -o password_stdin -o allow_other
@@ -507,7 +512,6 @@ function func_update {
 }
 function main {
 	export XZ_OPT=-e9
-	password_manager sync
 	distro="$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)"
 	username="$(awk -F':' '/home/ {print $1;exit}' /etc/passwd)"
 	directory_home="/home/$username"
