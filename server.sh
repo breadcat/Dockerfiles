@@ -266,41 +266,15 @@ function func_media_sort {
 	dir_import=$(func_dir_find downloads)/files/complete/
 	if [[ -d "$dir_import" ]]
 	then
-		func_junk_clean
 		dir_tv=$(func_dir_find media)/videos/television
 		dir_mov=$(func_dir_find media)/videos/movies
 		temp_tv="{{ .Name }}/{{ .Name }} S{{ printf \"%02d\" .Season }}E{{ printf \"%02d\" .Episode }}{{ if ne .ExtraEpisode -1 }}-{{ printf \"%02d\" .ExtraEpisode }}{{end}}.{{ .Ext }}"
 		temp_mov="{{ .Name }} ({{ .Year }})/{{ .Name }}.{{ .Ext }}"
 		media-sort --action copy --concurrency 1 --accuracy-threshold 90 --tv-dir "$dir_tv" --movie-dir "$dir_mov" --tv-template "$temp_tv" --movie-template "$temp_mov" --recursive --overwrite-if-larger "$dir_import"
-		func_junk_clean
+
 	else
 		printf "Import directory not found.\\n"
 		exit 0
-	fi
-}
-function func_junk_clean {
-	working_directory=$(func_dir_find downloads)/files/complete/
-	if [[ -d "$working_directory" ]]
-	then
-		find "$working_directory" -type f -iname "* poster.jpg" -delete
-		find "$working_directory" -type f -iname "*.nfo" -delete
-		find "$working_directory" -type f -iname "*.url" -delete
-		find "$working_directory" -type f -iname "*.website" -delete
-		find "$working_directory" -type f -iname "*downloaded from*" -delete
-		find "$working_directory" -type f -iname "*sample*" -delete
-		find "$working_directory" -type f -iname "*yify*jpg" -delete
-		find "$working_directory" -type f -iname "*yts*jpg" -delete
-		find "$working_directory" -type f -iname "ahashare*" -delete
-		find "$working_directory" -type f -iname "encoded by*" -delete
-		find "$working_directory" -type f -iname "cover*.jpg" -delete
-		find "$working_directory" -type f -iname "folder.jpg" -delete
-		find "$working_directory" -type f -iname "how to play*" -delete
-		find "$working_directory" -type f -iname "rarbg*" -delete
-		find "$working_directory" -type d -iname 'featurettes' -exec rm -r {} +
-		find "$working_directory" -type d -iname 'sample*' -exec rm -r {} +
-		find "$working_directory" -type d -iname 'screens' -exec rm -r {} +
-		find "$working_directory" -type d -iname 'screenshot*' -exec rm -r {} +
-		find "$working_directory" -type d -empty -delete
 	fi
 }
 function func_rclone_mount {
@@ -527,7 +501,6 @@ function main {
 		dedupe) func_dedupe_remote ;;
 		docker) func_create_docker ;;
 		duolingo) func_duolingo_streak ;;
-		junk) func_junk_clean ;;
 		logger) func_logger ;;
 		magnet) func_magnet ;;
 		payslip) func_payslip ;;
