@@ -365,11 +365,11 @@ function func_weight {
 	gnuplot <<- EOF
 		set grid
 		set datafile separator comma
-		set xlabel "Date"
+		set xlabel "Month"
 		set xdata time
 		set timefmt "%Y-%m-%d"
-		set xtics format "%B"
-		set ylabel "Kilograms"
+		set xtics format "%b"
+		set ylabel "Weight (kg)"
 		set key off
 		set term svg font 'sans-serif,12'
 		set sample 50
