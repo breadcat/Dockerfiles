@@ -321,7 +321,7 @@ function func_sshfs_mount {
 	then
 		printf "exists.\\n"
 	else
-		password_manaher sync
+		password_manager sync
 		# determine credentials
 		seedbox_provider=$(password_manager addr seedbox | cut -f2-3 -d.)
 		seedbox_username=$(password_manager user seedbox)
