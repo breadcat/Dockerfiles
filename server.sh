@@ -121,6 +121,8 @@ function func_create_docker {
 		echo Deleting detected env file
 		rm "$directory_script/.env"
 	fi
+	# clean up, again
+	docker volume prune -f
 }
 function func_beets {
 	# exists for working around quirks with running beets through a docker container
