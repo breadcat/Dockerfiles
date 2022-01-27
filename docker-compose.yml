@@ -92,6 +92,20 @@ services:
     ports:
       - 22:2222
     restart: unless-stopped
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=info
+      - LOG_HTML=false
+      - CAPTCHA_SOLVER=none
+      - TZ=$TZ
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:solve.$DOMAIN"
+      traefik.port: "8191"
   hugo:
     image: klakegg/hugo
     container_name: hugo
