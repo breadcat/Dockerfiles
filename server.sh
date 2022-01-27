@@ -5,7 +5,7 @@ function func_dir_find {
 	find "$directory_home" -maxdepth 3 -mount -type d -name "$1" 2>/dev/null
 }
 function func_rclone_remote {
-	$rclone_command listremotes | grep "$1"
+	rclone listremotes | grep "$1"
 }
 function func_check_running_as_root {
 	if [ "$EUID" -ne 0 ]; then
@@ -37,7 +37,7 @@ function func_backup_archive {
 		echo "Sending via rclone..."
 		for i in *; do
 			du -h "$i"
-			$rclone_command move "$i" "$rclone_remote"/archives/
+			rclone move "$i" "$rclone_remote"/archives/
 		done
 		echo Cleaning up...
 		rm -r "$PWD"
@@ -48,7 +48,7 @@ function func_backup_archive {
 		tar -cJf "backup-$1-$(date +%F-%H%M).tar.xz" --ignore-failed-read "$directory_home/$1"
 		echo "Sending via rclone..."
 		for i in *; do
-			du -h "$i" && $rclone_command move "$i" "$rclone_remote"/archives/
+			du -h "$i" && rclone move "$i" "$rclone_remote"/archives/
 		done
 		echo Cleaning up...
 		rm -r "$PWD"
@@ -128,7 +128,7 @@ function func_beets {
 	fi
 	docker exec -it beets bash
 	echo Moving files
-	$rclone_command move "$(func_dir_find export)" "$(func_rclone_remote media)"/audio/ --verbose
+	rclone move "$(func_dir_find export)" "$(func_rclone_remote media)"/audio/ --verbose
 	echo Resetting permissions
 	chown -R "$username":"$username" "$(func_dir_find export)"
 	chown -R "$username":"$username" "$(func_dir_find staging)"
@@ -164,8 +164,8 @@ function func_logger {
 	if [ -e "$file_git_log" ]; then
 		rm "$file_git_log"
 	fi
-	$rclone_command ls "$log_remote" | sort -k2 >"$file_git_log" # create log
-	$rclone_command size "$log_remote" >>"$file_git_log"         # append size
+	rclone ls "$log_remote" | sort -k2 >"$file_git_log" # create log
+	rclone size "$log_remote" >>"$file_git_log"         # append size
 	$log_command add "$file_git_log"                             # add log file
 	$log_command commit -m "Update: $(date +%F)"                 # commit to repo, datestamped
 	if [ -e "$file_git_log.xz" ]; then
@@ -279,7 +279,7 @@ function func_rclone_mount {
 			fusermount -uz "$mount_point"
 			echo sleeping && sleep 3
 			echo mounting
-			$rclone_command mount "drive-$i": "$directory_home/$i" --allow-other --allow-non-empty --daemon --log-file "$(func_dir_find config)/logs/rclone-$i.log"
+			rclone mount "drive-$i": "$directory_home/$i" --allow-other --allow-non-empty --daemon --log-file "$(func_dir_find config)/logs/rclone-$i.log"
 		fi
 		if [ "$mount_points_remounted" = true ]; then
 			echo restarting docker containers
@@ -387,7 +387,7 @@ function func_dedupe_remote {
 	for i in $(seq "$dests"); do
 		remote=$(func_rclone_remote "$rclone_core" | grep "$i")
 		echo Deduplicating "$remote"
-		$rclone_command dedupe --dedupe-mode newest "$remote" --log-file "$(func_dir_find config)/logs/rclone-dupe-$(date +%F-%H%M).log"
+		rclone dedupe --dedupe-mode newest "$remote" --log-file "$(func_dir_find config)/logs/rclone-dupe-$(date +%F-%H%M).log"
 	done
 }
 function func_sync_remotes {
@@ -396,7 +396,7 @@ function func_sync_remotes {
 	for i in $(seq 2 "$dests"); do
 		dest=$(func_rclone_remote "$rclone_core" | grep "$i")
 		echo Syncing "$source" to "$dest"
-		$rclone_command sync "$source" "$dest" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(func_dir_find config)/logs/rclone-sync-$(date +%F-%H%M).log"
+		rclone sync "$source" "$dest" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(func_dir_find config)/logs/rclone-sync-$(date +%F-%H%M).log"
 	done
 }
 function func_update {
@@ -459,7 +459,6 @@ function main {
 	directory_home="/home/$username"
 	domain="$(awk -F'"' '/domain/ {print $2}' "$(func_dir_find traefik)/traefik.toml")"
 	directory_script="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-	rclone_command="rclone --config=$directory_script/rclone.conf"
 	rclone_core="gdrive"
 	docker_restart=("cbreader" "syncthing")
 	case "$1" in
