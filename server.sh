@@ -333,8 +333,7 @@ function func_weight {
 			weight_filename="$(func_dir_find blog."$domain")/content/weight.md"
 			page_source="$(head -n -1 "$weight_filename")"
 			previous_date="$(printf %s "$page_source" | awk -F, 'END{print $1}')"
-			todays_date="$(date +%F)"
-			sequence_count="$((($(date --date="$todays_date" +%s) - $(date --date="$previous_date" +%s)) / (60 * 60 * 24)))"
+			sequence_count="$((($(date --date="$(date +%F)" +%s) - $(date --date="$previous_date" +%s)) / (60 * 60 * 24)))"
 			# operation
 			{
 				printf "%s\\n" "$page_source"
