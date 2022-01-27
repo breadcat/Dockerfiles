@@ -355,7 +355,28 @@ function func_status {
 }
 function func_weight {
 	# variables
-	if [ -n "$2" ]; then year=$2; else year=$(date +%Y); fi
+	if [ -n "$2" ]
+	then
+		if [ "$2" = "date" ]
+		then
+			weight_filename="$(func_dir_find blog."$domain")/content/weight.md"
+			page_source="$(head -n -1 "$weight_filename")"
+			previous_date="$(printf %s "$page_source" | awk -F, 'END{print $1}')"
+			todays_date="$(date +%F)"
+			sequence_count="$(( ($(date --date="$todays_date" +%s) - $(date --date="$previous_date" +%s) )/(60*60*24) ))"
+			# operation
+			{
+				printf "%s\\n" "$page_source"
+				printf "%s" "$(for i in $(seq $sequence_count); do printf "%s,\\n" "$(date -d "$previous_date+$i day" +%F)"; done)"
+				printf "\\n</pre></details>"
+			} > "$weight_filename"
+			exit 0
+		else
+			year=$2
+		fi
+	else
+		year=$(date +%Y)
+	fi
 	weight_filename="$(func_dir_find blog."$domain")/content/weight.md"
 	# cd to temporary directory
 	cd "$(mktemp -d)" || exit
@@ -389,20 +410,6 @@ function func_weight {
 	} > "$weight_filename"
 	# clean up
 	rm -r "$PWD"
-}
-function func_weight_date {
-	# variables
-	weight_filename="$(func_dir_find blog."$domain")/content/weight.md"
-	page_source="$(head -n -1 "$weight_filename")"
-	previous_date="$(printf %s "$page_source" | awk -F, 'END{print $1}')"
-	todays_date="$(date +%F)"
-	sequence_count="$(( ($(date --date="$todays_date" +%s) - $(date --date="$previous_date" +%s) )/(60*60*24) ))"
-	# operation
-	{
-		printf "%s\\n" "$page_source"
-		printf "%s" "$(for i in $(seq $sequence_count); do printf "%s,\\n" "$(date -d "$previous_date+$i day" +%F)"; done)"
-		printf "\\n</pre></details>"
-	} > "$weight_filename"
 }
 function func_dedupe_remote {
 	dests=$(func_rclone_remote "$rclone_core" | wc -l)
@@ -515,7 +522,6 @@ function main {
 		sync) func_sync_remotes ;;
 		update) func_update ;;
 		weight) func_weight "$@" ;;
-		weightdate) func_weight_date ;;
 		*) echo "$0" && awk '/^function main/,EOF' "$0" | awk '/case/{flag=1;next}/esac/{flag=0}flag' | awk -F"\t|)" '{print $3}' | tr -d "*" | sort | xargs ;;
 	esac
 }
