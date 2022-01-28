@@ -7,7 +7,7 @@ networks:
 
 services:
   baikal:
-    image: ckulka/baikal
+    image: ckulka/baikal:nginx
     container_name: baikal
     volumes:
       - $CONFDIR/baikal:/var/www/baikal/Specific
