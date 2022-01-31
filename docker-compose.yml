@@ -43,7 +43,7 @@ services:
       - TZ=$TZ
     volumes:
       - $SYNCDIR/src:/git
-      - $CONFDIR/cgit:/config
+      - $CONFDIR/cgit/cgitrc:/config/cgitrc
       - $CONFDIR/cgit/cgit.css:/app/cgit.css
     restart: unless-stopped
     depends_on:
