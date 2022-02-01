@@ -166,8 +166,8 @@ function func_logger {
 	fi
 	rclone ls "$log_remote" | sort -k2 >"$file_git_log" # create log
 	rclone size "$log_remote" >>"$file_git_log"         # append size
-	$log_command add "$file_git_log"                             # add log file
-	$log_command commit -m "Update: $(date +%F)"                 # commit to repo, datestamped
+	$log_command add "$file_git_log"                    # add log file
+	$log_command commit -m "Update: $(date +%F)"        # commit to repo, datestamped
 	if [ -e "$file_git_log.xz" ]; then
 		rm "$file_git_log.xz"
 	fi
