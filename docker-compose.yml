@@ -86,6 +86,18 @@ services:
       traefik.frontend.rule: "Host:repo.$DOMAIN"
       traefik.port: "8080"
       traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
+  echoip:
+    image: mpolden/echoip
+    container_name: echoip
+    entrypoint: "/opt/echoip/echoip -H X-Real-IP"
+    restart: unless-stopped
+    depends_on:
+      - traefik
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:ip.$DOMAIN"
+      traefik.port: "8080"
   endlessh:
     image: harshavardhanj/endlessh
     container_name: endlessh
@@ -120,17 +132,6 @@ services:
     labels:
       traefik.frontend.rule: "Host:$DOMAIN,blog.$DOMAIN,www.$DOMAIN"
       traefik.port: "1313"
-  ipd:
-    image: joshdvir/ipd
-    container_name: ipd
-    restart: unless-stopped
-    depends_on:
-      - traefik
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:ip.$DOMAIN"
-      traefik.port: "8080"
   jackett:
     image: linuxserver/jackett
     container_name: jackett
