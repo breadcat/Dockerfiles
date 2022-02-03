@@ -19,21 +19,6 @@ services:
     labels:
       traefik.frontend.rule: "Host:dav.$DOMAIN"
       traefik.port: "80"
-  cbreader:
-    image: wervv/cbreader
-    container_name: cbreader
-    user: "$PUID:$PGID"
-    volumes:
-      - $POOLDIR/literature/comics:/comics
-    restart: unless-stopped
-    depends_on:
-      - traefik
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:cbr.$DOMAIN"
-      traefik.port: "80"
-      traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
   cgit:
     image: chruth/alpine-cgit
     container_name: cgit

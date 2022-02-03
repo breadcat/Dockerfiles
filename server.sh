@@ -87,7 +87,6 @@ function func_create_docker {
 		printf "PGID=%s\\n" "$(id -g)"
 		printf "TZ=%s\\n" "$(cat /etc/timezone)"
 		printf "CONFDIR=%s\\n" "$(func_dir_find config)"
-		printf "POOLDIR=%s\\n" "$(func_dir_find media)"
 		printf "SYNCDIR=%s\\n" "$(func_dir_find vault)"
 		printf "RCLONE_REMOTE_MEDIA=%s\\n" "$(func_rclone_remote media)"
 		printf "WG_WEBUI_PASS=%s\\n" "$(password_manager pass 'wireguard admin')"
