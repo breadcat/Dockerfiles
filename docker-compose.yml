@@ -137,12 +137,12 @@ services:
       traefik.port: "9117"
       traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
   php-dev:
-    image: trafex/php-nginx
+    image: php:apache
     container_name: php-dev
     restart: unless-stopped
+    command: bash -c "sed -i 's|33|$PUID|g' /etc/passwd && a2enmod rewrite && apache2-foreground"
     volumes:
       - $SYNCDIR/src/php-dev:/var/www/html
-      - $CONFDIR/php-dev/nginx.conf:/etc/nginx/conf.d/server.conf
     restart: unless-stopped
     depends_on:
       - traefik
