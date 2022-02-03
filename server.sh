@@ -149,13 +149,13 @@ function func_logger {
 	# specify working points
 	git_directory="$(func_dir_find logger)"
 	file_git_log="$git_directory/media.log"
-	log_command="git --git-dir=$git_directory/.git --work-tree=$git_directory"
 	log_remote=$(func_rclone_remote media)
+	function git_logger { git --git-dir=$git_directory/.git --work-tree=$git_directory; }
 	if [ ! -e "$git_directory" ]; then
 		mkdir "$git_directory" # make log directory
 	fi
 	if [ ! -e "$git_directory/.git" ]; then
-		$log_command init # initialise git repo
+		git_logger init # initialise git repo
 	fi
 	if [ -e "$file_git_log.xz" ]; then
 		xz -d "$file_git_log.xz" # if xz archive exists, decompress
@@ -165,13 +165,13 @@ function func_logger {
 	fi
 	rclone ls "$log_remote" | sort -k2 >"$file_git_log" # create log
 	rclone size "$log_remote" >>"$file_git_log"         # append size
-	$log_command add "$file_git_log"                    # add log file
-	$log_command commit -m "Update: $(date +%F)"        # commit to repo, datestamped
+	git_logger add "$file_git_log"                      # add log file
+	git_logger commit -m "Update: $(date +%F)"          # commit to repo, datestamped
 	if [ -e "$file_git_log.xz" ]; then
 		rm "$file_git_log.xz"
 	fi
-	xz "$file_git_log"                   # compress log
-	$log_command gc --aggressive --prune # compress repo
+	xz "$file_git_log"                 # compress log
+	git_logger gc --aggressive --prune # compress repo
 }
 function func_magnet {
 	cd "$(func_dir_find vault)" || exit
