@@ -140,10 +140,14 @@ function func_beets {
 	find "$(func_dir_find beets)" -type f -not -name 'config.yaml' -delete
 }
 function func_logger {
-	password_manager sync
 	# git configuruation
-	git config --global user.email "$(password_manager user email)"
-	git config --global user.name "$username"
+	if [ -z "$(git config --list | grep user.email | awk -F= '{print $2}')" ]; then
+		password_manager sync
+		git config --global user.email "$(password_manager user email)"
+	fi
+	if [ -z "$(git config --list | grep user.name | awk -F= '{print $2}')" ]; then
+		git config --global user.name "$username"
+	fi
 	git config pack.windowMemory 10m
 	git config pack.packSizeLimit 20m
 	# specify working points
