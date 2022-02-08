@@ -150,7 +150,7 @@ function func_logger {
 	git_directory="$(func_dir_find logger)"
 	file_git_log="$git_directory/media.log"
 	log_remote=$(func_rclone_remote media)
-	function git_logger { git --git-dir=$git_directory/.git --work-tree=$git_directory; }
+	function git_logger { git --git-dir="$git_directory"/.git --work-tree="$git_directory"; }
 	if [ ! -e "$git_directory" ]; then
 		mkdir "$git_directory" # make log directory
 	fi
