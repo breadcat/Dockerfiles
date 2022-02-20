@@ -144,7 +144,7 @@ function func_logger {
 	git_directory="$(func_dir_find logger)"
 	file_git_log="$git_directory/media.log"
 	log_remote=$(func_rclone_remote media)
-	git_logger="git --git-dir="$git_directory"/.git --work-tree="$git_directory""
+	git_logger="git --git-dir=$git_directory/.git --work-tree=$git_directory"
 	# git configuruation
 	if [ ! -e "$git_directory" ]; then
 		printf "Logger directory not found, quitting...\n"
@@ -485,7 +485,7 @@ function main {
 	sync) func_sync_remotes ;;
 	update) func_update ;;
 	weight) func_weight "$@" ;;
-	*) echo "$0" && awk '/^function main/,EOF' "$0" | awk '/case/{flag=1;next}/esac/{flag=0}flag' | awk -F"\t|)" '{print $3}' | tr -d "*" | sort | xargs ;;
+	*) echo "$0" && awk '/^function main/,EOF' "$0" | awk '/case/{flag=1;next}/esac/{flag=0}flag' | awk -F"\t|)" '{print $2}' | tr -d "*" | sort | xargs ;;
 	esac
 }
 
