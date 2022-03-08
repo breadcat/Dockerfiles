@@ -466,7 +466,7 @@ function main {
 	domain="$(awk -F'"' '/domain/ {print $2}' "$(func_dir_find traefik)/traefik.toml")"
 	directory_script="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 	rclone_core="gdrive"
-	docker_restart=("cbreader" "syncthing")
+	docker_restart=("syncthing")
 	case "$1" in
 	archive) func_backup_archive "$@" ;;
 	beets) func_beets ;;
