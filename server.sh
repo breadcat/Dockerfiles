@@ -15,11 +15,11 @@ function func_check_running_as_root {
 }
 function password_manager {
 	case "$1" in
-	addr) rbw get --full "$2" | awk '/URI\:/ {print $2}' ;;
+	addr) rbw get --full "$2" | awk '/URI:/ {print $2}' ;;
 	full) rbw get --full "$2" ;;
 	pass) rbw get "$2" ;;
 	sync) rbw sync ;;
-	user) rbw get --full "$2" | awk '/Username\:/ {print $2}' ;;
+	user) rbw get --full "$2" | awk '/Username:/ {print $2}' ;;
 	*) rbw get "$2" ;;
 	esac
 }
