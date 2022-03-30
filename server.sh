@@ -277,6 +277,10 @@ function func_rclone_mount {
 	fi
 	for i in backups media paperwork pictures unsorted; do
 		mount_point="$directory_home/$i"
+		if [[ ! -d "$mount_point" ]]; then
+			echo "Creating empty directory $i"
+			mkdir -p "$mount_point"
+		fi
 		if [[ -f "$mount_point/.mountcheck" ]]; then
 			echo "$i" still mounted
 		else
@@ -286,7 +290,7 @@ function func_rclone_mount {
 			fusermount -uz "$mount_point"
 			echo sleeping && sleep 3
 			echo mounting
-			rclone mount "drive-$i": "$directory_home/$i" --allow-other --allow-non-empty --daemon --log-file "$(func_dir_find config)/logs/rclone-$i.log"
+			rclone mount "drive-$i": "$mount_point" --allow-other --allow-non-empty --daemon --log-file "$(func_dir_find config)/logs/rclone-$i.log"
 		fi
 		if [ "$mount_points_remounted" = true ]; then
 			echo restarting docker containers
