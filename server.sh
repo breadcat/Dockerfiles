@@ -419,6 +419,18 @@ function func_sync_remotes {
 		rclone sync "$source" "$dest" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(func_dir_find config)/logs/rclone-sync-$(date +%F-%H%M).log"
 	done
 }
+function func_space_clean {
+	func_check_running_as_root
+	# journals
+	journalctl --vacuum-size=75M
+	# docker
+	for i in volume image; do
+		docker "$i" prune -f
+	done
+	# temp directory
+	rm -rf /tmp/tmp.*
+}
+
 function func_update {
 	func_check_running_as_root
 	if [[ $distro =~ "Debian" ]]; then
@@ -486,6 +498,7 @@ function main {
 	archive) func_backup_archive "$@" ;;
 	beets) func_beets ;;
 	borg) func_backup_borg ;;
+	clean) func_space_clean ;;
 	dedupe) func_dedupe_remote ;;
 	docker) func_create_docker ;;
 	duolingo) func_duolingo_streak ;;
