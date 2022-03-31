@@ -400,6 +400,16 @@ function func_dedupe_remote {
 		rclone dedupe --dedupe-mode newest "$remote" --log-file "$(func_dir_find config)/logs/rclone-dupe-$(date +%F-%H%M).log"
 	done
 }
+function func_refresh_remotes {
+	echo "Refreshing rclone remote tokens"
+	for i in $(rclone listremotes | grep "$rclone_backup"); do
+		if rclone lsd "$i" &>/dev/null; then
+			echo "$i success"
+		else
+			echo "$i failed"
+		fi
+	done
+}
 function func_sync_remotes {
 	source=$(func_rclone_remote "$rclone_core" | sed 1q)
 	dests=$(func_rclone_remote "$rclone_core" | wc -l)
@@ -470,6 +480,7 @@ function main {
 	domain="$(awk -F'"' '/domain/ {print $2}' "$(func_dir_find traefik)/traefik.toml")"
 	directory_script="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 	rclone_core="gdrive"
+	rclone_backup="backup"
 	docker_restart=("syncthing")
 	case "$1" in
 	archive) func_backup_archive "$@" ;;
@@ -483,6 +494,7 @@ function main {
 	payslip) func_payslip ;;
 	permissions) func_permissions ;;
 	rclone) func_rclone_mount ;;
+	refresh) func_refresh_remotes ;;
 	sort) func_media_sort ;;
 	sshfs) func_sshfs_mount ;;
 	status) func_status ;;
