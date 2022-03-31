@@ -427,6 +427,8 @@ function func_space_clean {
 	for i in volume image; do
 		docker "$i" prune -f
 	done
+	# apt
+	apt-get clean
 	# temp directory
 	rm -rf /tmp/tmp.*
 }
