@@ -275,7 +275,7 @@ function func_rclone_mount {
 		echo Please restart the script.
 		exit 0
 	fi
-	for i in backups media paperwork pictures unsorted; do
+	for i in media paperwork pictures unsorted; do
 		mount_point="$directory_home/$i"
 		if [[ ! -d "$mount_point" ]]; then
 			echo "Creating empty directory $i"
