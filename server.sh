@@ -401,8 +401,9 @@ function func_dedupe_remote {
 	done
 }
 function func_refresh_remotes {
+	rclone_prefix="backup-"
 	echo "Refreshing rclone remote tokens"
-	for i in $(rclone listremotes | grep "$rclone_backup"); do
+	for i in $(rclone listremotes | grep "$rclone_prefix"); do
 		if rclone lsd "$i" &>/dev/null; then
 			echo "$i success"
 		else
@@ -494,7 +495,6 @@ function main {
 	domain="$(awk -F'"' '/domain/ {print $2}' "$(func_dir_find traefik)/traefik.toml")"
 	directory_script="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 	rclone_core="gdrive"
-	rclone_backup="backup"
 	docker_restart=("syncthing")
 	case "$1" in
 	archive) func_backup_archive "$@" ;;
