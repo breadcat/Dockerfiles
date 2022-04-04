@@ -183,7 +183,7 @@ function func_logger {
 }
 function func_magnet {
 	cd "$(func_dir_find vault)" || exit
-	func_sshfs_mount
+	func_seedbox_mount
 	mag2tor_script_path="$(func_dir_find config)/magnet2torrent/Magnet_To_Torrent2.py"
 	if [ ! -f "$mag2tor_script_path" ]; then
 		echo "script not found, downloading"
@@ -245,13 +245,13 @@ function func_permissions {
 	chown "$username":"$username" "$directory_script/rclone.conf"
 }
 function func_media_sort {
-	func_sshfs_mount
+	func_seedbox_mount
 	if [ ! -x "$(command -v media-sort)" ]; then # not installed
 		echo media-sort not installed. Installing...
 		func_check_running_as_root
 		curl https://i.jpillora.com/media-sort | bash
 	fi
-	dir_import=$(func_dir_find downloads)/files/complete/
+	dir_import=$(func_dir_find downloads)/
 	if [[ -d "$dir_import" ]]; then
 		dir_tv=$(func_dir_find media)/videos/television
 		dir_mov=$(func_dir_find media)/videos/movies
@@ -300,22 +300,20 @@ function func_rclone_mount {
 		fi
 	done
 }
-function func_sshfs_mount {
-	# check for mount
-	printf "sshfs mount checker... "
-	seedbox_mount="$(func_dir_find downloads)"
-	if [[ -d "$seedbox_mount/files" ]]; then
+function func_seedbox_mount {
+	# variables and checks
+	mount_point="$directory_home/downloads"
+	rclone_name="seedbox"
+	if [[ ! -d "$mount_point" ]]; then
+		echo "Creating empty directory $i"
+		mkdir -p "$mount_point"
+	fi
+	printf "Seedbox mount checker... "
+	if [[ -f "$mount_point/.mountcheck" ]]; then
 		printf "exists.\\n"
 	else
-		password_manager sync
-		# determine credentials
-		seedbox_provider=$(password_manager addr seedbox | cut -f2-3 -d.)
-		seedbox_username=$(password_manager user seedbox)
-		seedbox_password=$(password_manager pass seedbox)
-		seedbox_host="$seedbox_username.$seedbox_provider"
-		printf "missing.\\nre-mounting"
-		fusermount -uz "$seedbox_mount"
-		printf "%s" "$seedbox_password" | sshfs "$seedbox_username@$seedbox_host":/ "$seedbox_mount" -o password_stdin -o allow_other
+		fusermount -uz "$mount_point"
+		rclone mount "$rclone_name": "$mount_point" --allow-other --allow-non-empty --daemon --log-file "$(func_dir_find config)/logs/rclone-$rclone_name.log"
 	fi
 }
 function func_status {
@@ -511,7 +509,7 @@ function main {
 	rclone) func_rclone_mount ;;
 	refresh) func_refresh_remotes ;;
 	sort) func_media_sort ;;
-	sshfs) func_sshfs_mount ;;
+	seedbox) func_seedbox_mount ;;
 	status) func_status ;;
 	sync) func_sync_remotes ;;
 	update) func_update ;;
