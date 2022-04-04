@@ -401,7 +401,7 @@ function func_dedupe_remote {
 function func_refresh_remotes {
 	rclone_prefix="backup-"
 	echo "Refreshing rclone remote tokens"
-	for i in $(rclone listremotes | grep "$rclone_prefix"); do
+	for i in $(func_rclone_remote "$rclone_prefix"); do
 		if rclone lsd "$i" &>/dev/null; then
 			echo "$i success"
 		else
