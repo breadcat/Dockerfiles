@@ -182,26 +182,45 @@ function func_logger {
 	printf "Log complete!"
 }
 function func_magnet {
+	# sources and destinations
 	cd "$(func_dir_find vault)" || exit
-	func_seedbox_mount
-	mag2tor_script_path="$(func_dir_find config)/magnet2torrent/Magnet_To_Torrent2.py"
-	if [ ! -f "$mag2tor_script_path" ]; then
-		echo "script not found, downloading"
-		git clone "https://github.com/danfolkes/Magnet2Torrent.git" "$(func_dir_find config)/magnet2torrent"
+	rclone_remote="seedbox-raw:/watch/"
+	# check for aria
+	if [ ! -x "$(command -v aria2c)" ]; then # not installed
+		echo "Aria doesn't seem to be installed. Exiting" && exit
 	fi
-	shopt -s nullglob
-	echo "processing magnets"
-	for i in *.magnet; do
-		magnet_source="$(cat "$i")"
-		timeout 5m python "$mag2tor_script_path" -m "$magnet_source" -o "$(func_dir_find downloads)/watch/"
-		rm "$i"
+	# trackers
+	trackers_list=(
+		"udp://9.rarbg.to:2710/announce"
+		"udp://denis.stalker.upeer.me:6969/announce"
+		"udp://exodus.desync.com:6969/announce"
+		"udp://ipv6.tracker.harry.lu:80/announce"
+		"udp://open.demonii.si:1337/announce"
+		"udp://open.stealth.si:80/announce"
+		"udp://p4p.arenabg.com:1337/announce"
+		"udp://retracker.lanta-net.ru:2710/announce"
+		"udp://tracker.coppersurfer.tk:6969/announce"
+		"udp://tracker.cyberia.is:6969/announce"
+		"udp://tracker.leechers-paradise.org:6969/announce"
+		"udp://tracker.open-internet.nl:6969/announce"
+		"udp://tracker.opentrackr.org:1337/announce"
+		"udp://tracker.pirateparty.gr:6969/announce"
+		"udp://tracker.tiny-vps.com:6969/announce"
+		"udp://tracker.torrent.eu.org:451/announce"
+	)
+	for i in "${trackers_list[@]}"; do
+		trackers="$i,$trackers"
 	done
-	echo "processing torrents"
-	for i in *.torrent; do
-		mv -v "$i" "$(func_dir_find downloads)/watch/"
+	# magnet loop
+	for j in *.magnet; do
+		[ -f "$j" ] || break
+		aria2c --bt-tracker="$trackers" --bt-metadata-only=true --bt-save-metadata=true "$(cat "$j")" && rm "$j"
 	done
-	echo "cleaning up tmp directory"
-	find /tmp/ -type d -empty -delete
+	# torrent loop, move to watch
+	for k in *.torrent; do
+		[ -f "$k" ] || break
+		for i in *.torrent; do rclone move "$k" "$rclone_remote"; done
+	done
 }
 function func_payslip {
 	# depends on: getmail4 mpack qpdf
