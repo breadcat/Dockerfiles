@@ -38,6 +38,18 @@ services:
     labels:
       traefik.frontend.rule: "Host:git.$DOMAIN"
       traefik.port: "80"
+  changedetection:
+    image: dgtlmoon/changedetection.io
+    container_name: changedetection
+    volumes:
+      - $CONFDIR/changedetection:/datastore
+    depends_on:
+      - traefik
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:diff.$DOMAIN"
+      traefik.port: "5000"
   dir-pub:
     image: awesometic/h5ai
     container_name: dir-pub
