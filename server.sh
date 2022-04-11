@@ -422,9 +422,9 @@ function func_refresh_remotes {
 	echo "Refreshing rclone remote tokens"
 	for i in $(func_rclone_remote "$rclone_prefix"); do
 		if rclone lsd "$i" &>/dev/null; then
-			echo "$i success"
+			echo -e "$i \e[32msuccess\e[39m"
 		else
-			echo "$i failed"
+			echo -e "$i \e[31mfailed\e[39m"
 		fi
 	done
 }
