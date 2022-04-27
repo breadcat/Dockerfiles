@@ -516,6 +516,7 @@ function main {
 	case "$1" in
 	archive) func_backup_archive "$@" ;;
 	beets) func_beets ;;
+	bookmarks) grep -P "\t\t\t\<li\>" "$(func_dir_find startpage)/index.html" | sort -t\> -k3 > "$(func_dir_find startpage)/bookmarks.txt" ;;
 	borg) func_backup_borg ;;
 	clean) func_space_clean ;;
 	dedupe) func_dedupe_remote ;;
