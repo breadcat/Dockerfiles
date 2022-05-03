@@ -528,8 +528,8 @@ function main {
 	permissions) func_permissions ;;
 	rclone) func_rclone_mount ;;
 	refresh) func_refresh_remotes ;;
-	sort) func_media_sort ;;
 	seedbox) func_seedbox_mount ;;
+	sort) func_media_sort ;;
 	status) func_status ;;
 	sync) func_sync_remotes ;;
 	update) func_update ;;
