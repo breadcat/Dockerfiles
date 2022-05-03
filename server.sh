@@ -86,7 +86,7 @@ function func_duorank {
 	rank_streak="$(printf %s "$page_source" | awk -F"[#><]" '/icon streak/{getline;print $15}')'"
 	echo -e "$i \e[32mdone\e[39m"
 	echo -n "Appending ranks to page... "
-	echo "| $(date +%F) | $(date +%H:%M) | $rank_streak | $rank_lingot |" | tr -d \' >> "$rank_filename"
+	echo "| $(date +%F) | $(date +%H:%M) | $rank_streak | $rank_lingot |" | tr -d \' >>"$rank_filename"
 	echo -e "$i \e[32mdone\e[39m"
 	echo -n "Amending lastmod value... "
 	mod_timestamp="$(date +%FT%H:%M:00)"
@@ -532,7 +532,7 @@ function main {
 	case "$1" in
 	archive) func_backup_archive "$@" ;;
 	beets) func_beets ;;
-	bookmarks) grep -P "\t\t\t\<li\>" "$(func_dir_find startpage)/index.html" | sort -t\> -k3 > "$(func_dir_find startpage)/bookmarks.txt" ;;
+	bookmarks) grep -P "\t\t\t\<li\>" "$(func_dir_find startpage)/index.html" | sort -t\> -k3 >"$(func_dir_find startpage)/bookmarks.txt" ;;
 	borg) func_backup_borg ;;
 	clean) func_space_clean ;;
 	dedupe) func_dedupe_remote ;;
