@@ -77,6 +77,22 @@ function func_duolingo_streak {
 	python "streak-freeze.py"
 	rm "streak-freeze.py"
 }
+function func_duorank {
+	duo_username="$(awk -F'[/()]' '/Duolingo/ {print $5}' $(func_dir_find blog."$domain")/content/about.md)"
+	rank_filename="$(func_dir_find blog."$domain")/content/posts/logging-duolingo-ranks-over-time.md"
+	echo -n "Fetching data for $duo_username... "
+	page_source="$(curl -s https://duome.eu/$duo_username)"
+	rank_lingot="$(printf %s "$page_source" | awk -F"[#><]" '/icon lingot/ {print $15}')"
+	rank_streak="$(printf %s "$page_source" | awk -F"[#><]" '/icon streak/{getline;print $15}')'"
+	echo -e "$i \e[32mdone\e[39m"
+	echo "Appending ranks to page... "
+	echo "| $(date +%F) | $(date +%H:%M) | $rank_streak | $rank_lingot |" | tr -d \' >> "$rank_filename"
+	echo -e "$i \e[32mdone\e[39m"
+	echo "Amending lastmod value... "
+	mod_timestamp="$(date +%FT%H:%M:00)"
+	sed -i "s/lastmod: .*/lastmod: $mod_timestamp/g" "$rank_filename"
+	echo -e "$i \e[32mdone\e[39m"
+}
 function func_create_docker {
 	cd "$directory_script" || exit
 	# write env file, overwriting any existing
@@ -526,6 +542,7 @@ function main {
 	magnet) func_magnet ;;
 	payslip) func_payslip ;;
 	permissions) func_permissions ;;
+	rank) func_duorank ;;
 	rclone) func_rclone_mount ;;
 	refresh) func_refresh_remotes ;;
 	seedbox) func_seedbox_mount ;;
