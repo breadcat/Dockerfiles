@@ -5,7 +5,7 @@ function func_dir_find {
 	find "$directory_home" -maxdepth 3 -mount -type d -name "$1" 2>/dev/null
 }
 function func_rclone_remote {
-	rclone listremotes | grep "$1"
+	rclone listremotes | awk -v remote="$1" '$0 ~ remote {print $0;exit}'
 }
 function func_check_running_as_root {
 	if [ "$EUID" -ne 0 ]; then
@@ -365,9 +365,9 @@ function func_weight {
 	rm -r "$PWD"
 }
 function func_dedupe_remote {
-	dests=$(func_rclone_remote "$rclone_core" | wc -l)
+	dests=$(rclone listremotes | grep "$prefix_core" -c)
 	for i in $(seq "$dests"); do
-		remote=$(func_rclone_remote "$rclone_core" | grep "$i")
+		remote=$(rclone listremotes | grep "$prefix_core" | grep "$i")
 		echo Deduplicating "$remote"
 		rclone dedupe --dedupe-mode newest "$remote" --log-file "$(func_dir_find config)/logs/rclone-dupe-$(date +%F-%H%M).log"
 	done
@@ -383,10 +383,10 @@ function func_refresh_remotes {
 	done
 }
 function func_sync_remotes {
-	source=$(func_rclone_remote "$rclone_core" | sed 1q)
-	dests=$(func_rclone_remote "$rclone_core" | wc -l)
+	source=$(func_rclone_remote "$prefix_core")
+	dests=$(rclone listremotes | grep "$prefix_core" -c)
 	for i in $(seq 2 "$dests"); do
-		dest=$(func_rclone_remote "$rclone_core" | grep "$i")
+		dest=$(rclone listremotes | grep "$prefix_core" | grep "$i")
 		echo Syncing "$source" to "$dest"
 		rclone sync "$source" "$dest" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(func_dir_find config)/logs/rclone-sync-$(date +%F-%H%M).log"
 	done
@@ -457,8 +457,8 @@ function main {
 	directory_home="/home/$username"
 	domain="$(awk -F'"' '/domain/ {print $2}' "$(func_dir_find traefik)/traefik.toml")"
 	directory_script="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-	rclone_core="gdrive"
 	docker_restart=("syncthing")
+	prefix_core="gdrive"
 	case "$1" in
 	bookmarks) grep -P "\t\t\t\<li\>" "$(func_dir_find startpage)/index.html" | sort -t\> -k3 >"$(func_dir_find startpage)/bookmarks.txt" ;;
 	clean) func_space_clean ;;
