@@ -41,10 +41,10 @@ function func_duolingo_streak {
 	rm "streak-freeze.py"
 }
 function func_duorank {
-	duo_username="$(awk -F'[/()]' '/Duolingo/ {print $5}' $(func_dir_find blog."$domain")/content/about.md)"
+	duo_username="$(awk -F'[/()]' '/Duolingo/ {print $5}' "$(func_dir_find blog."$domain")"/content/about.md)"
 	rank_filename="$(func_dir_find blog."$domain")/content/posts/logging-duolingo-ranks-over-time.md"
 	echo -n "Fetching data for $duo_username... "
-	page_source="$(curl -s https://duome.eu/$duo_username)"
+	page_source="$(curl -s https://duome.eu/"$duo_username")"
 	rank_lingot="$(printf %s "$page_source" | awk -F"[#><]" '/icon lingot/ {print $15}')"
 	rank_streak="$(printf %s "$page_source" | awk -F"[#><]" '/icon streak/{getline;print $15}')'"
 	echo -e "$i \e[32mdone\e[39m"
@@ -98,7 +98,7 @@ function func_logger {
 	# specify directories
 	git_directory="$(func_dir_find logger)"
 	file_git_log="$git_directory/media.log"
-	log_remote=$(func_rclone_remote media)
+	log_remote="$(func_rclone_remote media)"
 	git_logger="git --git-dir=$git_directory/.git --work-tree=$git_directory"
 	# git configuruation
 	if [ ! -e "$git_directory" ]; then
