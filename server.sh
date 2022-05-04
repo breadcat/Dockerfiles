@@ -1,20 +1,20 @@
 #!/bin/bash
 
 # functions
-function func_dir_find {
+function find_directory {
 	find "$directory_home" -maxdepth 3 -mount -type d -name "$1" 2>/dev/null
 }
-function func_rclone_remote {
+function find_remote {
 	rclone listremotes | awk -v remote="$1" '$0 ~ remote {print $0;exit}'
 }
-function func_check_running_as_root {
+function check_root {
 	if [ "$EUID" -ne 0 ]; then
 		echo "Please run as root"
 		exit 0
 	fi
 }
-function unmount_remotes {
-	working_directory="$(func_dir_find "$1")"
+function umount_remote {
+	working_directory="$(find_directory "$1")"
 	umount "$working_directory"
 	fusermount -uz "$working_directory" 2>/dev/null
 	find "$working_directory" -maxdepth 1 -mount -type d -not -path "*/\.*" -empty -delete
@@ -30,11 +30,11 @@ function password_manager {
 	*) rbw get "$2" ;;
 	esac
 }
-function func_duolingo_streak {
+function duolingo_streak {
 	# check api is installed
-	[[ -d "$(func_dir_find config)/duolingo" ]] || git clone https://github.com/KartikTalwar/Duolingo.git "$(func_dir_find config)/duolingo"
+	[[ -d "$(find_directory config)/duolingo" ]] || git clone https://github.com/KartikTalwar/Duolingo.git "$(find_directory config)/duolingo"
 	# cd to git dir to include module
-	cd "$(func_dir_find config)/duolingo" || return
+	cd "$(find_directory config)/duolingo" || return
 	# write script
 	password_manager sync
 	{
@@ -47,9 +47,9 @@ function func_duolingo_streak {
 	python "streak-freeze.py"
 	rm "streak-freeze.py"
 }
-function func_duorank {
-	duo_username="$(awk -F'[/()]' '/Duolingo/ {print $5}' "$(func_dir_find blog."$domain")"/content/about.md)"
-	rank_filename="$(func_dir_find blog."$domain")/content/posts/logging-duolingo-ranks-over-time.md"
+function blog_duolingo_rank {
+	duo_username="$(awk -F'[/()]' '/Duolingo/ {print $5}' "$(find_directory blog."$domain")"/content/about.md)"
+	rank_filename="$(find_directory blog."$domain")/content/posts/logging-duolingo-ranks-over-time.md"
 	echo -n "Fetching data for $duo_username... "
 	page_source="$(curl -s https://duome.eu/"$duo_username")"
 	rank_lingot="$(printf %s "$page_source" | awk -F"[#><]" '/icon lingot/ {print $15}')"
@@ -63,7 +63,7 @@ function func_duorank {
 	sed -i "s/lastmod: .*/lastmod: $mod_timestamp/g" "$rank_filename"
 	echo -e "$i \e[32mdone\e[39m"
 }
-function func_create_docker {
+function docker_build {
 	cd "$directory_script" || exit
 	# write env file, overwriting any existing
 	password_manager sync
@@ -72,9 +72,9 @@ function func_create_docker {
 		printf "PUID=%s\\n" "$(id -u)"
 		printf "PGID=%s\\n" "$(id -g)"
 		printf "TZ=%s\\n" "$(cat /etc/timezone)"
-		printf "CONFDIR=%s\\n" "$(func_dir_find config)"
-		printf "SYNCDIR=%s\\n" "$(func_dir_find vault)"
-		printf "RCLONE_REMOTE_MEDIA=%s\\n" "$(func_rclone_remote media)"
+		printf "CONFDIR=%s\\n" "$(find_directory config)"
+		printf "SYNCDIR=%s\\n" "$(find_directory vault)"
+		printf "RCLONE_REMOTE_MEDIA=%s\\n" "$(find_remote media)"
 		printf "WG_WEBUI_PASS=%s\\n" "$(password_manager pass 'wireguard admin')"
 		printf "WG_PRIVKEY=%s\\n" "$(password_manager pass 'wireguard private key')"
 		printf "DBPASSWORD=%s\\n" "$(password_manager pass postgresql)"
@@ -101,11 +101,11 @@ function func_create_docker {
 	# clean up, again
 	docker volume prune -f
 }
-function func_logger {
+function media_logger {
 	# specify directories
-	git_directory="$(func_dir_find logger)"
+	git_directory="$(find_directory logger)"
 	file_git_log="$git_directory/media.log"
-	log_remote="$(func_rclone_remote media)"
+	log_remote="$(find_remote media)"
 	git_logger="git --git-dir=$git_directory/.git --work-tree=$git_directory"
 	# git configuruation
 	if [ ! -e "$git_directory" ]; then
@@ -143,9 +143,9 @@ function func_logger {
 	$git_logger gc --aggressive --prune
 	printf "Log complete!"
 }
-function func_magnet {
+function parse_magnets {
 	# sources and destinations
-	cd "$(func_dir_find vault)" || exit
+	cd "$(find_directory vault)" || exit
 	rclone_remote="seedbox-raw:/watch/"
 	# check for aria
 	if [ ! -x "$(command -v aria2c)" ]; then # not installed
@@ -184,10 +184,10 @@ function func_magnet {
 		for i in *.torrent; do rclone move "$k" "$rclone_remote"; done
 	done
 }
-function func_payslip {
+function parse_payslips {
 	# depends on: getmail4 mpack qpdf
 	# mount paperwork
-	func_rclone_mount mount "paperwork"
+	mount_remote mount "paperwork"
 	# temporary directory
 	directory_temp="$(mktemp -d)"
 	cd "$directory_temp" || exit
@@ -209,10 +209,10 @@ function func_payslip {
 	cd new || exit
 	grep "$(password_manager user payslip)" ./* | cut -f1 -d: | uniq | xargs munpack -f
 	for i in *.PDF; do
-		mv "$i" "$(func_dir_find paperwork)/"
+		mv "$i" "$(find_directory paperwork)/"
 	done
 	# decrypt payslip file
-	cd "$(func_dir_find paperwork)" || exit
+	cd "$(find_directory paperwork)" || exit
 	for i in *.PDF; do
 		fileProtected=0
 		qpdf "$i" --check || fileProtected=1
@@ -222,29 +222,25 @@ function func_payslip {
 		fi
 	done
 	# clean up afterwards
-	unmount_remotes "paperwork"
+	umount_remote "paperwork"
 	rm -r "$directory_temp"
 }
-function func_permissions {
-	func_check_running_as_root
-	chown "$username":"$username" "$directory_script/rclone.conf"
-}
-function func_media_sort {
+function sort_media {
 	# check mounts
 	for i in seedbox media; do
-		func_rclone_mount mount "$i"
+		mount_remote mount "$i"
 	done
 	# check if media-sort is available
 	if [ ! -x "$(command -v media-sort)" ]; then
 		echo media-sort not installed. Installing...
-		func_check_running_as_root
+		check_root
 		curl https://i.jpillora.com/media-sort | bash
 	fi
 	# main sorting process
-	dir_import=$(func_dir_find seedbox)/
+	dir_import=$(find_directory seedbox)/
 	if [[ -d "$dir_import" ]]; then
-		dir_tv=$(func_dir_find media)/videos/television
-		dir_mov=$(func_dir_find media)/videos/movies
+		dir_tv=$(find_directory media)/videos/television
+		dir_mov=$(find_directory media)/videos/movies
 		temp_tv="{{ .Name }}/{{ .Name }} S{{ printf \"%02d\" .Season }}E{{ printf \"%02d\" .Episode }}{{ if ne .ExtraEpisode -1 }}-{{ printf \"%02d\" .ExtraEpisode }}{{end}}.{{ .Ext }}"
 		temp_mov="{{ .Name }} ({{ .Year }})/{{ .Name }}.{{ .Ext }}"
 		media-sort --action copy --concurrency 1 --accuracy-threshold 90 --tv-dir "$dir_tv" --movie-dir "$dir_mov" --tv-template "$temp_tv" --movie-template "$temp_mov" --recursive --overwrite-if-larger "$dir_import"
@@ -253,13 +249,13 @@ function func_media_sort {
 		exit 0
 	fi
 	for i in seedbox media; do
-		unmount_remotes "$i"
+		umount_remote "$i"
 	done
 }
-function func_rclone_mount {
+function mount_remote {
 	# check allow_other in fuse.conf
 	if ! grep -q "^user_allow_other$" /etc/fuse.conf; then
-		func_check_running_as_root
+		check_root
 		printf "user_allow_other not found in fuse.conf.\\nAppending to file. Please restart the script.\\n"
 		echo "user_allow_other" >>/etc/fuse.conf
 		exit 0
@@ -276,7 +272,7 @@ function func_rclone_mount {
 	fi
 }
 function rclone_mount_process {
-	remote="$(func_rclone_remote "$1")"
+	remote="$(find_remote "$1")"
 	mount_point="$directory_home/$1"
 	mkdir -p "$mount_point"
 	if [[ -f "$mount_point/.mountcheck" || -n "$(find "$mount_point" -maxdepth 1 -mindepth 1 | head -n 1)" ]]; then
@@ -285,11 +281,11 @@ function rclone_mount_process {
 		printf "%s not mounted.\\n" "$1"
 		printf "Re-mounting... "
 		fusermount -uz "$mount_point" 2>/dev/null && sleep 3
-		rclone mount "$remote" "$mount_point" --allow-other --daemon --log-file "$(func_dir_find config)/logs/rclone-$1.log"
+		rclone mount "$remote" "$mount_point" --allow-other --daemon --log-file "$(find_directory config)/logs/rclone-$1.log"
 		printf "done\\n"
 	fi
 }
-function func_status {
+function blog_status {
 	status_uptime=$(($(cut -f1 -d. </proc/uptime) / 86400))
 	{
 		printf -- "---\\ntitle: Status\\nlayout: single\\n---\\n\\n"
@@ -301,18 +297,18 @@ function func_status {
 		printf "* Swap Usage: %s%%\\n" "$(printf "%.0f" "$(free | awk '/Swap/ {print $3/$2 * 100.0}')")"
 		printf "* Root Usage: %s\\n" "$(df / | awk 'END{print $5}')"
 		printf "* Downloads Usage: %s\\n" "$(df | awk '/downloads/ {print $5}')"
-		printf "* Cloud Usage: %s\\n" "$(git --git-dir="$(func_dir_find logger)/.git" show | awk 'END{print $3" "$4}')"
+		printf "* Cloud Usage: %s\\n" "$(git --git-dir="$(find_directory logger)/.git" show | awk 'END{print $3" "$4}')"
 		printf "* [Dockers](https://github.com/breadcat/Dockerfiles): %s\\n" "$(docker ps -q | wc -l)/$(docker ps -aq | wc -l)"
 		printf "* Packages: %s\\n" "$(dpkg -l | grep ^ii -c)"
 		printf "* Monthly Data: %s\\n\\n" "$(vnstat -m --oneline | cut -f11 -d\;)"
 		printf "Hardware specifications themselves are covered on the [hardware page](/hardware/#server).\\n"
-	} >"$(func_dir_find blog."$domain")/content/status.md"
+	} >"$(find_directory blog."$domain")/content/status.md"
 }
-function func_weight {
+function blog_weight {
 	# variables
 	if [ -n "$2" ]; then
 		if [ "$2" = "date" ]; then
-			weight_filename="$(func_dir_find blog."$domain")/content/weight.md"
+			weight_filename="$(find_directory blog."$domain")/content/weight.md"
 			page_source="$(head -n -1 "$weight_filename")"
 			previous_date="$(printf %s "$page_source" | awk -F, 'END{print $1}')"
 			sequence_count="$((($(date --date="$(date +%F)" +%s) - $(date --date="$previous_date" +%s)) / (60 * 60 * 24)))"
@@ -329,7 +325,7 @@ function func_weight {
 	else
 		year=$(date +%Y)
 	fi
-	weight_filename="$(func_dir_find blog."$domain")/content/weight.md"
+	weight_filename="$(find_directory blog."$domain")/content/weight.md"
 	# cd to temporary directory
 	cd "$(mktemp -d)" || exit
 	# pull raw data from source
@@ -363,17 +359,17 @@ function func_weight {
 	# clean up
 	rm -r "$PWD"
 }
-function func_dedupe_remote {
-	dests=$(rclone listremotes | grep "$prefix_core" -c)
+function remotes_dedupe {
+	dests=$(rclone listremotes | grep "gdrive" -c)
 	for i in $(seq "$dests"); do
-		remote=$(rclone listremotes | grep "$prefix_core" | grep "$i")
+		remote=$(rclone listremotes | grep "gdrive" | grep "$i")
 		echo Deduplicating "$remote"
-		rclone dedupe --dedupe-mode newest "$remote" --log-file "$(func_dir_find config)/logs/rclone-dupe-$(date +%F-%H%M).log"
+		rclone dedupe --dedupe-mode newest "$remote" --log-file "$(find_directory config)/logs/rclone-dupe-$(date +%F-%H%M).log"
 	done
 }
-function func_refresh_remotes {
+function remotes_tokens {
 	echo "Refreshing rclone remote tokens"
-	for i in $(func_rclone_remote "backup-"); do
+	for i in $(find_remote "backup-"); do
 		if rclone lsd "$i" &>/dev/null; then
 			echo -e "$i \e[32msuccess\e[39m"
 		else
@@ -381,17 +377,17 @@ function func_refresh_remotes {
 		fi
 	done
 }
-function func_sync_remotes {
-	source=$(func_rclone_remote "$prefix_core")
-	dests=$(rclone listremotes | grep "$prefix_core" -c)
+function remotes_sync {
+	source=$(find_remote "gdrive")
+	dests=$(rclone listremotes | grep "gdrive" -c)
 	for i in $(seq 2 "$dests"); do
-		dest=$(rclone listremotes | grep "$prefix_core" | grep "$i")
+		dest=$(rclone listremotes | grep "gdrive" | grep "$i")
 		echo Syncing "$source" to "$dest"
-		rclone sync "$source" "$dest" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(func_dir_find config)/logs/rclone-sync-$(date +%F-%H%M).log"
+		rclone sync "$source" "$dest" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(find_directory config)/logs/rclone-sync-$(date +%F-%H%M).log"
 	done
 }
-function func_space_clean {
-	func_check_running_as_root
+function clean_space {
+	check_root
 	# journals
 	journalctl --vacuum-size=75M
 	# docker
@@ -404,8 +400,8 @@ function func_space_clean {
 	rm -rf /tmp/tmp.*
 }
 
-function func_update {
-	func_check_running_as_root
+function system_update {
+	check_root
 	if [[ $distro =~ "Debian" ]]; then
 		# Update Debian
 		export DEBIAN_FRONTEND=noninteractive
@@ -433,7 +429,7 @@ function func_update {
 	if [ -f "$directory_home/.config/retroarch/lrcm/lrcm" ]; then
 		"$directory_home/.config/retroarch/lrcm/lrcm" update
 	fi
-	find "$(func_dir_find config)" -maxdepth 2 -name ".git" -type d | sed 's/\/.git//' | xargs -P10 -I{} git -C {} pull
+	find "$(find_directory config)" -maxdepth 2 -name ".git" -type d | sed 's/\/.git//' | xargs -P10 -I{} git -C {} pull
 	if [ -x "$(command -v we-get)" ]; then
 		echo "Updating we-get..."
 		pip3 install --upgrade git+https://github.com/rachmadaniHaryono/we-get
@@ -454,27 +450,26 @@ function main {
 	distro="$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)"
 	username="$(logname)"
 	directory_home="/home/$username"
-	domain="$(awk -F'"' '/domain/ {print $2}' "$(func_dir_find traefik)/traefik.toml")"
+	domain="$(awk -F'"' '/domain/ {print $2}' "$(find_directory traefik)/traefik.toml")"
 	directory_script="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-	prefix_core="gdrive"
 	case "$1" in
-	bookmarks) grep -P "\t\t\t\<li\>" "$(func_dir_find startpage)/index.html" | sort -t\> -k3 >"$(func_dir_find startpage)/bookmarks.txt" ;;
-	clean) func_space_clean ;;
-	dedupe) func_dedupe_remote ;;
-	docker) func_create_docker ;;
-	duolingo) func_duolingo_streak ;;
-	logger) func_logger ;;
-	magnet) func_magnet ;;
-	mount) func_rclone_mount "$@" ;;
-	payslip) func_payslip ;;
-	permissions) func_permissions ;;
-	rank) func_duorank ;;
-	refresh) func_refresh_remotes ;;
-	sort) func_media_sort ;;
-	status) func_status ;;
-	sync) func_sync_remotes ;;
-	update) func_update ;;
-	weight) func_weight "$@" ;;
+	bookmarks) grep -P "\t\t\t\<li\>" "$(find_directory startpage)/index.html" | sort -t\> -k3 >"$(find_directory startpage)/bookmarks.txt" ;;
+	clean) clean_space ;;
+	dedupe) remotes_dedupe ;;
+	docker) docker_build ;;
+	logger) media_logger ;;
+	magnet) parse_magnets ;;
+	mount) mount_remote "$@" ;;
+	payslip) parse_payslips ;;
+	permissions) check_root && chown "$username":"$username" "$directory_script/rclone.conf" ;;
+	rank) blog_duolingo_rank ;;
+	refresh) remotes_tokens ;;
+	sort) sort_media ;;
+	status) blog_status ;;
+	streak) duolingo_streak ;;
+	sync) remotes_sync ;;
+	update) system_update ;;
+	weight) blog_weight "$@" ;;
 	*) echo "$0" && awk '/^function main/,EOF' "$0" | awk '/case/{flag=1;next}/esac/{flag=0}flag' | awk -F"\t|)" '{print $2}' | tr -d "*" | sort | xargs ;;
 	esac
 }
