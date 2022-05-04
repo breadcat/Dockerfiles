@@ -94,30 +94,6 @@ function func_create_docker {
 	# clean up, again
 	docker volume prune -f
 }
-function func_beets {
-	# exists for working around quirks with running beets through a docker container
-	func_check_running_as_root
-	# make directories
-	for i in export staging; do mkdir "$(func_dir_find downloads)/$i"; done
-	if ! printf "%s" "$(docker ps -a | grep beets)" | grep -q "Up"; then
-		echo Starting beets container, and waiting...
-		docker start beets
-		sleep 5s
-	fi
-	docker exec -it beets bash
-	echo Moving files
-	rclone move "$(func_dir_find export)" "$(func_rclone_remote media)"/audio/ --verbose
-	echo Resetting permissions
-	chown -R "$username":"$username" "$(func_dir_find export)"
-	chown -R "$username":"$username" "$(func_dir_find staging)"
-	echo Cleaning folders
-	find "$(func_dir_find export)" -type d -empty -delete
-	find "$(func_dir_find staging)" -type d -empty -delete
-	echo Stopping beets container
-	docker stop beets
-	echo Cleaning old files
-	find "$(func_dir_find beets)" -type f -not -name 'config.yaml' -delete
-}
 function func_logger {
 	# specify directories
 	git_directory="$(func_dir_find logger)"
@@ -485,7 +461,6 @@ function main {
 	rclone_core="gdrive"
 	docker_restart=("syncthing")
 	case "$1" in
-	beets) func_beets ;;
 	bookmarks) grep -P "\t\t\t\<li\>" "$(func_dir_find startpage)/index.html" | sort -t\> -k3 >"$(func_dir_find startpage)/bookmarks.txt" ;;
 	clean) func_space_clean ;;
 	dedupe) func_dedupe_remote ;;
