@@ -13,6 +13,13 @@ function func_check_running_as_root {
 		exit 0
 	fi
 }
+function unmount_remotes {
+	working_directory="$(func_dir_find "$1")"
+	umount "$working_directory"
+	fusermount -uz "$working_directory" 2>/dev/null
+	find "$working_directory" -maxdepth 1 -mount -type d -not -path "*/\.*" -empty -delete
+}
+
 function password_manager {
 	case "$1" in
 	addr) rbw get --full "$2" | awk '/URI:/ {print $2}' ;;
@@ -219,75 +226,63 @@ function func_permissions {
 	chown "$username":"$username" "$directory_script/rclone.conf"
 }
 function func_media_sort {
-	func_seedbox_mount
-	if [ ! -x "$(command -v media-sort)" ]; then # not installed
+	# check mounts
+	for i in seedbox media; do
+		func_rclone_mount mount "$i"
+	done
+	# check if media-sort is available
+	if [ ! -x "$(command -v media-sort)" ]; then
 		echo media-sort not installed. Installing...
 		func_check_running_as_root
 		curl https://i.jpillora.com/media-sort | bash
 	fi
-	dir_import=$(func_dir_find downloads)/
+	# main sorting process
+	dir_import=$(func_dir_find seedbox)/
 	if [[ -d "$dir_import" ]]; then
 		dir_tv=$(func_dir_find media)/videos/television
 		dir_mov=$(func_dir_find media)/videos/movies
 		temp_tv="{{ .Name }}/{{ .Name }} S{{ printf \"%02d\" .Season }}E{{ printf \"%02d\" .Episode }}{{ if ne .ExtraEpisode -1 }}-{{ printf \"%02d\" .ExtraEpisode }}{{end}}.{{ .Ext }}"
 		temp_mov="{{ .Name }} ({{ .Year }})/{{ .Name }}.{{ .Ext }}"
 		media-sort --action copy --concurrency 1 --accuracy-threshold 90 --tv-dir "$dir_tv" --movie-dir "$dir_mov" --tv-template "$temp_tv" --movie-template "$temp_mov" --recursive --overwrite-if-larger "$dir_import"
-
 	else
 		printf "Import directory not found.\\n"
 		exit 0
 	fi
-}
-function func_rclone_mount {
-	echo rclone mount checker
-	# check allow_other in fuse.conf
-	if ! grep -q "^user_allow_other$" /etc/fuse.conf; then
-		echo user_allow_other not found in fuse.conf
-		func_check_running_as_root
-		echo Appending to file.
-		echo "user_allow_other" >>/etc/fuse.conf
-		echo Please restart the script.
-		exit 0
-	fi
-	for i in media paperwork pictures unsorted; do
-		mount_point="$directory_home/$i"
-		if [[ ! -d "$mount_point" ]]; then
-			echo "Creating empty directory $i"
-			mkdir -p "$mount_point"
-		fi
-		if [[ -f "$mount_point/.mountcheck" ]]; then
-			echo "$i" still mounted
-		else
-			mount_points_remounted=true
-			echo "$i" not mounted
-			echo force unmounting
-			fusermount -uz "$mount_point"
-			echo sleeping && sleep 3
-			echo mounting
-			rclone mount "drive-$i": "$mount_point" --allow-other --allow-non-empty --daemon --log-file "$(func_dir_find config)/logs/rclone-$i.log"
-		fi
-		if [ "$mount_points_remounted" = true ]; then
-			echo restarting docker containers
-			for j in "${docker_restart[@]}"; do
-				docker restart "$j"
-			done
-		fi
+	for i in seedbox media; do
+		unmount_remotes "$i"
 	done
 }
-function func_seedbox_mount {
-	# variables and checks
-	mount_point="$directory_home/downloads"
-	rclone_name="seedbox"
-	if [[ ! -d "$mount_point" ]]; then
-		echo "Creating empty directory $i"
-		mkdir -p "$mount_point"
+function func_rclone_mount {
+	# check allow_other in fuse.conf
+	if ! grep -q "^user_allow_other$" /etc/fuse.conf; then
+		func_check_running_as_root
+		printf "user_allow_other not found in fuse.conf.\\nAppending to file. Please restart the script.\\n"
+		echo "user_allow_other" >>/etc/fuse.conf
+		exit 0
 	fi
-	printf "Seedbox mount checker... "
-	if [[ -f "$mount_point/.mountcheck" ]]; then
-		printf "exists.\\n"
+	if [ -n "$2" ]; then
+		printf "Mounting specified remote...\\n"
+		rclone_mount_process "$2"
 	else
-		fusermount -uz "$mount_point"
-		rclone mount "$rclone_name": "$mount_point" --allow-other --allow-non-empty --daemon --log-file "$(func_dir_find config)/logs/rclone-$rclone_name.log"
+		printf "Mounting all remotes...\\n"
+		rclone_array="$(rclone listremotes | awk -F '[-:]' '/^drive/ && !/backups/ && !/saves/ {print $2}' | xargs)"
+		for i in $rclone_array; do
+			rclone_mount_process "$i"
+		done
+	fi
+}
+function rclone_mount_process {
+	remote="$(func_rclone_remote "$1")"
+	mount_point="$directory_home/$1"
+	mkdir -p "$mount_point"
+	if [[ -f "$mount_point/.mountcheck" || -n "$(find "$mount_point" -maxdepth 1 -mindepth 1 | head -n 1)" ]]; then
+		printf "%s already mounted.\\n" "$1"
+	else
+		printf "%s not mounted.\\n" "$1"
+		printf "Re-mounting... "
+		fusermount -uz "$mount_point" 2>/dev/null && sleep 3
+		rclone mount "$remote" "$mount_point" --allow-other --daemon --log-file "$(func_dir_find config)/logs/rclone-$1.log"
+		printf "done\\n"
 	fi
 }
 function func_status {
@@ -457,7 +452,6 @@ function main {
 	directory_home="/home/$username"
 	domain="$(awk -F'"' '/domain/ {print $2}' "$(func_dir_find traefik)/traefik.toml")"
 	directory_script="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-	docker_restart=("syncthing")
 	prefix_core="gdrive"
 	case "$1" in
 	bookmarks) grep -P "\t\t\t\<li\>" "$(func_dir_find startpage)/index.html" | sort -t\> -k3 >"$(func_dir_find startpage)/bookmarks.txt" ;;
@@ -467,12 +461,11 @@ function main {
 	duolingo) func_duolingo_streak ;;
 	logger) func_logger ;;
 	magnet) func_magnet ;;
+	mount) func_rclone_mount "$@" ;;
 	payslip) func_payslip ;;
 	permissions) func_permissions ;;
 	rank) func_duorank ;;
-	rclone) func_rclone_mount ;;
 	refresh) func_refresh_remotes ;;
-	seedbox) func_seedbox_mount ;;
 	sort) func_media_sort ;;
 	status) func_status ;;
 	sync) func_sync_remotes ;;
