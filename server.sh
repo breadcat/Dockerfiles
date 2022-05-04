@@ -186,6 +186,9 @@ function func_magnet {
 }
 function func_payslip {
 	# depends on: getmail4 mpack qpdf
+	# mount paperwork
+	func_rclone_mount mount "paperwork"
+	# temporary directory
 	directory_temp="$(mktemp -d)"
 	cd "$directory_temp" || exit
 	mkdir {cur,new,tmp}
@@ -218,7 +221,8 @@ function func_payslip {
 			qpdf --password="$(password_manager pass payslip)" --decrypt "$i" "personal/workplace/wages/$parsed_name" && rm "$i"
 		fi
 	done
-	# clean up temp directory
+	# clean up afterwards
+	unmount_remotes "paperwork"
 	rm -r "$directory_temp"
 }
 function func_permissions {
