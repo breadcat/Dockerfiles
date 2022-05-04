@@ -23,43 +23,6 @@ function password_manager {
 	*) rbw get "$2" ;;
 	esac
 }
-function func_backup_archive {
-	rclone_remote=$(func_rclone_remote backups)
-	working_directory=$(func_dir_find backups)/archives
-	echo "$working_directory"
-	if [ -z "$*" ]; then
-		echo Creating archives...
-		# build folder array?
-		cd "$(mktemp -d)" || exit
-		for i in "config" "vault"; do
-			tar -cJf "backup-$i-$(date +%F-%H%M).tar.xz" --ignore-failed-read "$directory_home/$i"
-		done
-		echo "Sending via rclone..."
-		for i in *; do
-			du -h "$i"
-			rclone move "$i" "$rclone_remote"/archives/
-		done
-		echo Cleaning up...
-		rm -r "$PWD"
-		echo Done!
-	else
-		echo Creating single archive...
-		cd "$(mktemp -d)" || exit
-		tar -cJf "backup-$1-$(date +%F-%H%M).tar.xz" --ignore-failed-read "$directory_home/$1"
-		echo "Sending via rclone..."
-		for i in *; do
-			du -h "$i" && rclone move "$i" "$rclone_remote"/archives/
-		done
-		echo Cleaning up...
-		rm -r "$PWD"
-		echo Done!
-	fi
-}
-function func_backup_borg {
-	# https://opensource.com/article/17/10/backing-your-machines-borg
-	working_directory=$(func_dir_find backups)/borg
-	echo "$working_directory"
-}
 function func_duolingo_streak {
 	# check api is installed
 	[[ -d "$(func_dir_find config)/duolingo" ]] || git clone https://github.com/KartikTalwar/Duolingo.git "$(func_dir_find config)/duolingo"
@@ -506,14 +469,6 @@ function func_update {
 		cd "/usr/local/bin" || return
 		curl https://i.jpillora.com/media-sort | bash
 	fi
-	if [ -x "$(command -v duplicacy)" ]; then
-		dupli_installed="$(duplicacy | awk '/VERSION/ && $0 != "" { getline; print $1}')"
-		dupli_available="$(curl -s https://api.github.com/repos/gilbertchen/duplicacy/releases/latest | jq -r '.tag_name' | tr -d '[:alpha:]')"
-		if [ "$dupli_installed" != "$dupli_available" ]; then
-			echo Updating Duplicacy
-			wget "$(curl -sL https://api.github.com/repos/gilbertchen/duplicacy/releases/latest | jq -r '.assets[].browser_download_url' | grep linux_x64)" -O "/usr/local/bin/duplicacy"
-		fi
-	fi
 	if [ -x "$(command -v plowmod)" ]; then
 		echo "Updating plowshare..."
 		su -c "plowmod -u" -s /bin/sh "$username"
@@ -530,10 +485,8 @@ function main {
 	rclone_core="gdrive"
 	docker_restart=("syncthing")
 	case "$1" in
-	archive) func_backup_archive "$@" ;;
 	beets) func_beets ;;
 	bookmarks) grep -P "\t\t\t\<li\>" "$(func_dir_find startpage)/index.html" | sort -t\> -k3 >"$(func_dir_find startpage)/bookmarks.txt" ;;
-	borg) func_backup_borg ;;
 	clean) func_space_clean ;;
 	dedupe) func_dedupe_remote ;;
 	docker) func_create_docker ;;
