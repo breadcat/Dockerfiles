@@ -373,9 +373,8 @@ function func_dedupe_remote {
 	done
 }
 function func_refresh_remotes {
-	rclone_prefix="backup-"
 	echo "Refreshing rclone remote tokens"
-	for i in $(func_rclone_remote "$rclone_prefix"); do
+	for i in $(func_rclone_remote "backup-"); do
 		if rclone lsd "$i" &>/dev/null; then
 			echo -e "$i \e[32msuccess\e[39m"
 		else
