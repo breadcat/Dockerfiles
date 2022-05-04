@@ -13,6 +13,21 @@ function check_root {
 		exit 0
 	fi
 }
+function check_depends {
+	dependencies=(aria2c awk bash docker docker-compose ffmpeg getmail git gnuplot journalctl logname media-sort mp3val mpack munpack opustags phockup pip3 python3 qpdf rbw rclone sed seq sort svgo uniq vnstat we-get yt-dlp)
+	echo "Checking dependencies..."
+	for i in "${dependencies[@]}"
+	do
+		echo -n "$i: "
+		if [[ $(command -v "$i") ]]
+		then
+			echo -e "\e[32mpresent\e[39m"
+		else
+			echo -e "\e[31mmissing\e[39m"
+		fi
+	done
+	exit 1
+}
 function umount_remote {
 	working_directory="$(find_directory "$1")"
 	umount "$working_directory"
@@ -185,7 +200,6 @@ function parse_magnets {
 	done
 }
 function parse_payslips {
-	# depends on: getmail4 mpack qpdf
 	# mount paperwork
 	mount_remote mount "paperwork"
 	# temporary directory
@@ -230,12 +244,6 @@ function sort_media {
 	for i in seedbox media; do
 		mount_remote mount "$i"
 	done
-	# check if media-sort is available
-	if [ ! -x "$(command -v media-sort)" ]; then
-		echo media-sort not installed. Installing...
-		check_root
-		curl https://i.jpillora.com/media-sort | bash
-	fi
 	# main sorting process
 	dir_import=$(find_directory seedbox)/
 	if [[ -d "$dir_import" ]]; then
@@ -426,9 +434,6 @@ function system_update {
 		echo "Who knows what you're running"
 	fi
 	# Update remaining applications
-	if [ -f "$directory_home/.config/retroarch/lrcm/lrcm" ]; then
-		"$directory_home/.config/retroarch/lrcm/lrcm" update
-	fi
 	find "$(find_directory config)" -maxdepth 2 -name ".git" -type d | sed 's/\/.git//' | xargs -P10 -I{} git -C {} pull
 	if [ -x "$(command -v we-get)" ]; then
 		echo "Updating we-get..."
@@ -438,11 +443,6 @@ function system_update {
 		echo "Updating media-sort..."
 		cd "/usr/local/bin" || return
 		curl https://i.jpillora.com/media-sort | bash
-	fi
-	if [ -x "$(command -v plowmod)" ]; then
-		echo "Updating plowshare..."
-		su -c "plowmod -u" -s /bin/sh "$username"
-		chown -R "$username":"$username" "$directory_home/.config/plowshare"
 	fi
 }
 function main {
@@ -456,6 +456,7 @@ function main {
 	bookmarks) grep -P "\t\t\t\<li\>" "$(find_directory startpage)/index.html" | sort -t\> -k3 >"$(find_directory startpage)/bookmarks.txt" ;;
 	clean) clean_space ;;
 	dedupe) remotes_dedupe ;;
+	depends) check_depends ;;
 	docker) docker_build ;;
 	logger) media_logger ;;
 	magnet) parse_magnets ;;
