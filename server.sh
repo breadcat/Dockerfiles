@@ -395,17 +395,21 @@ function remotes_sync {
 	done
 }
 function clean_space {
+	space_initial="$(df / | awk 'FNR==2{ print $4}')"
+	log_file="$(find_directory config)/logs/clean-$(date +%F-%H%M).log"
 	check_root
 	# journals
-	journalctl --vacuum-size=75M
+	journalctl --vacuum-size=75M >> "$log_file"
 	# docker
 	for i in volume image; do
-		docker "$i" prune -f
+		docker "$i" prune -f >> "$log_file"
 	done
 	# apt
-	apt-get clean
+	apt-get clean >> "$log_file"
 	# temp directory
-	rm -rf /tmp/tmp.*
+	rm -rf /tmp/tmp.* >> "$log_file"
+	space_after="$(df / | awk 'FNR==2{ print $4}')"
+	printf "Bytes freed: %s\\n" "$(( $space_after - $space_initial ))"
 }
 
 function system_update {
