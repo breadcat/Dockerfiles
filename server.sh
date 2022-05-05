@@ -16,11 +16,9 @@ function check_root {
 function check_depends {
 	dependencies=(aria2c awk bash docker docker-compose ffmpeg getmail git gnuplot journalctl logname media-sort mp3val mpack munpack opustags phockup pip3 python3 qpdf rbw rclone sed seq sort svgo uniq vnstat we-get yt-dlp)
 	echo "Checking dependencies..."
-	for i in "${dependencies[@]}"
-	do
+	for i in "${dependencies[@]}"; do
 		echo -n "$i: "
-		if [[ $(command -v "$i") ]]
-		then
+		if [[ $(command -v "$i") ]]; then
 			echo -e "\e[32mpresent\e[39m"
 		else
 			echo -e "\e[31mmissing\e[39m"
@@ -399,17 +397,17 @@ function clean_space {
 	log_file="$(find_directory config)/logs/clean-$(date +%F-%H%M).log"
 	check_root
 	# journals
-	journalctl --vacuum-size=75M >> "$log_file"
+	journalctl --vacuum-size=75M >>"$log_file"
 	# docker
 	for i in volume image; do
-		docker "$i" prune -f >> "$log_file"
+		docker "$i" prune -f >>"$log_file"
 	done
 	# apt
-	apt-get clean >> "$log_file"
+	apt-get clean >>"$log_file"
 	# temp directory
-	rm -rf /tmp/tmp.* >> "$log_file"
+	rm -rf /tmp/tmp.* >>"$log_file"
 	space_after="$(df / | awk 'FNR==2{ print $4}')"
-	printf "Bytes freed: %s\\n" "$(( $space_after - $space_initial ))"
+	printf "Bytes freed: %s\\n" "$(("$space_after" - "$space_initial"))"
 }
 
 function system_update {
