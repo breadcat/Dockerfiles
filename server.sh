@@ -239,7 +239,8 @@ function parse_payslips {
 }
 function sort_media {
 	# check mounts
-	for i in seedbox media; do
+	mounts="seedbox media"
+	for i in $mounts; do
 		mount_remote mount "$i"
 	done
 	# main sorting process
@@ -254,7 +255,7 @@ function sort_media {
 		printf "Import directory not found.\\n"
 		exit 0
 	fi
-	for i in seedbox media; do
+	for i in $mounts; do
 		umount_remote "$i"
 	done
 }
