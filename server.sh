@@ -393,6 +393,22 @@ function remotes_sync {
 		rclone sync "$source" "$dest" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(find_directory config)/logs/rclone-sync-$(date +%F-%H%M).log"
 	done
 }
+function parse_photos {
+	source=$(find_directory DCIM)
+	mount="pictures"
+	mount_remote mount "$mount"
+	destination=$(find_directory $mount)
+	# main sorting process
+	if [[ -d "$destination" ]]; then
+		phockup "$source" "$destination/personal/photos/" -m
+		find "$source" -maxdepth 3 -mount -type d -not -path "*/\.*" -empty -delete
+	else
+		printf "Import directory not found.\\n"
+		exit 0
+	fi
+	umount_remote "$mount"
+}
+
 function clean_space {
 	space_initial="$(df / | awk 'FNR==2{ print $4}')"
 	log_file="$(find_directory config)/logs/clean-$(date +%F-%H%M).log"
@@ -466,6 +482,7 @@ function main {
 	mount) mount_remote "$@" ;;
 	payslip) parse_payslips ;;
 	permissions) check_root && chown "$username":"$username" "$directory_script/rclone.conf" ;;
+	photos) parse_photos ;;
 	rank) blog_duolingo_rank ;;
 	refresh) remotes_tokens ;;
 	sort) sort_media ;;
