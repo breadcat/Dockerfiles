@@ -27,7 +27,11 @@ function check_depends {
 	exit 1
 }
 function umount_remote {
-	working_directory="$(find_directory "$1")"
+	if [ -z "$2" ]; then
+		working_directory="$(find_directory "$1")"
+	else
+		working_directory="$(find_directory "$2")"
+	fi
 	umount "$working_directory"
 	fusermount -uz "$working_directory" 2>/dev/null
 	find "$working_directory" -maxdepth 1 -mount -type d -not -path "*/\.*" -empty -delete
@@ -490,6 +494,7 @@ function main {
 	status) blog_status ;;
 	streak) duolingo_streak ;;
 	sync) remotes_sync ;;
+	umount) umount_remote "$@" ;;
 	update) system_update ;;
 	weight) blog_weight "$@" ;;
 	*) echo "$0" && awk '/^function main/,EOF' "$0" | awk '/case/{flag=1;next}/esac/{flag=0}flag' | awk -F"\t|)" '{print $2}' | tr -d "*" | sort | xargs ;;
