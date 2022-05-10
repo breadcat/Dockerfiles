@@ -315,19 +315,19 @@ function blog_status {
 	} >"$(find_directory blog."$domain")/content/status.md"
 }
 function blog_weight {
-	# variables
 	if [ -n "$2" ]; then
 		if [ "$2" = "date" ]; then
+			printf "Writing empty dates... "
 			weight_filename="$(find_directory blog."$domain")/content/weight.md"
 			page_source="$(head -n -1 "$weight_filename")"
 			previous_date="$(printf %s "$page_source" | awk -F, 'END{print $1}')"
 			sequence_count="$((($(date --date="$(date +%F)" +%s) - $(date --date="$previous_date" +%s)) / (60 * 60 * 24)))"
-			# operation
 			{
 				printf "%s\\n" "$page_source"
 				printf "%s" "$(for i in $(seq $sequence_count); do printf "%s,\\n" "$(date -d "$previous_date+$i day" +%F)"; done)"
 				printf "\\n</pre></details>"
 			} >"$weight_filename"
+			printf "done\\n"
 			exit 0
 		else
 			year=$2
@@ -335,14 +335,13 @@ function blog_weight {
 	else
 		year=$(date +%Y)
 	fi
+	printf "Gathering data... "
 	weight_filename="$(find_directory blog."$domain")/content/weight.md"
-	# cd to temporary directory
 	cd "$(mktemp -d)" || exit
-	# pull raw data from source
 	weight_rawdata="$(awk '/<pre>/{flag=1; next} /<\/pre>/{flag=0} flag' "$weight_filename" | sort -u)"
 	printf "%s" "$weight_rawdata" | grep "^$year-" >temp.dat
 	weight_dateinit="$(awk '/date:/ {print $2}' "$weight_filename")"
-	# draw graph
+	printf "done\\nDrawing graph... "
 	gnuplot <<-EOF
 		set grid
 		set datafile separator comma
@@ -357,17 +356,18 @@ function blog_weight {
 		set output "temp.svg"
 		plot "temp.dat" using 1:2 smooth cspline with lines
 	EOF
-	# compress graph
+	printf "done\\nCompressing graph... "
 	svgo -i "temp.svg" --multipass -o "temp.min.svg" -q
-	# write page
+	printf "done\\nWriting page... "
 	{
 		printf -- "---\\ntitle: Weight\\nlayout: single\\ndate: %s\\nlastmod: %(%Y-%m-%dT%H:%M:00)T\\n---\\n\\n" "$weight_dateinit" -1
 		printf "%s\\n\\n%s graph\\n\\n" "$(cat temp.min.svg)" "$year"
 		printf "<details><summary>Raw data</summary>\\n<pre>\\n%s\\n</pre></details>" "$weight_rawdata"
 
 	} >"$weight_filename"
-	# clean up
+	printf "done\\nCleaning up... "
 	rm -r "$PWD"
+	printf "done\\n"
 }
 function remotes_dedupe {
 	dests=$(rclone listremotes | grep "gdrive" -c)
