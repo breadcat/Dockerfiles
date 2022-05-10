@@ -375,8 +375,9 @@ function remotes_dedupe {
 	done
 }
 function remotes_tokens {
+	remote_prefix="backup-"
 	echo "Refreshing rclone remote tokens"
-	for i in $(find_remote "backup-"); do
+	for i in $(rclone listremotes | awk -v remote="$remote_prefix" '$0 ~ remote {print $0}'); do
 		if rclone lsd "$i" &>/dev/null; then
 			echo -e "$i \e[32msuccess\e[39m"
 		else
