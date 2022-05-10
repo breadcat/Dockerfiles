@@ -36,7 +36,6 @@ function umount_remote {
 	fusermount -uz "$working_directory" 2>/dev/null
 	find "$working_directory" -maxdepth 1 -mount -type d -not -path "*/\.*" -empty -delete
 }
-
 function password_manager {
 	case "$1" in
 	addr) rbw get --full "$2" | awk '/URI:/ {print $2}' ;;
@@ -373,7 +372,7 @@ function blog_weight {
 function remotes_dedupe {
 	dests=$(rclone listremotes | grep "gdrive" -c)
 	for i in $(seq "$dests"); do
-		remote=$(rclone listremotes | grep "gdrive" | grep "$i")
+		remote=$(rclone listremotes | grep "gdrive.*$i")
 		echo Deduplicating "$remote"
 		rclone dedupe --dedupe-mode newest "$remote" --log-file "$(find_directory config)/logs/rclone-dupe-$(date +%F-%H%M).log"
 	done
