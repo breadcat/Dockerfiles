@@ -425,7 +425,14 @@ function clean_space {
 	space_after="$(df / | awk 'FNR==2{ print $4}')"
 	printf "Bytes freed: %s\\n" "$(("$space_after" - "$space_initial"))"
 }
-
+function remote_sizes {
+	dests=$(rclone listremotes | grep "gdrive" -c)
+	for i in $(seq "$dests"); do
+		remote=$(rclone listremotes | grep "gdrive.*$i")
+		echo -n Calculating "$remote"...
+		rclone size "$remote" | xargs
+	done
+}
 function system_update {
 	check_root
 	if [[ $distro =~ "Debian" ]]; then
@@ -484,6 +491,7 @@ function main {
 	photos) parse_photos ;;
 	rank) blog_duolingo_rank ;;
 	refresh) remotes_tokens ;;
+	size) remote_sizes ;;
 	sort) sort_media ;;
 	status) blog_status ;;
 	streak) duolingo_streak ;;
