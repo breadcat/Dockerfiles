@@ -50,39 +50,6 @@ services:
     labels:
       traefik.frontend.rule: "Host:diff.$DOMAIN"
       traefik.port: "5000"
-  dir-pub:
-    image: awesometic/h5ai
-    container_name: dir-pub
-    environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
-    volumes:
-      - $SYNCDIR/pub:/h5ai
-    restart: unless-stopped
-    depends_on:
-      - traefik
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:pub.$DOMAIN"
-      traefik.port: "80"
-  dir-repo:
-    image: rclone/rclone
-    container_name: dir-repo
-    user: "$PUID:$PGID"
-    command: "serve http '$RCLONE_REMOTE_MEDIA' --addr '0.0.0.0:8080' -vv"
-    volumes:
-      - $CONFDIR/rclone:/config/rclone/
-    restart: unless-stopped
-    depends_on:
-      - traefik
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:repo.$DOMAIN"
-      traefik.port: "8080"
-      traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
   echoip:
     image: mpolden/echoip
     container_name: echoip
@@ -101,6 +68,23 @@ services:
     ports:
       - 22:2222
     restart: unless-stopped
+  h5ai:
+    image: awesometic/h5ai
+    container_name: h5ai
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TZ
+    volumes:
+      - $SYNCDIR/pub:/h5ai
+    restart: unless-stopped
+    depends_on:
+      - traefik
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:pub.$DOMAIN"
+      traefik.port: "80"
   hugo:
     image: klakegg/hugo
     container_name: hugo
@@ -159,6 +143,23 @@ services:
       - POSTGRES_PASSWORD=$DBPASSWORD
     volumes:
       - $CONFDIR/postgres:/var/lib/postgresql/data
+  repo:
+    image: rclone/rclone
+    container_name: repo
+    user: "$PUID:$PGID"
+    read_only: true
+    command: "serve http '$RCLONE_REMOTE_MEDIA' --addr '0.0.0.0:8080' -vv"
+    volumes:
+      - $CONFDIR/rclone:/config/rclone/
+    restart: unless-stopped
+    depends_on:
+      - traefik
+    networks:
+      - proxy
+    labels:
+      traefik.frontend.rule: "Host:repo.$DOMAIN"
+      traefik.port: "8080"
+      traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
   syncthing:
     image: linuxserver/syncthing
     container_name: syncthing
