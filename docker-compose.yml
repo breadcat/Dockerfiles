@@ -62,12 +62,6 @@ services:
     labels:
       traefik.frontend.rule: "Host:ip.$DOMAIN"
       traefik.port: "8080"
-  endlessh:
-    image: harshavardhanj/endlessh
-    container_name: endlessh
-    ports:
-      - 22:2222
-    restart: unless-stopped
   h5ai:
     image: awesometic/h5ai
     container_name: h5ai
