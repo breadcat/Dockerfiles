@@ -471,7 +471,6 @@ function system_update {
 	fi
 }
 function main {
-	export XZ_OPT=-e9
 	distro="$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)"
 	username="$(logname)"
 	directory_home="/home/$username"
