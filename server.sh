@@ -13,6 +13,12 @@ function check_root {
 		exit 0
 	fi
 }
+function check_not_root {
+	if [ "$EUID" -eq 0 ]; then
+		echo "Don't run this function as root"
+		exit 0
+	fi
+}
 function check_depends {
 	dependencies=(aria2c awk bash docker docker-compose ffmpeg getmail git gnuplot journalctl logname media-sort mp3val mpack munpack opustags phockup pip3 python3 qpdf rbw rclone sed seq sort svgo uniq vnstat we-get yt-dlp)
 	echo "Checking dependencies..."
@@ -38,12 +44,12 @@ function umount_remote {
 }
 function password_manager {
 	case "$1" in
-	addr) rbw get --full "$2" | awk '/URI:/ {print $2}' ;;
-	full) rbw get --full "$2" ;;
-	pass) rbw get "$2" ;;
-	sync) rbw sync ;;
-	user) rbw get --full "$2" | awk '/Username:/ {print $2}' ;;
-	*) rbw get "$2" ;;
+	addr) check_not_root && rbw get --full "$2" | awk '/URI:/ {print $2}' ;;
+	full) check_not_root && rbw get --full "$2" ;;
+	pass) check_not_root && rbw get "$2" ;;
+	sync) check_not_root && rbw sync ;;
+	user) check_not_root && rbw get --full "$2" | awk '/Username:/ {print $2}' ;;
+	*) check_not_root && rbw get "$2" ;;
 	esac
 }
 function duolingo_streak {
