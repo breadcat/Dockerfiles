@@ -162,7 +162,7 @@ function media_logger {
 function parse_magnets {
 	# sources and destinations
 	cd "$(find_directory vault)" || exit
-	rclone_remote="seedbox-raw:/watch/"
+	rclone_remote="raw-seedbox:watch/"
 	# check for aria
 	if [ ! -x "$(command -v aria2c)" ]; then # not installed
 		echo "Aria doesn't seem to be installed. Exiting" && exit
