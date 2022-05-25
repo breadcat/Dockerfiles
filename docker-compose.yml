@@ -137,9 +137,9 @@ services:
       - POSTGRES_PASSWORD=$DBPASSWORD
     volumes:
       - $CONFDIR/postgres:/var/lib/postgresql/data
-  repo:
+  rclone:
     image: rclone/rclone
-    container_name: repo
+    container_name: rclone
     user: "$PUID:$PGID"
     read_only: true
     command: "serve http '$RCLONE_REMOTE_MEDIA' --addr '0.0.0.0:8080' -vv"
