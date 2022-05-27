@@ -381,13 +381,15 @@ function remotes_sync {
 	dests=$(rclone listremotes | grep "gdrive" -c)
 	for i in $(seq 2 "$dests"); do
 		dest=$(rclone listremotes | grep "gdrive.*$i")
-		if [ -n "$2" ]; then
-			directory="$2"
-			printf "Syncing %s directory to %s...\\n" "$directory" "$dest"
-			rclone sync "$source/$directory" "$dest/$directory" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(find_directory config)/logs/rclone-sync-$directory-$(date +%F-%H%M).log"
-		else
-			printf "Syncing %s to %s...\\n" "$source" "$dest"
-			rclone sync "$source" "$dest" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(find_directory config)/logs/rclone-sync-$(date +%F-%H%M).log"
+		if rclone lsd "$dest" &>/dev/null; then
+			if [ -n "$2" ]; then
+				directory="$2"
+				printf "Syncing %s directory to %s...\\n" "$directory" "$dest"
+				rclone sync "$source/$directory" "$dest/$directory" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(find_directory config)/logs/rclone-sync-$directory-$(date +%F-%H%M).log"
+			else
+				printf "Syncing %s to %s...\\n" "$source" "$dest"
+				rclone sync "$source" "$dest" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(find_directory config)/logs/rclone-sync-$(date +%F-%H%M).log"
+			fi
 		fi
 	done
 }
