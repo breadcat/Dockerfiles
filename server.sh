@@ -207,9 +207,7 @@ function parse_magnets {
 	done
 }
 function parse_payslips {
-	# mount paperwork
-	mount_remote mount "paperwork"
-	# temporary directory
+	# temporary directories
 	directory_temp="$(mktemp -d)"
 	cd "$directory_temp" || exit
 	mkdir {cur,new,tmp}
@@ -229,21 +227,17 @@ function parse_payslips {
 	getmail --getmaildir "$directory_temp"
 	cd new || exit
 	grep "$(password_manager user payslip)" ./* | cut -f1 -d: | uniq | xargs munpack -f
-	for i in *.PDF; do
-		mv "$i" "$(find_directory paperwork)/"
-	done
 	# decrypt payslip file
-	cd "$(find_directory paperwork)" || exit
 	for i in *.PDF; do
 		fileProtected=0
 		qpdf "$i" --check || fileProtected=1
 		if [ $fileProtected == 1 ]; then
 			parsed_name="$(printf "%s" "$i" | awk -FX '{print substr($3,5,4) "-" substr($3,3,2) "-" substr($3,1,2) ".pdf"}')"
-			qpdf --password="$(password_manager pass payslip)" --decrypt "$i" "personal/workplace/wages/$parsed_name" && rm "$i"
+			qpdf --password="$(password_manager pass payslip)" --decrypt "$i" "$parsed_name" && rm "$i"
+			rclone move "$parsed_name" "$(find_remote paperwork)/personal/workplace/wages/"
 		fi
 	done
 	# clean up afterwards
-	umount_remote "paperwork"
 	rm -r "$directory_temp"
 }
 function sort_media {
