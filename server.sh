@@ -367,9 +367,8 @@ function remotes_dedupe {
 	done
 }
 function remotes_tokens {
-	remote_prefix="backup-"
 	echo "Refreshing rclone remote tokens"
-	for i in $(rclone listremotes | awk -v remote="$remote_prefix" '$0 ~ remote {print $0}'); do
+	for i in $(rclone listremotes | awk -v remote="$backup_prefix" '$0 ~ remote {print $0}'); do
 		if rclone lsd "$i" &>/dev/null; then
 			echo -e "$i \e[32msuccess\e[39m"
 		else
@@ -474,6 +473,7 @@ function main {
 	distro="$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)"
 	username="$(logname)"
 	directory_home="/home/$username"
+	backup_prefix="backup-"
 	domain="$(awk -F'"' '/domain/ {print $2}' "$(find_directory traefik)/traefik.toml")"
 	directory_script="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 	case "$1" in
