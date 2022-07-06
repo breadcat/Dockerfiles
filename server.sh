@@ -101,12 +101,6 @@ function docker_build {
 		printf "WG_PRIVKEY=%s\\n" "$(password_manager pass 'wireguard private key')"
 		printf "DBPASSWORD=%s\\n" "$(password_manager pass postgresql)"
 	} >"$directory_script/.env"
-	# clean up existing stuff
-	echo Cleaning up existing docker files
-	for i in volume image system network; do
-		docker "$i" prune -f
-	done
-	docker system prune -af
 	# make network, if not existing
 	if ! printf "%s" "$(docker network ls)" | grep -q "proxy"; then
 		echo Creating docker network
@@ -120,8 +114,12 @@ function docker_build {
 		echo Deleting detected env file
 		rm "$directory_script/.env"
 	fi
-	# clean up, again
-	docker volume prune -f
+	# clean up existing stuff
+	echo Cleaning up existing docker files
+	for i in volume image system network; do
+		docker "$i" prune -f
+	done
+	docker system prune -af
 }
 function media_logger {
 	# specify directories
