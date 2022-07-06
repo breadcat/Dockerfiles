@@ -198,7 +198,7 @@ function parse_magnets {
 	# magnet loop
 	for j in *.magnet; do
 		[ -f "$j" ] || break
-		aria2c --bt-tracker="$trackers" --bt-metadata-only=true --bt-save-metadata=true "$(cat "$j")" && rm "$j"
+		timeout 3m aria2c --bt-tracker="$trackers" --bt-metadata-only=true --bt-save-metadata=true "$(cat "$j")" && rm "$j"
 	done
 	# torrent loop, move to watch
 	for k in *.torrent; do
