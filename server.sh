@@ -108,7 +108,11 @@ function docker_build {
 	fi
 	# start containers
 	echo Starting docker containers
-	docker-compose up -d --remove-orphans
+	case $HOSTNAME in
+	"$name_vps") docker-compose -f docker-compose-vps.yml up -d --remove-orphans ;;
+	"$name_nas") docker-compose -f docker-compose-nas.yml up -d --remove-orphans ;;
+	*) echo "I'm unsure of which host you're running this on. Exiting" && rm "$directory_script/.env" && exit 0 ;;
+	esac
 	# delete temporary env file
 	if [[ -f "$directory_script/.env" ]]; then
 		echo Deleting detected env file
@@ -476,6 +480,8 @@ function main {
 	backup_prefix="backup-"
 	domain="$(awk -F'"' '/domain/ {print $2}' "$(find_directory traefik)/traefik.toml")"
 	directory_script="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+	name_vps="finland"
+	name_nas="lilnas"
 	case "$1" in
 	bookmarks) grep -P "\t\t\t\<li\>" "$(find_directory startpage)/index.html" | sort -t\> -k3 >"$(find_directory startpage)/bookmarks.txt" ;;
 	clean) clean_space ;;
