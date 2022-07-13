@@ -113,6 +113,8 @@ function docker_build {
 	"$name_nas") docker-compose -f docker-compose-nas.yml up -d --remove-orphans ;;
 	*) echo "I'm unsure of which host you're running this on. Exiting" && rm "$directory_script/.env" && exit 0 ;;
 	esac
+	# rewrite htpasswd
+	printf "%s%s" "$(password_manager user 'htpasswd')" "$(htpasswd -bnBC 10 "" "$(password_manager pass 'htpasswd')")" >"$(find_directory config)/traefik/htpasswd"
 	# delete temporary env file
 	if [[ -f "$directory_script/.env" ]]; then
 		echo Deleting detected env file
