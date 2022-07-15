@@ -412,7 +412,35 @@ function parse_photos {
 	fi
 	umount_remote "$mount"
 }
-
+function backup_docker {
+	check_not_root
+	password_manager sync
+	password="$(password_manager pass 'backup archive password')"
+	backup_final="$(find_remote backups)"
+	cd "$(find_directory config)" || exit
+	for i in */; do
+		backup_file="$(basename "$i")_backup-$(date +%F-%H%M).tar.xz.gpg"
+		echo -n Backing up "$i"...
+		if docker ps -a | grep -q "$i"; then
+			docker stop "$i" 1>/dev/null
+			sudo tar -cJf - "$i" | gpg -c --batch --passphrase "$password" >"$backup_file"
+			docker start "$i" 1>/dev/null
+		else
+			sudo tar -cJf - "$i" | gpg -c --batch --passphrase "$password" >"$backup_file"
+		fi
+		sudo chown "$username":"$username" "$backup_file"
+		echo -e "$i \e[32mdone\e[39m"
+	done
+	# send to remotes, final operation is a move, removing the backup
+	for i in *_backup-*."tar.xz.gpg"; do
+		for j in $(rclone listremotes | awk -v remote="$backup_prefix" '$0 ~ remote {print $0}'); do
+			echo -n Copying "$i" to "$j"...
+			rclone copy "$i" "$j" && echo -e "\e[32mdone\e[39m" || echo -e "\e[31mfailed\e[39m"
+		done
+		echo -n Moving "$i" to "$backup_final"...
+		rclone move "$i" "$backup_final" && echo -e "\e[32mdone\e[39m" || echo -e "\e[31mfailed\e[39m"
+	done
+}
 function clean_space {
 	space_initial="$(df / | awk 'FNR==2{ print $4}')"
 	log_file="$(find_directory config)/logs/clean-$(date +%F-%H%M).log"
@@ -485,6 +513,7 @@ function main {
 	name_vps="finland"
 	name_nas="lilnas"
 	case "$1" in
+	backup) backup_docker ;;
 	bookmarks) grep -P "\t\t\t\<li\>" "$(find_directory startpage)/index.html" | sort -t\> -k3 >"$(find_directory startpage)/bookmarks.txt" ;;
 	clean) clean_space ;;
 	dedupe) remotes_dedupe ;;
