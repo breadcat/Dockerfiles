@@ -187,11 +187,11 @@ services:
     networks:
       - proxy
   ttrss:
-    image: skyr0/ttrss
+    image: wangqiru/ttrss
     container_name: ttrss
     restart: unless-stopped
     environment:
-      - BASE_URL=https://rss.$DOMAIN/
+      - SELF_URL_PATH=https://rss.$DOMAIN/
       - DB_HOST=$DOMAIN
       - DB_PASS=$DBPASSWORD
       - DB_PORT=44432
@@ -204,7 +204,7 @@ services:
       - proxy
     labels:
       traefik.frontend.rule: "Host:rss.$DOMAIN"
-      traefik.port: "8080"
+      traefik.port: "80"
   vaultwarden:
     image: vaultwarden/server
     container_name: vaultwarden
