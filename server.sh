@@ -93,7 +93,7 @@ function docker_build {
 		printf "DOMAIN=%s\\n" "$domain"
 		printf "PUID=%s\\n" "$(id -u)"
 		printf "PGID=%s\\n" "$(id -g)"
-		printf "TZ=%s\\n" "$(cat /etc/timezone)"
+		printf "TZ=%s\\n" "$(timedatectl status | awk '/Time zone/ {print $3}')"
 		printf "DOCKDIR=%s\\n" "$(find_directory docker)"
 		printf "SYNCDIR=%s\\n" "$(find_directory vault)"
 		printf "RCLONE_REMOTE_MEDIA=%s\\n" "$(find_remote media)"
