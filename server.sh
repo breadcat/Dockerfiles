@@ -94,7 +94,7 @@ function docker_build {
 		printf "PUID=%s\\n" "$(id -u)"
 		printf "PGID=%s\\n" "$(id -g)"
 		printf "TZ=%s\\n" "$(cat /etc/timezone)"
-		printf "CONFDIR=%s\\n" "$(find_directory config)"
+		printf "DOCKDIR=%s\\n" "$(find_directory docker)"
 		printf "SYNCDIR=%s\\n" "$(find_directory vault)"
 		printf "RCLONE_REMOTE_MEDIA=%s\\n" "$(find_remote media)"
 		printf "WG_WEBUI_PASS=%s\\n" "$(password_manager pass 'wireguard admin')"

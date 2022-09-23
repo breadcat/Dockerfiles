@@ -10,7 +10,7 @@ services:
     image: ckulka/baikal:nginx
     container_name: baikal
     volumes:
-      - $CONFDIR/baikal:/var/www/baikal/Specific
+      - $DOCKDIR/baikal:/var/www/baikal/Specific
     restart: unless-stopped
     depends_on:
       - traefik
@@ -28,8 +28,8 @@ services:
       - TZ=$TZ
     volumes:
       - $SYNCDIR/src:/git
-      - $CONFDIR/cgit/cgitrc:/config/cgitrc
-      - $CONFDIR/cgit/cgit.css:/app/cgit.css
+      - $DOCKDIR/cgit/cgitrc:/config/cgitrc
+      - $DOCKDIR/cgit/cgit.css:/app/cgit.css
     restart: unless-stopped
     depends_on:
       - traefik
@@ -42,7 +42,7 @@ services:
     image: dgtlmoon/changedetection.io
     container_name: changedetection
     volumes:
-      - $CONFDIR/changedetection:/datastore
+      - $DOCKDIR/changedetection:/datastore
     depends_on:
       - traefik
     networks:
@@ -101,7 +101,7 @@ services:
       - PGID=$PGID
       - TZ=$TZ
     volumes:
-      - $CONFDIR/jackett:/config
+      - $DOCKDIR/jackett:/config
       - $SYNCDIR:/downloads
     restart: unless-stopped
     depends_on:
@@ -136,7 +136,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=$DBPASSWORD
     volumes:
-      - $CONFDIR/postgres:/var/lib/postgresql/data
+      - $DOCKDIR/postgres:/var/lib/postgresql/data
   rclone:
     image: rclone/rclone
     container_name: rclone
@@ -144,7 +144,7 @@ services:
     read_only: true
     command: "serve http '$RCLONE_REMOTE_MEDIA' --addr '0.0.0.0:8080' -vv"
     volumes:
-      - $CONFDIR/rclone:/config/rclone/
+      - $DOCKDIR/rclone:/config/rclone/
     restart: unless-stopped
     depends_on:
       - traefik
@@ -161,7 +161,7 @@ services:
       - PGID=$PGID
       - PUID=$PUID
     volumes:
-      - $CONFDIR/syncthing:/config
+      - $DOCKDIR/syncthing:/config
       - $SYNCDIR:/vault
     ports:
       - 22000:22000
@@ -177,9 +177,9 @@ services:
     container_name: traefik
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - $CONFDIR/traefik/traefik.toml:/etc/traefik/traefik.toml
-      - $CONFDIR/traefik/acme.json:/etc/traefik/acme.json
-      - $CONFDIR/traefik:/app/
+      - $DOCKDIR/traefik/traefik.toml:/etc/traefik/traefik.toml
+      - $DOCKDIR/traefik/acme.json:/etc/traefik/acme.json
+      - $DOCKDIR/traefik:/app/
     ports:
       - 80:80
       - 443:443
@@ -209,7 +209,7 @@ services:
     image: vaultwarden/server
     container_name: vaultwarden
     volumes:
-      - $CONFDIR/vaultwarden:/data
+      - $DOCKDIR/vaultwarden:/data
     environment:
       - WEBSOCKET_ENABLED=false
       - SIGNUPS_ALLOWED=false
@@ -239,7 +239,7 @@ services:
       WG_ADMIN_PASSWORD: $WG_WEBUI_PASS
       WG_WIREGUARD_PRIVATE_KEY: $WG_PRIVKEY
     volumes:
-      - $CONFDIR/wireguard:/data
+      - $DOCKDIR/wireguard:/data
     ports:
       - 51820:51820/udp
     devices:
