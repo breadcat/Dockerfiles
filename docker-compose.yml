@@ -166,8 +166,6 @@ services:
     environment:
       - WEBSOCKET_ENABLED=false
       - SIGNUPS_ALLOWED=false
-    ports:
-      - 3012:3012
     restart: unless-stopped
     depends_on:
       - traefik
