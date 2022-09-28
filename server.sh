@@ -503,7 +503,7 @@ function main {
 	username="$(logname)"
 	directory_home="/home/$username"
 	backup_prefix="backup-"
-	domain="$(awk -F'"' '/domain/ {print $2}' "$(find_directory traefik)/traefik.toml")"
+	domain="minskio.co.uk"
 	directory_script="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 	case "$1" in
 	backup) backup_docker ;;
