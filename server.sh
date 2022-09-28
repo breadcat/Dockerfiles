@@ -97,9 +97,10 @@ function docker_build {
 		printf "DOCKDIR=%s\\n" "$(find_directory docker)"
 		printf "SYNCDIR=%s\\n" "$(find_directory vault)"
 		printf "RCLONE_REMOTE_MEDIA=%s\\n" "$(find_remote media)"
-		printf "WG_WEBUI_PASS=%s\\n" "$(password_manager pass 'wireguard admin')"
-		printf "WG_PRIVKEY=%s\\n" "$(password_manager pass 'wireguard private key')"
 		printf "DBPASSWORD=%s\\n" "$(password_manager pass postgresql)"
+		printf "VPNUSER=%s\\n" "$(password_manager user transmission-openvpn)"
+		printf "VPNPASS=%s\\n" "$(password_manager pass transmission-openvpn)"
+		printf "HTPASSWD=%s\\n" "$(docker exec -it caddy caddy hash-password --plaintext "$(password_manager pass htpasswd)" | base64 -w0)"
 	} >"$directory_script/.env"
 	# make network, if not existing
 	if ! printf "%s" "$(docker network ls)" | grep -q "proxy"; then

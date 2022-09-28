@@ -140,6 +140,68 @@ services:
       - POSTGRES_PASSWORD=$DBPASSWORD
     volumes:
       - $DOCKDIR/postgres:/var/lib/postgresql/data
+  transmission:
+    image: haugene/transmission-openvpn
+    container_name: transmission
+    networks:
+      - proxy
+    devices:
+      - /dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - /mnt/tank/complete:/data/completed
+      - /mnt/tank/incomplete:/data/incomplete
+      - $DOCKDIR/transmission:/data/transmission-home
+      - $SYNCDIR:/data/watch
+    environment:
+      - OPENVPN_PROVIDER=NORDVPN
+      - NORDVPN_COUNTRY=GB
+      - NORDVPN_CATEGORY=p2p
+      - OPENVPN_USERNAME=$VPNUSER
+      - OPENVPN_PASSWORD=$VPNPASS
+      - LOCAL_NETWORK=10.0.0.0/24
+    ports:
+      - 9091:9091
+      - 51413:51413
+    dns:
+      - 8.8.8.8
+      - 9.9.9.9
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    restart: unless-stopped
+  transmission-proxy:
+    image: haugene/transmission-openvpn-proxy
+    container_name: transmission-proxy
+    depends_on:
+      - transmission
+    links:
+      - transmission
+    networks:
+      - proxy
+    labels:
+      caddy: tor.$DOMAIN
+      caddy.reverse_proxy: "{{upstreams 8080}}"
+      caddy.basicauth: "/"
+      caddy.basicauth.peter: "$HTPASSWD"
+    restart: unless-stopped
+  transmission-rss:
+    image: haugene/transmission-rss
+    container_name: transmission-rss
+    depends_on:
+      - transmission
+    networks:
+      - proxy
+    links:
+      - transmission
+    environment:
+      - GID=$PGID
+      - UID=$PUID
+    volumes:
+      - $DOCKDIR/transmission-rss/transmission-rss.conf:/etc/transmission-rss.conf
+      - $DOCKDIR/transmission-rss/transmission-rss.seen:/etc/transmission-rss.seen
   ttrss:
     image: wangqiru/ttrss
     container_name: ttrss
