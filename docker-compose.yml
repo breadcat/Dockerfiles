@@ -42,8 +42,8 @@ services:
       - TZ=$TZ
     volumes:
       - $SYNCDIR/src:/git
-      - $DOCKDIR/cgit/cgitrc:/config/cgitrc
-      - $DOCKDIR/cgit/cgit.css:/app/cgit.css
+      - $SYNCDIR/src/dockerfiles/configs/cgitrc:/config/cgitrc
+      - $SYNCDIR/src/dockerfiles/configs/cgit.css:/app/cgit.css
     restart: unless-stopped
     depends_on:
       - caddy
