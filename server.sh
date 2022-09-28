@@ -126,7 +126,7 @@ function media_logger {
 	# specify directories
 	git_directory="$(find_directory logger)"
 	file_git_log="$git_directory/media.log"
-	log_remote="$(find_remote media)"
+	log_remote="$(find_remote nas)"
 	git_logger="git --git-dir=$git_directory/.git --work-tree=$git_directory"
 	# git configuruation
 	if [ ! -e "$git_directory" ]; then
