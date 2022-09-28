@@ -110,8 +110,6 @@ function docker_build {
 	# start containers
 	echo Starting docker containers
 	docker-compose up -d --remove-orphans
-	# rewrite htpasswd
-	printf "%s%s" "$(password_manager user 'htpasswd')" "$(htpasswd -bnBC 10 "" "$(password_manager pass 'htpasswd')")" >"$(find_directory config)/traefik/htpasswd"
 	# delete temporary env file
 	if [[ -f "$directory_script/.env" ]]; then
 		echo Deleting detected env file
