@@ -13,12 +13,26 @@ services:
       - $DOCKDIR/baikal:/var/www/baikal/Specific
     restart: unless-stopped
     depends_on:
-      - traefik
+      - caddy
     networks:
       - proxy
     labels:
-      traefik.frontend.rule: "Host:dav.$DOMAIN"
-      traefik.port: "80"
+      caddy: dav.$DOMAIN
+      caddy.reverse_proxy: "{{upstreams 80}}"
+  caddy:
+    image: lucaslorentz/caddy-docker-proxy
+    container_name: caddy
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - CADDY_INGRESS_NETWORKS=proxy
+    networks:
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $DOCKDIR/caddy:/data
+    restart: unless-stopped
   cgit:
     image: chruth/alpine-cgit
     container_name: cgit
@@ -32,12 +46,12 @@ services:
       - $DOCKDIR/cgit/cgit.css:/app/cgit.css
     restart: unless-stopped
     depends_on:
-      - traefik
+      - caddy
     networks:
       - proxy
     labels:
-      traefik.frontend.rule: "Host:git.$DOMAIN"
-      traefik.port: "80"
+      caddy: git.$DOMAIN
+      caddy.reverse_proxy: "{{upstreams 80}}"
   changedetection:
     image: linuxserver/changedetection.io
     container_name: changedetection
@@ -47,24 +61,25 @@ services:
     volumes:
       - $DOCKDIR/changedetection:/config
     depends_on:
-      - traefik
+      - caddy
     networks:
       - proxy
     labels:
-      traefik.frontend.rule: "Host:diff.$DOMAIN"
-      traefik.port: "5000"
+      caddy: diff.$DOMAIN
+      caddy.reverse_proxy: "{{upstreams 5000}}"
+    restart: unless-stopped
   echoip:
     image: mpolden/echoip
     container_name: echoip
-    entrypoint: "/opt/echoip/echoip -H X-Real-IP"
+    entrypoint: "/opt/echoip/echoip -H X-Forwarded-For"
     restart: unless-stopped
     depends_on:
-      - traefik
+      - caddy
     networks:
       - proxy
     labels:
-      traefik.frontend.rule: "Host:ip.$DOMAIN"
-      traefik.port: "8080"
+      caddy: ip.$DOMAIN
+      caddy.reverse_proxy: "{{upstreams 8080}}"
   h5ai:
     image: awesometic/h5ai
     container_name: h5ai
@@ -76,12 +91,12 @@ services:
       - $SYNCDIR/pub:/h5ai
     restart: unless-stopped
     depends_on:
-      - traefik
+      - caddy
     networks:
       - proxy
     labels:
-      traefik.frontend.rule: "Host:pub.$DOMAIN"
-      traefik.port: "80"
+      caddy: pub.$DOMAIN
+      caddy.reverse_proxy: "{{upstreams 80}}"
   hugo:
     image: klakegg/hugo
     container_name: hugo
@@ -90,30 +105,30 @@ services:
       - $SYNCDIR/src/blog.$DOMAIN:/src
     restart: unless-stopped
     depends_on:
-      - traefik
+      - caddy
     networks:
       - proxy
     labels:
-      traefik.frontend.rule: "Host:$DOMAIN,blog.$DOMAIN,www.$DOMAIN"
-      traefik.port: "1313"
+      caddy: $DOMAIN, blog.$DOMAIN, www.$DOMAIN
+      caddy.reverse_proxy: "{{upstreams 1313}}"
   jackett:
     image: linuxserver/jackett
     container_name: jackett
     environment:
-      - PUID=$PUID
       - PGID=$PGID
+      - PUID=$PUID
       - TZ=$TZ
     volumes:
       - $DOCKDIR/jackett:/config
       - $SYNCDIR:/downloads
     restart: unless-stopped
     depends_on:
-      - traefik
+      - caddy
     networks:
       - proxy
     labels:
-      traefik.frontend.rule: "Host:jack.$DOMAIN"
-      traefik.port: "9117"
+      caddy: jack.$DOMAIN
+      caddy.reverse_proxy: "{{upstreams 9117}}"
   postgres:
     image: postgres:alpine
     container_name: postgres
@@ -124,20 +139,6 @@ services:
       - POSTGRES_PASSWORD=$DBPASSWORD
     volumes:
       - $DOCKDIR/postgres:/var/lib/postgresql/data
-  traefik:
-    image: traefik:1.7
-    container_name: traefik
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - $DOCKDIR/traefik/traefik.toml:/etc/traefik/traefik.toml
-      - $DOCKDIR/traefik/acme.json:/etc/traefik/acme.json
-      - $DOCKDIR/traefik:/app/
-    ports:
-      - 80:80
-      - 443:443
-    restart: unless-stopped
-    networks:
-      - proxy
   ttrss:
     image: wangqiru/ttrss
     container_name: ttrss
@@ -151,12 +152,12 @@ services:
       - DB_USER=postgres
     depends_on:
       - postgres
-      - traefik
+      - caddy
     networks:
       - proxy
     labels:
-      traefik.frontend.rule: "Host:rss.$DOMAIN"
-      traefik.port: "80"
+      caddy: rss.$DOMAIN
+      caddy.reverse_proxy: "{{upstreams 80}}"
   vaultwarden:
     image: vaultwarden/server:alpine
     container_name: vaultwarden
@@ -167,9 +168,9 @@ services:
       - SIGNUPS_ALLOWED=false
     restart: unless-stopped
     depends_on:
-      - traefik
+      - caddy
     networks:
       - proxy
     labels:
-      traefik.frontend.rule: "Host:pass.$DOMAIN"
-      traefik.port: "80"
+      caddy: pass.$DOMAIN
+      caddy.reverse_proxy: "{{upstreams 80}}"
