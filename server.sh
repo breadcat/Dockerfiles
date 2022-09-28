@@ -307,7 +307,7 @@ function blog_status {
 		printf "* Root Usage: %s\\n" "$(df / | awk 'END{print $5}')"
 		printf "* Cloud Usage: %s\\n" "$(git --git-dir="$(find_directory logger)/.git" show | awk 'END{print $3" "$4}')"
 		printf "* [Dockers](https://github.com/breadcat/Dockerfiles): %s\\n" "$(docker ps -q | wc -l)/$(docker ps -aq | wc -l)"
-		printf "* Packages: %s\\n" "$(dpkg -l | grep ^ii -c)"
+		printf "* Packages: %s\\n" "$(pacman -Q | wc -l)"
 		printf "* Monthly Data: %s\\n\\n" "$(vnstat -m --oneline | cut -f11 -d\;)"
 		printf "Hardware specifications themselves are covered on the [hardware page](/hardware/#server).\\n"
 	} >"$(find_directory blog."$domain")/content/status.md"
