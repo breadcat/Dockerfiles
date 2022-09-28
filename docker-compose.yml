@@ -115,21 +115,6 @@ services:
       traefik.frontend.rule: "Host:jack.$DOMAIN"
       traefik.port: "9117"
       traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
-  php-dev:
-    image: php:apache
-    container_name: php-dev
-    restart: unless-stopped
-    command: bash -c "sed -i 's|33|$PUID|g' /etc/passwd && a2enmod rewrite && apache2-foreground"
-    volumes:
-      - $SYNCDIR/src/php-dev:/var/www/html
-    restart: unless-stopped
-    depends_on:
-      - traefik
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:dev.$DOMAIN"
-      traefik.port: "80"
   postgres:
     image: postgres:alpine
     container_name: postgres
@@ -140,41 +125,6 @@ services:
       - POSTGRES_PASSWORD=$DBPASSWORD
     volumes:
       - $DOCKDIR/postgres:/var/lib/postgresql/data
-  rclone:
-    image: rclone/rclone
-    container_name: rclone
-    user: "$PUID:$PGID"
-    read_only: true
-    command: "serve http '$RCLONE_REMOTE_MEDIA' --addr '0.0.0.0:8080' -vv"
-    volumes:
-      - $DOCKDIR/rclone:/config/rclone/
-    restart: unless-stopped
-    depends_on:
-      - traefik
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:repo.$DOMAIN"
-      traefik.port: "8080"
-      traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
-  syncthing:
-    image: linuxserver/syncthing
-    container_name: syncthing
-    environment:
-      - PGID=$PGID
-      - PUID=$PUID
-    volumes:
-      - $DOCKDIR/syncthing:/config
-      - $SYNCDIR:/vault
-    ports:
-      - 22000:22000
-      - 21027:21027/udp
-    restart: unless-stopped
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:sync.$DOMAIN"
-      traefik.port: "8384"
   traefik:
     image: traefik:1.7
     container_name: traefik
@@ -226,29 +176,3 @@ services:
     labels:
       traefik.frontend.rule: "Host:pass.$DOMAIN"
       traefik.port: "80"
-  watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-  wireguard:
-    image: place1/wg-access-server
-    container_name: wireguard
-    restart: unless-stopped
-    cap_add:
-      - NET_ADMIN
-    environment:
-      WG_ADMIN_PASSWORD: $WG_WEBUI_PASS
-      WG_WIREGUARD_PRIVATE_KEY: $WG_PRIVKEY
-    volumes:
-      - $DOCKDIR/wireguard:/data
-    ports:
-      - 51820:51820/udp
-    devices:
-      - "/dev/net/tun:/dev/net/tun"
-    networks:
-      - proxy
-    labels:
-      traefik.frontend.rule: "Host:vpn.$DOMAIN"
-      traefik.port: "8000"
