@@ -114,7 +114,6 @@ services:
     labels:
       traefik.frontend.rule: "Host:jack.$DOMAIN"
       traefik.port: "9117"
-      traefik.frontend.auth.basic.usersFile: "/app/htpasswd"
   postgres:
     image: postgres:alpine
     container_name: postgres
