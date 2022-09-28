@@ -159,7 +159,7 @@ services:
       traefik.frontend.rule: "Host:rss.$DOMAIN"
       traefik.port: "80"
   vaultwarden:
-    image: vaultwarden/server
+    image: vaultwarden/server:alpine
     container_name: vaultwarden
     volumes:
       - $DOCKDIR/vaultwarden:/data
