@@ -89,6 +89,7 @@ services:
       - TZ=$TZ
     volumes:
       - $SYNCDIR/pub:/h5ai
+      - $SYNCDIR/src/dockerfiles/configs/h5ai.css:/config/h5ai/_h5ai/public/css/styles.css
     restart: unless-stopped
     depends_on:
       - caddy
