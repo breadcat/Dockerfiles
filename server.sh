@@ -240,16 +240,16 @@ function parse_payslips {
 	rm -r "$directory_temp"
 }
 function sort_media {
+	# variables
+	source=seedbox
+	destination=/mnt/media/
 	# check mounts
-	mounts="seedbox media"
-	for i in $mounts; do
-		mount_remote mount "$i"
-	done
+	mount_remote mount "$source"
 	# main sorting process
-	dir_import=$(find_directory seedbox)/
+	dir_import="$(find_directory seedbox)/"
 	if [[ -d "$dir_import" ]]; then
-		dir_tv=$(find_directory media)/videos/television
-		dir_mov=$(find_directory media)/videos/movies
+		dir_tv="$destination/videos/television"
+		dir_mov="$destination/videos/movies"
 		temp_tv="{{ .Name }}/{{ .Name }} S{{ printf \"%02d\" .Season }}E{{ printf \"%02d\" .Episode }}{{ if ne .ExtraEpisode -1 }}-{{ printf \"%02d\" .ExtraEpisode }}{{end}}.{{ .Ext }}"
 		temp_mov="{{ .Name }} ({{ .Year }})/{{ .Name }}.{{ .Ext }}"
 		media-sort --action copy --concurrency 1 --accuracy-threshold 90 --tv-dir "$dir_tv" --movie-dir "$dir_mov" --tv-template "$temp_tv" --movie-template "$temp_mov" --recursive --overwrite-if-larger "$dir_import"
@@ -257,18 +257,10 @@ function sort_media {
 		printf "Import directory not found.\\n"
 		exit 0
 	fi
-	for i in $mounts; do
-		umount_remote "$i"
-	done
+	# unmount and remove after
+	umount_remote "$source"
 }
 function mount_remote {
-	# check allow_other in fuse.conf
-	if ! grep -q "^user_allow_other$" /etc/fuse.conf; then
-		check_root
-		printf "user_allow_other not found in fuse.conf.\\nAppending to file. Please restart the script.\\n"
-		echo "user_allow_other" >>/etc/fuse.conf
-		exit 0
-	fi
 	if [ -n "$2" ]; then
 		printf "Mounting specified remote...\\n"
 		rclone_mount_process "$2"
@@ -287,10 +279,9 @@ function rclone_mount_process {
 	if [[ -f "$mount_point/.mountcheck" || -n "$(find "$mount_point" -maxdepth 1 -mindepth 1 | head -n 1)" ]]; then
 		printf "%s already mounted.\\n" "$1"
 	else
-		printf "%s not mounted.\\n" "$1"
-		printf "Re-mounting... "
+		printf "%s not mounted, mounting... " "$1"
 		fusermount -uz "$mount_point" 2>/dev/null && sleep 3
-		rclone mount "$remote" "$mount_point" --allow-other --daemon --log-file "$(find_directory config)/logs/rclone-$1.log"
+		rclone mount "$remote" "$mount_point" --daemon
 		printf "done\\n"
 	fi
 }
