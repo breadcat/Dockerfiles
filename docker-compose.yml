@@ -135,7 +135,7 @@ services:
     container_name: postgres
     restart: unless-stopped
     ports:
-      - 44432:5432
+      - 5432:5432
     environment:
       - POSTGRES_PASSWORD=$DBPASSWORD
     volumes:
@@ -210,7 +210,7 @@ services:
       - SELF_URL_PATH=https://rss.$DOMAIN/
       - DB_HOST=$DOMAIN
       - DB_PASS=$DBPASSWORD
-      - DB_PORT=44432
+      - DB_PORT=5432
       - DB_TYPE=pgsql
       - DB_USER=postgres
     depends_on:
