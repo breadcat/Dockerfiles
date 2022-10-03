@@ -20,7 +20,7 @@ function check_not_root {
 	fi
 }
 function check_depends {
-	dependencies=(aria2c awk bash docker docker-compose ffmpeg getmail git gnuplot journalctl logname media-sort mp3val mpack munpack opustags phockup pip3 python3 qpdf rbw rclone sed seq sort svgo uniq vnstat we-get yt-dlp)
+	dependencies=(aria2c awk bash docker docker-compose ffmpeg git gnuplot journalctl logname media-sort mp3val opustags phockup pip3 python3 qpdf rbw rclone sed seq sort svgo uniq vnstat we-get yt-dlp)
 	echo "Checking dependencies..."
 	for i in "${dependencies[@]}"; do
 		echo -n "$i: "
@@ -204,40 +204,6 @@ function parse_magnets {
 		[ -f "$k" ] || break
 		for i in *.torrent; do rclone move "$k" "$rclone_remote"; done
 	done
-}
-function parse_payslips {
-	# temporary directories
-	directory_temp="$(mktemp -d)"
-	cd "$directory_temp" || exit
-	mkdir {cur,new,tmp}
-	# write config file
-	password_manager sync
-	{
-		printf "[retriever]\\n"
-		printf "type = SimpleIMAPSSLRetriever\\n"
-		printf "server = %s\\n" "$(password_manager full email | awk -F: '/Incoming/ {gsub(/ /,""); print $2}')"
-		printf "username = %s\\n" "$(password_manager user email)"
-		printf "port = 993\\n"
-		printf "password = %s\\n\\n" "$(password_manager pass email)"
-		printf "[destination]\\n"
-		printf "type = Maildir\\n"
-		printf "path = %s/\\n" "$directory_temp"
-	} >getmailrc
-	getmail --getmaildir "$directory_temp"
-	cd new || exit
-	grep "$(password_manager user payslip)" ./* | cut -f1 -d: | uniq | xargs munpack -f
-	# decrypt payslip file
-	for i in *.PDF; do
-		fileProtected=0
-		qpdf "$i" --check || fileProtected=1
-		if [ $fileProtected == 1 ]; then
-			parsed_name="$(printf "%s" "$i" | awk -FX '{print substr($3,5,4) "-" substr($3,3,2) "-" substr($3,1,2) ".pdf"}')"
-			qpdf --password="$(password_manager pass payslip)" --decrypt "$i" "$parsed_name" && rm "$i"
-			rclone move "$parsed_name" "$(find_remote paperwork)/personal/workplace/wages/"
-		fi
-	done
-	# clean up afterwards
-	rm -r "$directory_temp"
 }
 function sort_media {
 	# variables
@@ -506,7 +472,6 @@ function main {
 	logger) media_logger ;;
 	magnet) parse_magnets ;;
 	mount) mount_remote "$@" ;;
-	payslip) parse_payslips ;;
 	permissions) check_root && chown "$username":"$username" "$directory_script/rclone.conf" ;;
 	photos) parse_photos ;;
 	rank) blog_duolingo_rank ;;
