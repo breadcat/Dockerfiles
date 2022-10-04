@@ -6,6 +6,7 @@ networks:
     external: true
 
 services:
+
   baikal:
     image: ckulka/baikal:nginx
     container_name: baikal
@@ -19,6 +20,7 @@ services:
     labels:
       caddy: dav.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 80}}"
+
   caddy:
     image: lucaslorentz/caddy-docker-proxy
     container_name: caddy
@@ -33,6 +35,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - $DOCKDIR/caddy:/data
     restart: unless-stopped
+
   cgit:
     image: chruth/alpine-cgit
     container_name: cgit
@@ -52,6 +55,7 @@ services:
     labels:
       caddy: git.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 80}}"
+
   changedetection:
     image: linuxserver/changedetection.io
     container_name: changedetection
@@ -68,6 +72,7 @@ services:
       caddy: diff.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 5000}}"
     restart: unless-stopped
+
   echoip:
     image: mpolden/echoip
     container_name: echoip
@@ -80,6 +85,7 @@ services:
     labels:
       caddy: ip.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 8080}}"
+
   h5ai:
     image: awesometic/h5ai
     container_name: h5ai
@@ -98,6 +104,7 @@ services:
     labels:
       caddy: pub.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 80}}"
+
   hugo:
     image: klakegg/hugo
     container_name: hugo
@@ -112,6 +119,7 @@ services:
     labels:
       caddy: $DOMAIN, blog.$DOMAIN, www.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 1313}}"
+
   jackett:
     image: linuxserver/jackett
     container_name: jackett
@@ -130,6 +138,7 @@ services:
     labels:
       caddy: jack.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 9117}}"
+
   postgres:
     image: postgres:alpine
     container_name: postgres
@@ -140,6 +149,7 @@ services:
       - POSTGRES_PASSWORD=$DBPASSWORD
     volumes:
       - $DOCKDIR/postgres:/var/lib/postgresql/data
+
   transmission:
     image: haugene/transmission-openvpn
     container_name: transmission
@@ -172,6 +182,7 @@ services:
       options:
         max-size: 10m
     restart: unless-stopped
+
   transmission-proxy:
     image: haugene/transmission-openvpn-proxy
     container_name: transmission-proxy
@@ -187,6 +198,7 @@ services:
       caddy.basicauth: "/"
       caddy.basicauth.peter: "$HTPASSWD"
     restart: unless-stopped
+
   transmission-rss:
     image: haugene/transmission-rss
     container_name: transmission-rss
@@ -202,6 +214,7 @@ services:
     volumes:
       - $DOCKDIR/transmission-rss/transmission-rss.conf:/etc/transmission-rss.conf
       - $DOCKDIR/transmission-rss/transmission-rss.seen:/etc/transmission-rss.seen
+
   ttrss:
     image: wangqiru/ttrss
     container_name: ttrss
@@ -221,6 +234,7 @@ services:
     labels:
       caddy: rss.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 80}}"
+
   vaultwarden:
     image: vaultwarden/server:alpine
     container_name: vaultwarden
