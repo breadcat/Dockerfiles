@@ -20,7 +20,7 @@ function check_not_root {
 	fi
 }
 function check_depends {
-	dependencies=(aria2c awk bash docker docker-compose ffmpeg git gnuplot journalctl logname media-sort mp3val opustags phockup pip3 python3 qpdf rbw rclone sed seq sort svgo uniq vnstat we-get yt-dlp)
+	dependencies=(aria2c awk bash docker docker-compose ffmpeg git gnuplot journalctl logname media-sort mp3val opustags phockup pip3 python3 qpdf rbw rclone scour sed seq sort uniq vnstat we-get yt-dlp)
 	echo "Checking dependencies..."
 	for i in "${dependencies[@]}"; do
 		echo -n "$i: "
@@ -306,7 +306,7 @@ function blog_weight {
 	printf "done\\nWriting page... "
 	{
 		printf -- "---\\ntitle: Weight\\nlayout: single\\ndate: %s\\nlastmod: %(%Y-%m-%dT%H:%M:00)T\\n---\\n\\n" "$weight_dateinit" -1
-		printf "%s\\n\\n" "$(svgo -i "temp.svg" --multipass -o - -q -p 0)"
+		printf "%s\\n\\n" "$(scour -i temp.svg --strip-xml-prolog --remove-descriptive-elements --create-groups --enable-id-stripping --enable-comment-stripping --shorten-ids --no-line-breaks)"
 		printf "<details><summary>Raw data</summary>\\n<pre>\\n%s\\n</pre></details>" "$weight_rawdata"
 
 	} >"$weight_filename"
