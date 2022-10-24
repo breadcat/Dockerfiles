@@ -403,7 +403,16 @@ function clean_space {
 	for i in volume image; do
 		docker "$i" prune -f >>"$log_file"
 	done
-	# apt
+	# package manager
+	if [[ $distro =~ "Debian" ]]; then
+		export DEBIAN_FRONTEND=noninteractive
+		apt-get clean
+	elif [[ $distro =~ "Arch" ]]; then
+		pacman -Rns $(pacman -Qtdq)
+		pacman -Sc --noconfirm
+	else
+		echo "Who knows what you're running"
+	fi
 	apt-get clean >>"$log_file"
 	# temp directory
 	rm -rf /tmp/tmp.* >>"$log_file"
