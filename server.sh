@@ -162,7 +162,7 @@ function media_logger {
 	$git_logger config pack.windowMemory 10m
 	$git_logger config pack.packSizeLimit 20m
 	$git_logger gc --aggressive --prune
-	printf "Log complete!"
+	printf "Log complete!\n"
 }
 function parse_magnets {
 	# sources and destinations
