@@ -167,7 +167,6 @@ function media_logger {
 function parse_magnets {
 	# sources and destinations
 	cd "$(find_directory vault)" || exit
-	rclone_remote="raw-seedbox:watch/"
 	# check for aria
 	if [ ! -x "$(command -v aria2c)" ]; then # not installed
 		echo "Aria doesn't seem to be installed. Exiting" && exit
@@ -198,11 +197,13 @@ function parse_magnets {
 	for j in *.magnet; do
 		[ -f "$j" ] || break
 		timeout 3m aria2c --bt-tracker="$trackers" --bt-metadata-only=true --bt-save-metadata=true "$(cat "$j")" && rm "$j"
+		# wait for files to be picked up
+		sleep 10s
 	done
-	# torrent loop, move to watch
-	for k in *.torrent; do
+	# removed added files
+	for k in *.added; do
 		[ -f "$k" ] || break
-		for i in *.torrent; do rclone move "$k" "$rclone_remote"; done
+		for i in *.added; do rm "$i"; done
 	done
 }
 function sort_media {
