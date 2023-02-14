@@ -162,15 +162,16 @@ services:
     volumes:
       - $TANKDIR/complete:/data/completed
       - $TANKDIR/incomplete:/data/incomplete
-      - $DOCKDIR/transmission:/data/transmission-home
+      - $DOCKDIR/transmission:/config/transmission-home
       - $SYNCDIR:/data/watch
     environment:
-      - OPENVPN_PROVIDER=NORDVPN
-      - NORDVPN_COUNTRY=GB
-      - NORDVPN_CATEGORY=p2p
-      - OPENVPN_USERNAME=$VPNUSER
-      - OPENVPN_PASSWORD=$VPNPASS
       - LOCAL_NETWORK=10.0.0.0/24
+      - LOG_TO_STDOUT=true
+      - NORDVPN_CATEGORY=p2p
+      - NORDVPN_COUNTRY=GB
+      - OPENVPN_PASSWORD=$VPNPASS
+      - OPENVPN_PROVIDER=NORDVPN
+      - OPENVPN_USERNAME=$VPNUSER
     ports:
       - 9091:9091
       - 51413:51413
