@@ -410,7 +410,8 @@ function clean_space {
 		export DEBIAN_FRONTEND=noninteractive
 		apt-get clean
 	elif [[ $distro =~ "Arch" ]]; then
-		pacman -Rns $(pacman -Qtdq)
+		readarray -t orphans < <(pacman -Qtdq)
+		pacman -Rns "${orphans[@]}"
 		pacman -Sc --noconfirm
 	else
 		echo "Who knows what you're running"
