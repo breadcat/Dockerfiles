@@ -162,7 +162,7 @@ services:
     volumes:
       - $TANKDIR/complete:/data/completed
       - $TANKDIR/incomplete:/data/incomplete
-      - $DOCKDIR/transmission:/config/transmission-home
+      - $DOCKDIR/transmission:/data/transmission-home
       - $SYNCDIR:/data/watch
     environment:
       - LOCAL_NETWORK=10.0.0.0/24
@@ -172,6 +172,8 @@ services:
       - OPENVPN_PASSWORD=$VPNPASS
       - OPENVPN_PROVIDER=NORDVPN
       - OPENVPN_USERNAME=$VPNUSER
+      - PGID=$PGID
+      - PUID=$PUID
     ports:
       - 9091:9091
       - 51413:51413
