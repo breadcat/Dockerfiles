@@ -108,7 +108,7 @@ services:
   hugo:
     image: klakegg/hugo
     container_name: hugo
-    command: "server --watch=true --minify --source=/src --baseURL=https://$DOMAIN --bind=0.0.0.0 --appendPort=false --buildFuture"
+    command: "server --watch=true --disableLiveReload --minify --source=/src --baseURL=https://$DOMAIN --bind=0.0.0.0 --appendPort=false --buildFuture"
     volumes:
       - $SYNCDIR/src/blog.$DOMAIN:/src
     restart: unless-stopped
