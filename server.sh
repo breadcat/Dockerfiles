@@ -455,6 +455,11 @@ function system_update {
 	else
 		echo "Who knows what you're running"
 	fi
+	# Manually update docker containers
+	if [ -x "$(command -v docker)" ]; then
+		echo "Updating all Docker containers..."
+		docker run -it -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower --run-once
+	fi
 	# Update remaining applications
 	find "$(find_directory config)" -maxdepth 2 -name ".git" -type d | sed 's/\/.git//' | xargs -P10 -I{} git -C {} pull
 	if [ -x "$(command -v we-get)" ]; then
