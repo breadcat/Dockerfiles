@@ -472,6 +472,43 @@ function system_update {
 		curl https://i.jpillora.com/media-sort | bash
 	fi
 }
+function process_music {
+	post="$(find_directory blog."$domain")/content/music.md"
+	header="$(grep -v \| "$post")"
+	echo -n "Checking for $(basename "$post")..."
+	if test -f "$post"; then
+		echo -e "$i \e[32mexists\e[39m"
+	else
+		echo -e "$i \e[31mdoes not exist\e[39m. Exiting"
+		exit 1
+	fi
+	source=liked.csv
+	echo -n "Checking for $source..."
+	if test -f "$source"; then
+		echo -e "$i \e[32mexists\e[39m"
+	else
+		echo -e "$i \e[31mdoes not exist\e[39m. Exiting"
+		exit 1
+	fi
+	echo -n "Processing $source... "
+	artists=$(tail -n +2 <"$source" | awk -F'\",\"' '{print $4}')
+	titles=$(tail -n +2 <"$source" | awk -F'\",\"' '{print $2}' | sed 's/ (Live)//g')
+	# todo: filter remaster*/feat. x
+	database=$(echo "$artists" | paste - <(echo "$titles") | sed 's/\t/ \| /g' | sed 's/^/\| /g' | sed 's/$/ \|/g')
+	echo -e "\e[32mdone\e[39m"
+	# write page
+	echo -n "Writing page... "
+	{
+		printf "%s\n" "$header"
+		printf "%s" "$database" | sort | uniq -i | sed -e '1i\| ------ \| ----- \|' | sed -e '1i\| Artist \| Title \|'
+	} >"$post"
+	echo -e "\e[32mdone\e[39m"
+	echo -n "Amending lastmod value... "
+	mod_timestamp="$(date +%FT%H:%M:00)"
+	sed -i "s/lastmod: .*/lastmod: $mod_timestamp/g" "$post"
+	echo -e "\e[32mdone\e[39m"
+}
+
 function main {
 	distro="$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)"
 	username="$(logname)"
@@ -490,6 +527,7 @@ function main {
 	logger) media_logger ;;
 	magnet) parse_magnets ;;
 	mount) mount_remote "$@" ;;
+	music) process_music "$@" ;;
 	permissions) check_root && chown "$username":"$username" "$directory_script/rclone.conf" ;;
 	photos) parse_photos ;;
 	rank) blog_duolingo_rank ;;
