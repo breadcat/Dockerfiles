@@ -447,8 +447,8 @@ function system_update {
 		fi
 	elif [[ $distro =~ "Arch" ]]; then
 		# Update Archlinux
-		if [ -x "$(command -v paru)" ]; then
-			paru -Syu --noconfirm
+		if [ -x "$(command -v yay)" ]; then
+			yay --noconfirm
 		else
 			pacman -Syu --noconfirm
 		fi
