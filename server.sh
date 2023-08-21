@@ -54,9 +54,9 @@ function password_manager {
 }
 function duolingo_streak {
 	# check api is installed
-	[[ -d "$(find_directory config)/duolingo" ]] || git clone https://github.com/KartikTalwar/Duolingo.git "$(find_directory config)/duolingo"
+	[[ -d "$(find_directory $directory_config)/duolingo" ]] || git clone https://github.com/KartikTalwar/Duolingo.git "$(find_directory $directory_config)/duolingo"
 	# cd to git dir to include module
-	cd "$(find_directory config)/duolingo" || return
+	cd "$(find_directory $directory_config)/duolingo" || return
 	# write script
 	password_manager sync
 	{
@@ -321,7 +321,7 @@ function remotes_dedupe {
 	for i in $(seq "$dests"); do
 		remote=$(rclone listremotes | grep "gdrive.*$i")
 		echo Deduplicating "$remote"
-		rclone dedupe --dedupe-mode newest "$remote" --log-file "$(find_directory config)/logs/rclone-dupe-$(date +%F-%H%M).log"
+		rclone dedupe --dedupe-mode newest "$remote" --log-file "$(find_directory $directory_config)/logs/rclone-dupe-$(date +%F-%H%M).log"
 	done
 }
 function remotes_tokens {
@@ -343,10 +343,10 @@ function remotes_sync {
 			if [ -n "$2" ]; then
 				directory="$2"
 				printf "Syncing %s directory to %s...\\n" "$directory" "$dest"
-				rclone sync "$source/$directory" "$dest/$directory" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(find_directory config)/logs/rclone-sync-$directory-$(date +%F-%H%M).log"
+				rclone sync "$source/$directory" "$dest/$directory" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(find_directory $directory_config)/logs/rclone-sync-$directory-$(date +%F-%H%M).log"
 			else
 				printf "Syncing %s to %s...\\n" "$source" "$dest"
-				rclone sync "$source" "$dest" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(find_directory config)/logs/rclone-sync-$(date +%F-%H%M).log"
+				rclone sync "$source" "$dest" --drive-server-side-across-configs --drive-stop-on-upload-limit --verbose --log-file "$(find_directory $directory_config)/logs/rclone-sync-$(date +%F-%H%M).log"
 			fi
 		fi
 	done
@@ -371,7 +371,7 @@ function backup_docker {
 	password_manager sync
 	password="$(password_manager pass 'backup archive password')"
 	backup_final="$(find_remote backups)"
-	cd "$(find_directory config)" || exit
+	cd "$(find_directory $directory_config)" || exit
 	for i in */; do
 		backup_file="$(basename "$i")_backup-$(date +%F-%H%M).tar.xz.gpg"
 		echo -n Backing up "$i"...
@@ -397,7 +397,8 @@ function backup_docker {
 }
 function clean_space {
 	space_initial="$(df / | awk 'FNR==2{ print $4}')"
-	log_file="$(find_directory config)/logs/clean-$(date +%F-%H%M).log"
+	mkdir -p "$(find_directory $directory_config)/logs"
+	log_file="$(find_directory $directory_config)/logs/clean-$(date +%F-%H%M).log"
 	check_root
 	# journals
 	journalctl --vacuum-size=75M >>"$log_file"
@@ -461,7 +462,7 @@ function system_update {
 		docker run -it -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower --run-once
 	fi
 	# Update remaining applications
-	find "$(find_directory config)" -maxdepth 2 -name ".git" -type d | sed 's/\/.git//' | xargs -P10 -I{} git -C {} pull
+	find "$(find_directory $directory_config)" -maxdepth 2 -name ".git" -type d | sed 's/\/.git//' | xargs -P10 -I{} git -C {} pull
 	if [ -x "$(command -v we-get)" ]; then
 		echo "Updating we-get..."
 		pip3 install --upgrade git+https://github.com/rachmadaniHaryono/we-get
@@ -512,6 +513,7 @@ function process_music {
 function main {
 	distro="$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)"
 	username="$(logname)"
+	directory_config="docker"
 	directory_home="/home/$username"
 	directory_tank="/mnt/tank"
 	backup_prefix="backup-"
