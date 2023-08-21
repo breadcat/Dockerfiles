@@ -406,6 +406,7 @@ function clean_space {
 	for i in volume image; do
 		docker "$i" prune -f >>"$log_file"
 	done
+	docker system prune -af >>"$log_file"
 	# package manager
 	if [[ $distro =~ "Debian" ]]; then
 		export DEBIAN_FRONTEND=noninteractive
