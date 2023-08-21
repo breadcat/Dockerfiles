@@ -492,21 +492,40 @@ function process_music {
 		exit 1
 	fi
 	echo -n "Processing $source... "
-	artists=$(tail -n +2 <"$source" | awk -F'\",\"' '{print $4}')
-	titles=$(tail -n +2 <"$source" | awk -F'\",\"' '{print $2}' | sed 's/ (Live)//g')
-	# todo: filter remaster*/feat. x
-	database=$(echo "$artists" | paste - <(echo "$titles") | sed 's/\t/ \| /g' | sed 's/^/\| /g' | sed 's/$/ \|/g')
+	tail -n +2 <"$source" |
+		awk -F'\",\"' '{print $4}' |
+		cut -f1 -d"," >temp.artists.log
+	tail -n +2 <"$source" |
+		awk -F'\",\"' '{print $2}' |
+		sed 's/ (Live)//g' |
+		sed 's/ - Remastered$//g' |
+		sed 's/ - .... Remaster$//g' |
+		sed 's/ (.... Remaster)$//g' |
+		sed 's/ - .... - Remaster$//g' |
+		sed 's/ - Original Mix$//g' |
+		sed 's/ - .... Remastered Version$//g' |
+		sed 's/ - Remastered ....$//g' |
+		sed 's/\[[^][]*\]//g' |
+		sed 's/ (feat.*)$//g' |
+		sed 's/ - feat.*$//g' |
+		awk '{print "["$0"]"}' >temp.tracks.log
+	tail -n +2 <"$source" |
+		awk -F'\"' '{print $2}' |
+		awk '{print "("$0")"}' >temp.links.log
 	echo -e "\e[32mdone\e[39m"
 	# write page
 	echo -n "Writing page... "
 	{
 		printf "%s\n" "$header"
-		printf "%s" "$database" | sort | uniq -i | sed -e '1i\| ------ \| ----- \|' | sed -e '1i\| Artist \| Title \|'
+		printf "%s" "$(paste temp.artists.log temp.tracks.log temp.links.log | sed 's/\t/ \| /g' | sed 's/^/\| /g' | sed 's/$/ \|/g' | sed 's/\] | (/\](/g')" | sort | uniq -i | sed -e '1i\| ------ \| ----- \|' | sed -e '1i\| Artist \| Title \|'
 	} >"$post"
 	echo -e "\e[32mdone\e[39m"
 	echo -n "Amending lastmod value... "
 	mod_timestamp="$(date +%FT%H:%M:00)"
 	sed -i "s/lastmod: .*/lastmod: $mod_timestamp/g" "$post"
+	echo -e "\e[32mdone\e[39m"
+	echo -n "Deleting temporary files... "
+	rm temp.{artists,tracks,links}.log
 	echo -e "\e[32mdone\e[39m"
 }
 
