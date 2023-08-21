@@ -458,7 +458,7 @@ function system_update {
 	# Manually update docker containers
 	if [ -x "$(command -v docker)" ]; then
 		echo "Updating all Docker containers..."
-		docker run -it -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower --run-once
+		docker run -it -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower --run-once --name watchtower
 	fi
 	# Update remaining applications
 	find "$(find_directory $directory_config)" -maxdepth 2 -name ".git" -type d | sed 's/\/.git//' | xargs -P10 -I{} git -C {} pull
