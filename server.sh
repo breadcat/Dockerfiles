@@ -409,7 +409,7 @@ function clean_space {
 	# package manager
 	if [[ $distro =~ "Debian" ]]; then
 		export DEBIAN_FRONTEND=noninteractive
-		apt-get clean
+		apt-get clean >>"$log_file"
 	elif [[ $distro =~ "Arch" ]]; then
 		readarray -t orphans < <(pacman -Qtdq)
 		pacman -Rns "${orphans[@]}"
@@ -417,7 +417,6 @@ function clean_space {
 	else
 		echo "Who knows what you're running"
 	fi
-	apt-get clean >>"$log_file"
 	# temp directory
 	rm -rf /tmp/tmp.* >>"$log_file"
 	space_after="$(df / | awk 'FNR==2{ print $4}')"
