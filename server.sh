@@ -449,7 +449,7 @@ function system_update {
 	elif [[ $distro =~ "Arch" ]]; then
 		# Update Archlinux
 		if [ -x "$(command -v yay)" ]; then
-			sudo -u $username yay --noconfirm
+			sudo -u "$username" yay --noconfirm
 		else
 			pacman -Syu --noconfirm
 		fi
