@@ -139,27 +139,6 @@ services:
       caddy: jack.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 9117}}"
 
-  jdownloader:
-    image: jlesage/jdownloader-2
-    container_name: jdownloader
-    environment:
-      - USER_ID=$PUID
-      - GROUP_ID=$PGID
-      - DARK_MODE=1
-    volumes:
-      - $DOCKDIR/jdownloader:/config
-      - $TANKDIR/complete:/output
-    restart: unless-stopped
-    depends_on:
-      - caddy
-    networks:
-      - proxy
-    labels:
-      caddy: jd.$DOMAIN
-      caddy.reverse_proxy: "{{upstreams 5800}}"
-      caddy.basicauth: "/"
-      caddy.basicauth.peter: "$HTPASSWD"
-
   postgres:
     image: postgres:alpine
     container_name: postgres
