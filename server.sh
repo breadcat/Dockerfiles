@@ -499,17 +499,19 @@ function process_music {
 		cut -f1 -d"," >temp.artists.log
 	tail -n +2 <"$source" |
 		awk -F'\",\"' '{print $2}' |
-		sed 's/ (Live)//g' |
-		sed 's/ - Remastered$//g' |
-		sed 's/ - .... Remaster$//g' |
-		sed 's/ (.... Remaster)$//g' |
 		sed 's/ - .... - Remaster$//g' |
-		sed 's/ - Original Mix$//g' |
+		sed 's/ - .... Remaster$//g' |
 		sed 's/ - .... Remastered Version$//g' |
-		sed 's/ - Remastered ....$//g' |
-		sed 's/\[[^][]*\]//g' |
-		sed 's/ (feat.*)$//g' |
 		sed 's/ - feat.*$//g' |
+		sed 's/ - Live$//g' |
+		sed 's/ - Original Mix$//g' |
+		sed 's/ - Remaster$//g' |
+		sed 's/ - Remastered ....$//g' |
+		sed 's/ - Remastered$//g' |
+		sed 's/ (.... Remaster)$//g' |
+		sed 's/ (feat.*)$//g' |
+		sed 's/ (Live)//g' |
+		sed 's/\[[^][]*\]//g' |
 		awk '{print "["$0"]"}' >temp.tracks.log
 	tail -n +2 <"$source" |
 		awk -F'\"' '{print $2}' |
