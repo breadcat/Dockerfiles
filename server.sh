@@ -43,13 +43,14 @@ function umount_remote {
 	find "$working_directory" -maxdepth 1 -mount -type d -not -path "*/\.*" -empty -delete
 }
 function password_manager {
+	check_not_root
 	case "$1" in
-	addr) check_not_root && rbw get --full "$2" | awk '/URI:/ {print $2}' ;;
-	full) check_not_root && rbw get --full "$2" ;;
-	pass) check_not_root && rbw get "$2" ;;
-	sync) check_not_root && rbw sync ;;
-	user) check_not_root && rbw get --full "$2" | awk '/Username:/ {print $2}' ;;
-	*) check_not_root && rbw get "$2" ;;
+	addr) rbw get --full "$2" | awk '/URI:/ {print $2}' ;;
+	full) rbw get --full "$2" ;;
+	pass) rbw get "$2" ;;
+	sync) rbw sync ;;
+	user) rbw get --full "$2" | awk '/Username:/ {print $2}' ;;
+	*) rbw get "$2" ;;
 	esac
 }
 function duolingo_streak {
