@@ -53,6 +53,7 @@ function password_manager {
 	esac
 }
 function duolingo_streak {
+	check_not_root
 	# check api is installed
 	[[ -d "$(find_directory $directory_config)/duolingo" ]] || git clone https://github.com/KartikTalwar/Duolingo.git "$(find_directory $directory_config)/duolingo"
 	# cd to git dir to include module
