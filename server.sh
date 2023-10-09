@@ -261,7 +261,7 @@ function blog_status {
 		printf "*Generated on %(%Y-%m-%d at %H:%M)T*\\n\\n" -1
 		printf "* Uptime: %s Day%s\\n" "$status_uptime" "$(if (("$status_uptime" > 1)); then echo s; fi)"
 		printf "* CPU Load: %s\\n" "$(cut -d" " -f1-3 </proc/loadavg)"
-		printf "* Users: %s\\n" "$(uptime | grep -oP '.{3}user' | sed 's/\user//g' | xargs)"
+		printf "* Users: %s\\n" "$(who | wc -l)"
 		printf "* RAM Usage: %s%%\\n" "$(printf "%.2f" "$(free | awk '/Mem/ {print $3/$2 * 100.0}')")"
 		printf "* Swap Usage: %s%%\\n" "$(printf "%.2f" "$(free | awk '/Swap/ {print $3/$2 * 100.0}')")"
 		printf "* Root Storage: %s\\n" "$(df / | awk 'END{print $5}')"
