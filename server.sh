@@ -544,7 +544,7 @@ function main {
 	directory_script="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 	case "$1" in
 	backup) backup_docker ;;
-	bookmarks) grep -P "\t\t\t\<li\>" "$(find_directory startpage)/index.html" | sort -t\> -k3 >"$(find_directory startpage)/bookmarks.txt" ;;
+	bookmarks) echo "Creating sorted bookmark file..." && grep -P "\t\t\t\<li\>" "$(find_directory startpage)/index.html" | sort -t\> -k3 >"$(find_directory startpage)/bookmarks.txt" ;;
 	clean) clean_space ;;
 	dedupe) remotes_dedupe ;;
 	depends) check_depends ;;
