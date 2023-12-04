@@ -508,6 +508,7 @@ function process_music {
 		sed 's/ - Remaster$//g' |
 		sed 's/ - Remastered ....$//g' |
 		sed 's/ - Remastered$//g' |
+		sed 's/ - Remastered Version$//g' |
 		sed 's/ (.... Remaster)$//g' |
 		sed 's/ (feat.*)$//g' |
 		sed 's/ (Live)//g' |
