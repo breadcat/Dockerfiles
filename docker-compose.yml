@@ -46,7 +46,7 @@ services:
     volumes:
       - $SYNCDIR/src:/git
       - $SYNCDIR/src/dockerfiles/configs/cgitrc:/config/cgitrc
-      - $SYNCDIR/src/dockerfiles/configs/cgit.css:/app/cgit.css
+      - $SYNCDIR/src/dockerfiles/configs/cgit.css:/config/static/cgit.css
     restart: unless-stopped
     depends_on:
       - caddy
