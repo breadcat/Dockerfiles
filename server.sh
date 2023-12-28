@@ -496,11 +496,12 @@ function process_music {
 	echo -n "Processing $source... "
 	tail -n +2 <"$source" |
 		awk -F'\",\"' '{print $4}' |
-		cut -f1 -d"," >temp.artists.log
+		sed 's/\\\,/,/g' >temp.artists.log
 	tail -n +2 <"$source" |
 		awk -F'\",\"' '{print $2}' |
 		sed 's/ - .... - Remaster$//g' |
 		sed 's/ - .... Remaster$//g' |
+		sed 's/ - .... re-mastered version$//g' |
 		sed 's/ - .... Remastered Version$//g' |
 		sed 's/ - feat.*$//g' |
 		sed 's/ - Live$//g' |
