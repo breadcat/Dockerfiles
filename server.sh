@@ -20,7 +20,7 @@ function check_not_root {
 	fi
 }
 function check_depends {
-	dependencies=(aria2c awk bash docker docker-compose ffmpeg git gnuplot journalctl logname media-sort mp3val opustags phockup pip3 python3 qpdf rbw rclone scour sed seq sort uniq vnstat we-get yt-dlp)
+	dependencies=(aria2c awk bash bc docker docker-compose ffmpeg git gnuplot journalctl logname media-sort mp3val opustags phockup pip3 python3 qpdf rbw rclone scour sed seq sort uniq vnstat we-get yt-dlp)
 	echo "Checking dependencies..."
 	for i in "${dependencies[@]}"; do
 		echo -n "$i: "
@@ -266,6 +266,7 @@ function blog_status {
 		printf "* Swap Usage: %s%%\\n" "$(printf "%.2f" "$(free | awk '/Swap/ {print $3/$2 * 100.0}')")"
 		printf "* Root Storage: %s\\n" "$(df / | awk 'END{print $5}')"
 		printf "* Tank Storage: %s\\n" "$(df | awk -v tank="$directory_tank" '$0 ~ tank {print $5}')"
+		printf "* Torrent Ratio: %s\\n" "$(echo "scale=3; $(awk '/uploaded/ {print $2}' "$(find_directory docker)"/transmission/stats.json)" / "$(awk '/downloaded/ {print $2}' "$(find_directory docker)"/transmission/stats.json | sed 's/,//g')" | bc)"
 		printf "* NAS Storage: %s\\n" "$(git --git-dir="$(find_directory logger)/.git" show | awk 'END{print $3" "$4}')"
 		printf "* [Containers](https://github.com/breadcat/Dockerfiles): %s\\n" "$(docker ps -q | wc -l)/$(docker ps -aq | wc -l)"
 		printf "* Packages: %s\\n" "$(pacman -Q | wc -l)"
