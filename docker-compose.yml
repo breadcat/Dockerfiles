@@ -198,7 +198,7 @@ services:
     labels:
       caddy: tor.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 8080}}"
-      caddy.basicauth: "/"
+      caddy.basicauth: "*"
       caddy.basicauth.peter: "$HTPASSWD"
     restart: unless-stopped
 
