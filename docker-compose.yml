@@ -254,3 +254,27 @@ services:
     labels:
       caddy: pass.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 80}}"
+
+  vikunja:
+    image: vikunja/vikunja
+    container_name: vikunja
+    environment:
+      - PGID=$PGID
+      - PUID=$PUID
+      - VIKUNJA_DATABASE_PATH=/db/vikunja.db
+      - VIKUNJA_SERVICE_ENABLEREGISTRATION=false
+      - VIKUNJA_SERVICE_ENABLETASKCOMMENTS=false
+      - VIKUNJA_SERVICE_JWTSECRET=$TODOSECRET
+      - VIKUNJA_SERVICE_PUBLICURL=https://todo.$DOMAIN/
+      - VIKUNJA_SERVICE_TIMEZONE=$TZ
+    volumes:
+      - $DOCKDIR/vikunja/database:/db
+      - $DOCKDIR/vikunja/files:/app/vikunja/files
+    restart: unless-stopped
+    depends_on:
+      - caddy
+    networks:
+      - proxy
+    labels:
+      caddy: todo.$DOMAIN
+      caddy.reverse_proxy: "{{upstreams 3456}}"

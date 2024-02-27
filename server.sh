@@ -103,6 +103,7 @@ function docker_build {
 		printf "VPNUSER=%s\\n" "$(password_manager user transmission-openvpn)"
 		printf "VPNPASS=%s\\n" "$(password_manager pass transmission-openvpn)"
 		printf "HTPASSWD=%s\\n" "$(docker exec -it caddy caddy hash-password --plaintext "$(password_manager pass htpasswd)" | base64 -w0)"
+		printf "TODOSECRET=%s\\n" "$(password_manager full vikunja | awk '/secret:/ {print $2}')"
 	} >"$directory_script/.env"
 	# make network, if not existing
 	if ! printf "%s" "$(docker network ls)" | grep -q "proxy"; then
