@@ -73,6 +73,18 @@ services:
       caddy.reverse_proxy: "{{upstreams 5000}}"
     restart: unless-stopped
 
+  docker-rss:
+    image: theconnman/docker-hub-rss
+    container_name: docker-rss
+    restart: unless-stopped
+    depends_on:
+      - caddy
+    networks:
+      - proxy
+    labels:
+      caddy: dock.$DOMAIN
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+
   echoip:
     image: mpolden/echoip
     container_name: echoip
