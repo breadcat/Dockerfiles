@@ -82,10 +82,7 @@ function blog_duolingo_rank {
 	echo -n "Appending ranks to page... "
 	echo "| $(date +%F) | $(date +%H:%M) | $rank_streak | $rank_lingot |" | tr -d \' >>"$rank_filename"
 	echo -e "$i \e[32mdone\e[39m"
-	echo -n "Amending lastmod value... "
-	mod_timestamp="$(date +%FT%H:%M:00)"
-	sed -i "s/lastmod: .*/lastmod: $mod_timestamp/g" "$rank_filename"
-	echo -e "$i \e[32mdone\e[39m"
+	lastmod "$rank_filename"
 }
 function docker_build {
 	cd "$directory_script" || exit
@@ -528,14 +525,18 @@ function process_music {
 		printf "%s" "$(paste temp.artists.log temp.tracks.log temp.links.log | sed 's/\t/ \| /g' | sed 's/^/\| /g' | sed 's/$/ \|/g' | sed 's/\] | (/\](/g')" | sort | uniq -i | sed -e '1i\| ------ \| ----- \|' | sed -e '1i\| Artist \| Title \|'
 	} >"$post"
 	echo -e "\e[32mdone\e[39m"
-	echo -n "Amending lastmod value... "
-	mod_timestamp="$(date +%FT%H:%M:00)"
-	sed -i "s/lastmod: .*/lastmod: $mod_timestamp/g" "$post"
-	echo -e "\e[32mdone\e[39m"
+	lastmod "$post"
 	echo -n "Deleting temporary files... "
 	rm temp.{artists,tracks,links}.log
 	echo -e "\e[32mdone\e[39m"
 }
+
+function lastmod {
+	echo -n "Amending lastmod value... "
+	mod_timestamp="$(date +%FT%H:%M:00)"
+	sed -i "s/lastmod: .*/lastmod: $mod_timestamp/g" "$1"
+	echo -e "$i \e[32mdone\e[39m"
+	}
 
 function main {
 	distro="$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)"
