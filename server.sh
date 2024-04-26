@@ -531,6 +531,27 @@ function process_music {
 	echo -e "\e[32mdone\e[39m"
 }
 
+function sort_languages {
+	for i in "$(find_directory blog."$domain")"/content/languages/*; do
+		if [[ "$i" = *index.md ]]; then continue; fi # there's probably a better way of doing this, but I can't figure it out
+		echo -n "Processing $(basename "$i")... "
+		shasum_original="$(sha512sum "$i" | awk '{print $1}')"
+		file_header="$(head -n 8 "$i")"
+		file_body="$(tail -n +9 "$i" | sort | uniq -i)"
+		{
+			printf "%s\n" "$file_header"
+			printf "%s" "$file_body"
+		} >"$i"
+		shasum_modified="$(sha512sum "$i" | awk '{print $1}')"
+		if [[ "$shasum_original" != "$shasum_modified" ]]; then
+			lastmod "$i" 1> /dev/null
+			echo -e "\e[32mmodified\e[39m"
+		else
+			echo -e "\e[33munmodified\e[39m"
+		fi
+	done
+}
+
 function lastmod {
 	echo -n "Amending lastmod value... "
 	mod_timestamp="$(date +%FT%H:%M:00)"
@@ -554,6 +575,7 @@ function main {
 	dedupe) remotes_dedupe ;;
 	depends) check_depends ;;
 	docker) docker_build ;;
+	langs) sort_languages ;;
 	logger) media_logger ;;
 	magnet) parse_magnets ;;
 	mount) mount_remote "$@" ;;
