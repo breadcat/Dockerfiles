@@ -37,16 +37,11 @@ services:
     restart: unless-stopped
 
   cgit:
-    image: chruth/alpine-cgit
+    image: brettinternet/cgit:latest
     container_name: cgit
-    environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
     volumes:
-      - $SYNCDIR/src:/git
-      - $SYNCDIR/src/dockerfiles/configs/cgitrc:/config/cgitrc
-      - $SYNCDIR/src/dockerfiles/configs/cgit.css:/config/static/cgit.css
+      - $SYNCDIR/src:/srv/git
+      - $SYNCDIR/src/dockerfiles/configs/cgit.css:/usr/share/webapps/cgit/cgit.css
     restart: unless-stopped
     depends_on:
       - caddy
