@@ -532,6 +532,25 @@ function process_music {
 	echo -e "\e[32mdone\e[39m"
 }
 
+function blog_quote_sort {
+	quote_file="$(find_directory blog."$domain")"/content/quotes.md
+	file_header="$(head -n 7 "$quote_file")"
+	file_body="$(tail -n +7 "$quote_file" | sort | uniq -i | sed G)"
+	echo -n "Processing $(basename "$quote_file")... "
+	shasum_original="$(sha512sum "$quote_file" | awk '{print $1}')"
+	{
+		printf "%s\n" "$file_header"
+		printf "%s" "$file_body"
+	} >"$quote_file"
+	shasum_modified="$(sha512sum "$quote_file" | awk '{print $1}')"
+	if [[ "$shasum_original" != "$shasum_modified" ]]; then
+		lastmod "$i" 1>/dev/null
+		echo -e "\e[32mmodified\e[39m"
+	else
+		echo -e "\e[33munmodified\e[39m"
+	fi
+}
+
 function sort_languages {
 	for i in "$(find_directory blog."$domain")"/content/languages/*; do
 		if [[ "$i" = *index.md ]]; then continue; fi # there's probably a better way of doing this, but I can't figure it out
@@ -583,6 +602,7 @@ function main {
 	music) process_music "$@" ;;
 	permissions) check_root && chown "$username":"$username" "$directory_script/rclone.conf" ;;
 	photos) parse_photos ;;
+	quotes) blog_quote_sort ;;
 	rank) blog_duolingo_rank ;;
 	refresh) remotes_tokens ;;
 	size) remote_sizes ;;
