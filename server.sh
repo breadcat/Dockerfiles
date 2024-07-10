@@ -564,7 +564,7 @@ function sort_languages {
 		} >"$i"
 		shasum_modified="$(sha512sum "$i" | awk '{print $1}')"
 		if [[ "$shasum_original" != "$shasum_modified" ]]; then
-			lastmod "$i" 1> /dev/null
+			lastmod "$i" 1>/dev/null
 			echo -e "\e[32mmodified\e[39m"
 		else
 			echo -e "\e[33munmodified\e[39m"
