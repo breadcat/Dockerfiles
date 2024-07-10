@@ -500,6 +500,7 @@ function process_music {
 		awk -F'\",\"' '{print $2}' |
 		sed 's/ - .... - Remaster$//g' |
 		sed 's/ - .... Remaster$//g' |
+		sed 's/ - .... Remastered Edition$//g' |
 		sed 's/ - .... re-mastered version$//g' |
 		sed 's/ - .... Remastered Version$//g' |
 		sed 's/ - feat.*$//g' |
