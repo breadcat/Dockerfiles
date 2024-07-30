@@ -55,6 +55,7 @@ services:
     image: linuxserver/changedetection.io
     container_name: changedetection
     environment:
+      - LC_ALL=en_US.UTF-8
       - PGID=$PGID
       - PUID=$PUID
     volumes:
