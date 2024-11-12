@@ -522,7 +522,7 @@ function process_music {
 	# write page
 	echo -n "Writing page... "
 	{
-		printf "%s\n" "$header"
+		printf "%s\n\n" "$header"
 		printf "%s" "$(paste temp.artists.log temp.tracks.log temp.links.log | sed 's/\t/ \| /g' | sed 's/^/\| /g' | sed 's/$/ \|/g' | sed 's/\] | (/\](/g')" | sort | uniq -i | sed -e '1i\| ------ \| ----- \|' | sed -e '1i\| Artist \| Title \|'
 	} >"$post"
 	echo -e "\e[32mdone\e[39m"
