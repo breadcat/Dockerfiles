@@ -92,6 +92,24 @@ services:
       caddy: ip.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 8080}}"
 
+  freshrss:
+    image: lscr.io/linuxserver/freshrss
+    container_name: freshrss
+    restart: unless-stopped
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TZ
+    volumes:
+      - $DOCKDIR/freshrss:/config
+    depends_on:
+      - caddy
+    networks:
+      - proxy
+    labels:
+      caddy: fresh.$DOMAIN
+      caddy.reverse_proxy: "{{upstreams 80}}"
+
   h5ai:
     image: awesometic/h5ai
     container_name: h5ai
