@@ -50,7 +50,7 @@ services:
       caddy.reverse_proxy: "{{upstreams 80}}"
 
   changedetection:
-    image: linuxserver/changedetection.io
+    image: lscr.io/linuxserver/changedetection.io
     container_name: changedetection
     environment:
       - LC_ALL=en_US.UTF-8
@@ -145,7 +145,7 @@ services:
       caddy.reverse_proxy: "{{upstreams 1313}}"
 
   jackett:
-    image: linuxserver/jackett
+    image: lscr.io/linuxserver/jackett
     container_name: jackett
     environment:
       - PGID=$PGID
