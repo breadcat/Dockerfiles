@@ -107,7 +107,7 @@ services:
     networks:
       - proxy
     labels:
-      caddy: fresh.$DOMAIN
+      caddy: rss.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 80}}"
 
   h5ai:
@@ -162,17 +162,6 @@ services:
     labels:
       caddy: jack.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 9117}}"
-
-  postgres:
-    image: postgres:alpine
-    container_name: postgres
-    restart: unless-stopped
-    ports:
-      - 5432:5432
-    environment:
-      - POSTGRES_PASSWORD=$DBPASSWORD
-    volumes:
-      - $DOCKDIR/postgres:/var/lib/postgresql/data
 
   transmission:
     image: haugene/transmission-openvpn
@@ -241,26 +230,6 @@ services:
     volumes:
       - $DOCKDIR/transmission-rss/transmission-rss.conf:/etc/transmission-rss.conf
       - $DOCKDIR/transmission-rss/transmission-rss.seen:/etc/transmission-rss.seen
-
-  ttrss:
-    image: wangqiru/ttrss
-    container_name: ttrss
-    restart: unless-stopped
-    environment:
-      - SELF_URL_PATH=https://rss.$DOMAIN/
-      - DB_HOST=$DOMAIN
-      - DB_PASS=$DBPASSWORD
-      - DB_PORT=5432
-      - DB_TYPE=pgsql
-      - DB_USER=postgres
-    depends_on:
-      - postgres
-      - caddy
-    networks:
-      - proxy
-    labels:
-      caddy: rss.$DOMAIN
-      caddy.reverse_proxy: "{{upstreams 80}}"
 
   vaultwarden:
     image: vaultwarden/server:alpine
