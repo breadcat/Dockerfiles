@@ -119,6 +119,7 @@ services:
       - TZ=$TZ
     volumes:
       - $SYNCDIR/pub:/h5ai
+      - $TANKDIR/complete:/h5ai/.tank
       - $SYNCDIR/src/dockerfiles/configs/h5ai.css:/config/h5ai/_h5ai/public/css/styles.css
     restart: unless-stopped
     depends_on:
@@ -128,6 +129,7 @@ services:
     labels:
       caddy: pub.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 80}}"
+      caddy.basicauth: "/.tank/*"
 
   hugo:
     image: klakegg/hugo
