@@ -130,6 +130,7 @@ services:
       caddy: pub.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 80}}"
       caddy.basicauth: "/.tank/*"
+      caddy.basicauth.peter: "$HTPASSWD"
 
   hugo:
     image: klakegg/hugo
