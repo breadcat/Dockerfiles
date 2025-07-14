@@ -34,21 +34,6 @@ services:
       - $DOCKDIR/caddy:/data
     restart: unless-stopped
 
-  cgit:
-    image: brettinternet/cgit:latest
-    container_name: cgit
-    volumes:
-      - $SYNCDIR/src:/srv/git
-      - $SYNCDIR/src/dockerfiles/configs/cgit.css:/usr/share/webapps/cgit/cgit.css
-    restart: unless-stopped
-    depends_on:
-      - caddy
-    networks:
-      - proxy
-    labels:
-      caddy: git.$DOMAIN
-      caddy.reverse_proxy: "{{upstreams 80}}"
-
   changedetection:
     image: lscr.io/linuxserver/changedetection.io
     container_name: changedetection
@@ -165,6 +150,23 @@ services:
     labels:
       caddy: jack.$DOMAIN
       caddy.reverse_proxy: "{{upstreams 9117}}"
+
+  stagit:
+    image: lscr.io/linuxserver/nginx
+    container_name: stagit
+    environment:
+      - PGID=$PGID
+      - PUID=$PUID
+    volumes:
+      - $DOCKDIR/stagit:/config/www
+    restart: unless-stopped
+    depends_on:
+      - caddy
+    networks:
+      - proxy
+    labels:
+      caddy: git.$DOMAIN
+      caddy.reverse_proxy: "{{upstreams 80}}"
 
   transmission:
     image: haugene/transmission-openvpn

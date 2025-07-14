@@ -577,7 +577,29 @@ function lastmod {
 	mod_timestamp="$(date +%FT%H:%M:00)"
 	sed -i "s/lastmod: .*/lastmod: $mod_timestamp/g" "$1"
 	echo -e "$i \e[32mdone\e[39m"
-	}
+}
+
+function stagit_generate {
+	# variables
+	source_directory="$(find_directory vault)/src"
+	source_stylesheet="$(find_directory vault)/src/dockerfiles/configs/stagit.css"
+	destination_directory="$(find_directory docker)/stagit"
+	repositories=$(find "$source_directory" -type d -name '.git' | sed 's|/\.git$||')
+	# stagit loop
+	for repo in $repositories; do
+		bare_name=$(basename "$repo")
+		output_directory="$destination_directory/$bare_name"
+		mkdir -p "$output_directory"
+		cd "$output_directory" || exit
+		echo "Generating $bare_name..."
+		stagit "$repo"
+		cp "$source_stylesheet" "style.css"
+	done
+	# index
+	cd "$destination_directory" || exit
+	stagit-index "${source_directory}/"*/ >index.html
+	cp "$source_stylesheet" "style.css"
+}
 
 function main {
 	distro="$(awk -F'"' '/^NAME/ {print $2}' /etc/os-release)"
@@ -607,6 +629,7 @@ function main {
 	refresh) remotes_tokens ;;
 	size) remote_sizes ;;
 	sort) sort_media ;;
+	stagit) stagit_generate ;;
 	status) blog_status ;;
 	streak) duolingo_streak ;;
 	sync) remotes_sync "$@" ;;
