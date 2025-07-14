@@ -7,8 +7,8 @@ html {
 
 body {
 	margin: 5rem auto;
-	color: #222;
-	background-color: #fff;
+	color: #aaa;
+	background-color: #272727;
 	font-family: monospace;
 	width: 66rem;
 }
@@ -29,14 +29,12 @@ img {
 	border: 0;
 }
 
-a:target {
-	background-color: #ccc;
-}
-
+a,
 a.d,
 a.h,
 a.i,
 a.line {
+	color: #3498db;
 	text-decoration: none;
 }
 
@@ -125,11 +123,6 @@ article img {
 	color: #777;
 }
 
-#blob a:hover {
-	color: blue;
-	text-decoration: none;
-}
-
 table thead td {
 	font-weight: bold;
 }
@@ -148,7 +141,7 @@ table td {
 #index tr:hover td,
 #log tr:hover td,
 #files tr:hover td {
-	background-color: #eee;
+	background-color: #414141;
 }
 
 #index tr td:nth-child(2),
@@ -176,26 +169,16 @@ pre {
 	font-family: monospace;
 }
 
-pre a.h {
-	color: #00a;
-}
-
 .A,
 span.i,
 pre a.i {
-	color: #070;
+	color: #29b74e;
 }
 
 .D,
 span.d,
 pre a.d {
-	color: #e00;
-}
-
-pre a.h:hover,
-pre a.i:hover,
-pre a.d:hover {
-	text-decoration: none;
+	color: #e42533;
 }
 
 .url td:nth-child(2) {
