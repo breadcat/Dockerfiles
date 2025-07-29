@@ -2,7 +2,7 @@
 
 # functions
 function find_directory {
-	find "$directory_home" -maxdepth 3 -mount -type d -name "$1" 2>/dev/null
+	find "$directory_home" -maxdepth 3 -mount -type d -name "$1" -not -path "*/docker/stagit/*" 2>/dev/null
 }
 function find_remote {
 	rclone listremotes | awk -v remote="$1" '$0 ~ remote {print $0;exit}'
