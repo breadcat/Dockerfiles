@@ -1,3 +1,5 @@
+This project has now been superseded by [nix-configs](https://github.com/breadcat/nix-configs).
+
 # Dockerfiles
 
 Personal docker files and scripts for use on a home server.
